@@ -59,9 +59,36 @@ export async function POST(request: NextRequest) {
 
     const { name, price, stock, category, emoji, description, brand } = await request.json();
 
-    if (!name || !price || stock === undefined || !category) {
+    // Check for missing required fields
+    if (!name || price === undefined || stock === undefined || !category) {
       return NextResponse.json(
         { success: false, message: 'Missing required fields' },
+        { status: 400 }
+      );
+    }
+
+    // ✅ Validate price - cannot be negative
+    const parsedPrice = parseFloat(price);
+    if (isNaN(parsedPrice) || parsedPrice < 0) {
+      return NextResponse.json(
+        { success: false, message: 'Price cannot be negative' },
+        { status: 400 }
+      );
+    }
+
+    // ✅ Validate stock - cannot be negative
+    const parsedStock = parseInt(stock);
+    if (isNaN(parsedStock) || parsedStock < 0) {
+      return NextResponse.json(
+        { success: false, message: 'Stock quantity cannot be negative' },
+        { status: 400 }
+      );
+    }
+
+    // ✅ Validate product name is not empty
+    if (!name.trim()) {
+      return NextResponse.json(
+        { success: false, message: 'Product name cannot be empty' },
         { status: 400 }
       );
     }
@@ -71,8 +98,8 @@ export async function POST(request: NextRequest) {
 
     const product: Inventory = {
       product_name: name,
-      price: parseFloat(price),
-      stock_quantity: parseInt(stock),
+      price: parsedPrice,
+      stock_quantity: parsedStock,
       category,
       brand,
       emoji,

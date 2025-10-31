@@ -59,6 +59,39 @@ export async function PATCH(
     }
 
     const updates = await request.json();
+    
+    // ✅ Validate price if being updated
+    if (updates.price !== undefined) {
+      const parsedPrice = parseFloat(updates.price);
+      if (isNaN(parsedPrice) || parsedPrice < 0) {
+        return NextResponse.json(
+          { success: false, message: 'Price cannot be negative' },
+          { status: 400 }
+        );
+      }
+      updates.price = parsedPrice;
+    }
+
+    // ✅ Validate stock_quantity if being updated
+    if (updates.stock_quantity !== undefined) {
+      const parsedStock = parseInt(updates.stock_quantity);
+      if (isNaN(parsedStock) || parsedStock < 0) {
+        return NextResponse.json(
+          { success: false, message: 'Stock quantity cannot be negative' },
+          { status: 400 }
+        );
+      }
+      updates.stock_quantity = parsedStock;
+    }
+
+    // ✅ Validate product_name if being updated
+    if (updates.product_name !== undefined && !updates.product_name.trim()) {
+      return NextResponse.json(
+        { success: false, message: 'Product name cannot be empty' },
+        { status: 400 }
+      );
+    }
+
     const allowedFields = ['product_name', 'price', 'stock_quantity', 'category', 'emoji', 'description', 'brand'];
     
     const filteredUpdates = Object.keys(updates)
