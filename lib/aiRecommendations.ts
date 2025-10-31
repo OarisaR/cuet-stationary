@@ -54,6 +54,8 @@ ${userHistory.length > 0 ? `- Previous purchases: ${userHistory.join(", ")}` : "
 AVAILABLE PRODUCTS (NOT in cart):
 ${productList}
 
+//Task for the AI for AI recommendation
+
 TASK:
 Select exactly 4 products that would be most valuable additions to their cart. Consider:
 
