@@ -2,6 +2,31 @@
 
 A full-stack e-commerce platform for university stationary supplies built with Next.js 15, MongoDB, and TypeScript. The application supports two user roles: **Students** (customers) and **Admins** (vendors/sellers who manage the shared inventory).
 
+## 📊 Project Management
+
+This project is managed using **Jira** with Kanban methodology.
+
+**🔗 Jira Board**: [View our Kanban Board](https://dipannitapaulorni.atlassian.net/jira/software/projects/CCS/boards/1)
+
+### Development Timeline
+- **Start Date**: October 31, 2025
+- **End Date**: January 18, 2026
+- **Duration**: ~2.5 months
+- **Total Tasks**: 18 completed
+- **Workflow**: TO DO → IN PROGRESS → DONE
+
+### Key Milestones
+- ✅ Project Setup & Infrastructure (Oct 31 - Nov 5)
+- ✅ Authentication System (Nov 6 - Nov 15)
+- ✅ Student Features (Nov 16 - Nov 22)
+- ✅ Vendor/Admin Dashboard (Nov 23 - Nov 26)
+- ✅ Database Migration & Refactoring (Dec 28 - Jan 5)
+- ✅ Inventory & API Improvements (Jan 6 - Jan 8)
+- ✅ AI Product Recommendations (Jan 10)
+- ✅ Testing & CI/CD Pipeline (Jan 16)
+- ✅ Documentation (Jan 18)
+
+
 ## Tech Stack
 
 - **Frontend**: Next.js 15 (App Router), React 19, TypeScript
