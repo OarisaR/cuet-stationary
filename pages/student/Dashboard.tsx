@@ -54,6 +54,8 @@ const Dashboard = () => {
     });
   };
 
+  //all the delivery status
+
   const getStatusClass = (status: string) => {
     switch (status) {
       case "delivered": return "status-delivered";
