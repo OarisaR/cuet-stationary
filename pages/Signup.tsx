@@ -45,11 +45,10 @@ const Signup = () => {
         </div>
 
         {/* Signup Card */}
-        <div className="auth-card">
+        <div className="auth-card" style={{width: "800px" ,  marginLeft:"-150px"  }}>
           
           {/* Header */}
           <div className="auth-header">
-            <div className="auth-logo">✦ CUET STATIONARY</div>
             <h1 className="auth-title">Join Us!</h1>
             <p className="auth-subtitle">Create your account</p>
           </div>

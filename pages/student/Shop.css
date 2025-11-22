@@ -1,0 +1,213 @@
+/* Shop Page */
+.shop-page {
+    min-height: 100vh;
+    background: linear-gradient(180deg, rgb(184, 196, 169) 0%, rgb(194, 206, 179) 100%);
+    padding: 5rem 1.5rem 2rem;
+  }
+  
+  .shop-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  /* Page Header */
+  .shop-header {
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  
+  .shop-title {
+    font-family: 'Playfair Display', 'Georgia', serif;
+    font-size: 2rem;
+    font-weight: 800;
+    color: #5a6c7d;
+    margin-bottom: 0.4rem;
+    text-shadow: 2px 2px 0px rgba(217, 125, 85, 0.2);
+  }
+  
+  .shop-subtitle {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.9rem;
+    color: #6b7c8f;
+    font-weight: 500;
+  }
+  
+  /* Search Bar */
+  .shop-search-bar {
+    display: flex;
+    max-width: 600px;
+    margin: 0 auto 2rem;
+    gap: 0;
+  }
+  
+  .shop-search-input {
+    flex: 1;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.9rem;
+    padding: 0.8rem 1.2rem;
+    border: 2px solid #5a6c7d;
+    border-right: none;
+    background: white;
+    color: #5a6c7d;
+    font-weight: 500;
+    outline: none;
+    transition: all 0.2s ease;
+    box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.2);
+  }
+  
+  .shop-search-input::placeholder {
+    color: #b0bac5;
+  }
+  
+  .shop-search-input:focus {
+    border-color: rgb(217, 125, 85);
+    box-shadow: 4px 4px 0px rgba(217, 125, 85, 0.3);
+  }
+  
+  .shop-search-btn {
+    padding: 0.8rem 1.5rem;
+    background: rgb(111, 164, 175);
+    border: 2px solid #5a6c7d;
+    color: white;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.3);
+  }
+  
+  .shop-search-btn:hover {
+    background: rgb(101, 154, 165);
+    transform: translateY(-1px);
+    box-shadow: 4px 4px 0px rgba(90, 108, 125, 0.4);
+  }
+  
+  /* Filters */
+  .shop-filters {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+    justify-content: center;
+  }
+  
+  .filter-btn {
+    background: white;
+    border: 2px solid #5a6c7d;
+    color: #5a6c7d;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  
+  .filter-btn:hover {
+    background: rgba(111, 164, 175, 0.1);
+    border-color: rgb(111, 164, 175);
+    color: rgb(111, 164, 175);
+  }
+  
+  .filter-btn.active {
+    background: rgb(217, 125, 85);
+    color: white;
+    border-color: #5a6c7d;
+    box-shadow: 2px 2px 0px rgba(90, 108, 125, 0.4);
+  }
+  
+  /* Products Grid */
+  .shop-products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1.2rem;
+  }
+  
+  .shop-product-card {
+    background: white;
+    padding: 1.2rem;
+    border: 2px solid #5a6c7d;
+    box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.3);
+    text-align: center;
+    transition: all 0.2s ease;
+  }
+  
+  .shop-product-card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0px rgba(90, 108, 125, 0.4);
+  }
+  
+  .shop-product-image {
+    font-size: 3rem;
+    margin-bottom: 0.8rem;
+    filter: drop-shadow(2px 2px 0px rgba(90, 108, 125, 0.15));
+  }
+  
+  .shop-product-name {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #5a6c7d;
+    margin: 0 0 0.4rem 0;
+    min-height: 2.5rem;
+  }
+  
+  .shop-product-price {
+    font-family: 'Playfair Display', 'Georgia', serif;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: rgb(217, 125, 85);
+    margin: 0 0 0.8rem 0;
+  }
+  
+  .shop-product-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .shop-add-cart-btn {
+    flex: 1;
+    background: rgb(111, 164, 175);
+    color: white;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 0.5rem;
+    border: 2px solid #5a6c7d;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    box-shadow: 2px 2px 0px rgba(90, 108, 125, 0.3);
+  }
+  
+  .shop-add-cart-btn:hover {
+    background: rgb(101, 154, 165);
+    transform: translateY(-1px);
+    box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.4);
+  }
+  
+  .shop-wishlist-btn {
+    background: white;
+    border: 2px solid #5a6c7d;
+    color: rgb(217, 125, 85);
+    font-size: 1.2rem;
+    padding: 0.5rem 0.7rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 2px 2px 0px rgba(90, 108, 125, 0.3);
+  }
+  
+  .shop-wishlist-btn:hover {
+    background: rgba(217, 125, 85, 0.1);
+    transform: translateY(-1px);
+    box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.4);
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .shop-products-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }

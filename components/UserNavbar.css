@@ -1,0 +1,197 @@
+/* User Header */
+.user-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: rgba(244, 233, 215, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 2px solid rgba(90, 108, 125, 0.3);
+    box-shadow: 0 3px 15px rgba(90, 108, 125, 0.1);
+    padding: 0 1.5rem;
+  }
+  
+  .user-nav {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 0.6rem 0;
+  }
+  
+  /* Brand */
+  .user-brand {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: white;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    padding: 0.4rem 0.9rem;
+    background: rgb(217, 125, 85);
+    border: 2px solid #5a6c7d;
+    box-shadow: 2px 2px 0px #5a6c7d;
+    transition: all 0.2s ease;
+  }
+  
+  .brand-star {
+    font-size: 0.9rem;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+  }
+  
+  .user-brand:hover {
+    transform: translateY(-1px);
+    box-shadow: 3px 3px 0px #5a6c7d;
+  }
+  
+  /* Search Bar - Removed */
+  
+  /* Navigation Links */
+  .user-links {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .user-links li {
+    margin: 0;
+  }
+  
+  .user-links button {
+    background: transparent;
+    border: none;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #5a6c7d;
+    padding: 0.45rem 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    outline: none;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    border: 2px solid transparent;
+  }
+  
+  .user-links button:hover {
+    color: rgb(217, 125, 85);
+    border: 2px solid rgb(217, 125, 85);
+  }
+  
+  .user-links button.active {
+    color: white;
+    background: rgb(111, 164, 175);
+    border: 2px solid #5a6c7d;
+    box-shadow: 2px 2px 0px #5a6c7d;
+  }
+  
+  /* User Actions */
+  .user-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  
+  .cart-btn {
+    position: relative;
+    background: transparent;
+    border: 2px solid #5a6c7d;
+    padding: 0.45rem 0.8rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .cart-btn:hover {
+    background: rgba(111, 164, 175, 0.1);
+    border-color: rgb(111, 164, 175);
+  }
+  
+  .cart-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: rgb(217, 125, 85);
+    color: white;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 0.15rem 0.4rem;
+    border: 2px solid #5a6c7d;
+    min-width: 18px;
+    text-align: center;
+  }
+  
+  .logout-btn {
+    background: rgb(184, 196, 169);
+    color: white;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 800;
+    padding: 0.45rem 1.2rem;
+    border: 2px solid #5a6c7d;
+    box-shadow: 2px 2px 0px #5a6c7d;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .logout-btn:hover {
+    background: rgb(174, 186, 159);
+    transform: translateY(-1px);
+    box-shadow: 3px 3px 0px #5a6c7d;
+  }
+  
+  .logout-btn:active {
+    transform: translateY(0);
+    box-shadow: 1px 1px 0px #5a6c7d;
+  }
+  
+  /* Responsive */
+  @media (max-width: 968px) {
+    .user-nav {
+      gap: 1rem;
+    }
+  
+    .user-links {
+      gap: 0.3rem;
+    }
+  
+    .user-links button {
+      font-size: 0.75rem;
+      padding: 0.4rem 0.7rem;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .user-links button {
+      padding: 0.4rem 0.6rem;
+    }
+  }
+  
+  @media (max-width: 600px) {
+    .user-brand {
+      font-size: 0.75rem;
+      padding: 0.35rem 0.7rem;
+    }
+  
+    .user-links {
+      display: none;
+    }
+  }

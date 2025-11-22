@@ -1,0 +1,285 @@
+/* Orders Page */
+.orders-page {
+    min-height: 100vh;
+    background: linear-gradient(180deg, rgb(244, 233, 215) 0%, rgb(250, 245, 235) 100%);
+    padding: 5rem 1.5rem 2rem;
+  }
+  
+  .orders-container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  
+  /* Page Header */
+  .orders-header {
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+  
+  .orders-title {
+    font-family: 'Playfair Display', 'Georgia', serif;
+    font-size: 2rem;
+    font-weight: 800;
+    color: #5a6c7d;
+    margin-bottom: 0.4rem;
+    text-shadow: 2px 2px 0px rgba(217, 125, 85, 0.2);
+  }
+  
+  .orders-subtitle {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.9rem;
+    color: #6b7c8f;
+    font-weight: 500;
+  }
+  
+  /* Filters */
+  .orders-filters {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+    justify-content: center;
+  }
+  
+  .orders-filter-btn {
+    background: white;
+    border: 2px solid #5a6c7d;
+    color: #5a6c7d;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  
+  .orders-filter-btn:hover {
+    background: rgba(111, 164, 175, 0.1);
+    border-color: rgb(111, 164, 175);
+    color: rgb(111, 164, 175);
+  }
+  
+  .orders-filter-btn.active {
+    background: rgb(217, 125, 85);
+    color: white;
+    border-color: #5a6c7d;
+    box-shadow: 2px 2px 0px rgba(90, 108, 125, 0.4);
+  }
+  
+  /* Orders List */
+  .orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+  
+  /* No Orders */
+  .no-orders {
+    background: white;
+    padding: 3rem;
+    border: 2px solid #5a6c7d;
+    box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.3);
+    text-align: center;
+  }
+  
+  .no-orders-icon {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .no-orders-text {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.95rem;
+    color: #6b7c8f;
+    font-weight: 600;
+  }
+  
+  /* Order Card */
+  .order-card {
+    background: white;
+    padding: 1.2rem;
+    border: 2px solid #5a6c7d;
+    box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.3);
+    transition: all 0.2s ease;
+  }
+  
+  .order-card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0px rgba(90, 108, 125, 0.4);
+  }
+  
+  .order-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 1rem;
+    border-bottom: 2px dashed rgba(90, 108, 125, 0.2);
+    margin-bottom: 1rem;
+  }
+  
+  .order-id-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  
+  .order-label {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.7rem;
+    color: #6b7c8f;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  
+  .order-id {
+    font-family: 'Playfair Display', 'Georgia', serif;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #5a6c7d;
+  }
+  
+  .order-badge {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.4rem 0.9rem;
+    border: 2px solid;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  
+  .badge-delivered {
+    background: rgba(184, 196, 169, 0.2);
+    color: rgb(100, 120, 85);
+    border-color: rgb(184, 196, 169);
+  }
+  
+  .badge-shipping {
+    background: rgba(111, 164, 175, 0.2);
+    color: rgb(80, 130, 140);
+    border-color: rgb(111, 164, 175);
+  }
+  
+  .badge-processing {
+    background: rgba(217, 125, 85, 0.2);
+    color: rgb(180, 100, 65);
+    border-color: rgb(217, 125, 85);
+  }
+  
+  .badge-cancelled {
+    background: rgba(200, 100, 100, 0.2);
+    color: rgb(150, 70, 70);
+    border-color: rgb(200, 100, 100);
+  }
+  
+  .order-card-body {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .order-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  
+  .detail-label {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.7rem;
+    color: #6b7c8f;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  
+  .detail-value {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.85rem;
+    color: #5a6c7d;
+    font-weight: 700;
+  }
+  
+  .detail-price {
+    font-family: 'Playfair Display', 'Georgia', serif;
+    font-size: 1.1rem;
+    color: rgb(217, 125, 85);
+    font-weight: 800;
+  }
+  
+  .order-card-actions {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+  
+  .order-btn {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.5rem 1rem;
+    border: 2px solid;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    flex: 1;
+    min-width: 120px;
+  }
+  
+  .order-btn-primary {
+    background: rgb(111, 164, 175);
+    color: white;
+    border-color: #5a6c7d;
+    box-shadow: 2px 2px 0px rgba(90, 108, 125, 0.3);
+  }
+  
+  .order-btn-primary:hover {
+    background: rgb(101, 154, 165);
+    transform: translateY(-1px);
+    box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.4);
+  }
+  
+  .order-btn-secondary {
+    background: white;
+    color: #5a6c7d;
+    border-color: #5a6c7d;
+  }
+  
+  .order-btn-secondary:hover {
+    background: rgba(90, 108, 125, 0.05);
+  }
+  
+  .order-btn-cancel {
+    background: transparent;
+    color: rgb(200, 100, 100);
+    border-color: rgb(200, 100, 100);
+  }
+  
+  .order-btn-cancel:hover {
+    background: rgba(200, 100, 100, 0.1);
+  }
+  
+  /* Responsive */
+  @media (max-width: 600px) {
+    .order-card-header {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+  
+    .order-card-body {
+      grid-template-columns: 1fr;
+    }
+  
+    .order-card-actions {
+      flex-direction: column;
+    }
+  
+    .order-btn {
+      width: 100%;
+    }
+  }
