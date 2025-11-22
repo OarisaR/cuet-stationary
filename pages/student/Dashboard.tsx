@@ -2,7 +2,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import "./Dashboard.css";
-
+import { FiPackage, FiHeart, FiStar } from "react-icons/fi";
 const Dashboard = () => {
   const router = useRouter();
 
@@ -19,7 +19,7 @@ const Dashboard = () => {
         {/* Stats Cards */}
         <div className="stats-grid">
           <div className="stat-card" onClick={() => router.push("/student/orders")}>
-            <div className="stat-icon">📦</div>
+          <div className="stat-icon" style={{color:" rgb(217, 125, 85)"}}><FiPackage /></div>
             <div className="stat-info">
               <h3 className="stat-number">3</h3>
               <p className="stat-label">Active Orders</p>
@@ -27,18 +27,10 @@ const Dashboard = () => {
           </div>
 
           <div className="stat-card" onClick={() => router.push("/student/wishlist")}>
-            <div className="stat-icon">❤️</div>
+            <div className="stat-icon"  style={{color:" rgb(217, 125, 85)"}}><FiHeart/></div>
             <div className="stat-info">
               <h3 className="stat-number">12</h3>
               <p className="stat-label">Wishlist Items</p>
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-icon">⭐</div>
-            <div className="stat-info">
-              <h3 className="stat-number">250</h3>
-              <p className="stat-label">Reward Points</p>
             </div>
           </div>
         </div>
@@ -134,3 +126,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+

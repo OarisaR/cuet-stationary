@@ -1,4 +1,6 @@
 /* Dashboard Page */
+
+/* orange --> rgb(217, 125, 85)*/
 .dashboard-page {
     min-height: 100vh;
     background: linear-gradient(180deg, rgb(244, 233, 215) 0%, rgb(250, 245, 235) 100%);
