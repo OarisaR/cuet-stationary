@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { MdEmail, MdPhone, MdLocationOn } from "react-icons/md";
 import "./Contact.css";
 
 const Contact = () => {
@@ -8,7 +9,9 @@ const Contact = () => {
     message: ""
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
@@ -18,7 +21,6 @@ const Contact = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Form submitted:", formData);
-    // Add your form submission logic here
     alert("Thank you for reaching out! We'll get back to you soon.");
     setFormData({ name: "", email: "", message: "" });
   };
@@ -26,7 +28,7 @@ const Contact = () => {
   return (
     <section id="contact" className="contact-section">
       <div className="contact-container">
-        
+
         {/* Section Header */}
         <div className="section-header">
           <span className="section-badge">Get in Touch</span>
@@ -38,7 +40,7 @@ const Contact = () => {
         </div>
 
         <div className="contact-content">
-          
+
           {/* Contact Form */}
           <div className="contact-form-wrapper">
             <form className="contact-form" onSubmit={handleSubmit}>
@@ -90,21 +92,42 @@ const Contact = () => {
 
           {/* Contact Info */}
           <div className="contact-info">
-            
+
             <div className="info-card">
-              <div className="info-icon">📧</div>
+              <MdEmail
+                style={{
+                  color: "rgb(217, 125, 85)",
+                  fontSize: "30px",
+                  marginLeft:"90px",
+                  marginBottom:"-30px"
+                }}
+              />
               <h3 className="info-title">Email Us</h3>
               <p className="info-text">support@cuetonline.com</p>
             </div>
 
             <div className="info-card">
-              <div className="info-icon">📞</div>
+              <MdPhone
+                style={{
+                  color: "rgb(217, 125, 85)",
+                  fontSize: "30px",
+                  marginLeft:"100px",
+                  marginBottom:"-30px"
+                }}
+              />
               <h3 className="info-title">Call Us</h3>
               <p className="info-text">+880 1234-567890</p>
             </div>
 
             <div className="info-card">
-              <div className="info-icon">📍</div>
+              <MdLocationOn
+                style={{
+                  color: "rgb(217, 125, 85)",
+                  fontSize: "30px",
+                  marginLeft:"100px",
+                  marginBottom:"-30px"
+                }}
+              />
               <h3 className="info-title">Visit Us</h3>
               <p className="info-text">Chittagong, Bangladesh</p>
             </div>

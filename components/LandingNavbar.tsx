@@ -25,7 +25,7 @@ const NavBar = () => {
           role="button"
           aria-label="Go to home"
         >
-          CUET Online Stationary
+          CUET Stationary
         </div>
 
         {/* Navigation Links */}

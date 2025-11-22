@@ -1,6 +1,9 @@
 import React from "react";
 import "./About.css";
 
+// React Icons
+import { FaBookOpen, FaStar, FaTruck, FaMoneyBillWave } from "react-icons/fa";
+
 const About = () => {
   return (
     <section id="about" className="about-section">
@@ -18,9 +21,9 @@ const About = () => {
 
         {/* Features Grid */}
         <div className="features-grid">
-          
+
           <div className="feature-card">
-            <div className="feature-icon">📚</div>
+            <FaBookOpen style={{ fontSize: "40px", color: "#4A90E2" , marginLeft:"80px",marginBottom:"10px" }} />
             <h3 className="feature-title">Wide Selection</h3>
             <p className="feature-description">
               From notebooks to art supplies, we offer a comprehensive range of 
@@ -29,7 +32,7 @@ const About = () => {
           </div>
 
           <div className="feature-card">
-            <div className="feature-icon">⭐</div>
+            <FaStar style={{ fontSize: "40px", color: "#F5A623" ,marginLeft:"80px",marginBottom:"10px" }} />
             <h3 className="feature-title">Premium Quality</h3>
             <p className="feature-description">
               We source only the highest quality products from trusted brands 
@@ -38,7 +41,7 @@ const About = () => {
           </div>
 
           <div className="feature-card">
-            <div className="feature-icon">🚚</div>
+            <FaTruck style={{ fontSize: "40px", color: "#7ED321",marginLeft:"80px",marginBottom:"10px"  }} />
             <h3 className="feature-title">Fast Delivery</h3>
             <p className="feature-description">
               Quick and reliable delivery service to get your stationary 
@@ -47,7 +50,7 @@ const About = () => {
           </div>
 
           <div className="feature-card">
-            <div className="feature-icon">💰</div>
+            <FaMoneyBillWave style={{ fontSize: "40px", color: "#D0021B",marginLeft:"80px",marginBottom:"10px"  }} />
             <h3 className="feature-title">Great Prices</h3>
             <p className="feature-description">
               Competitive pricing and regular discounts make quality stationary 
