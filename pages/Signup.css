@@ -1,0 +1,32 @@
+/* Import base auth styles from Login.css - both pages share the same styling */
+@import './Login.css';
+
+/* Additional styles specific to signup page */
+.form-agreement {
+  margin-top: -0.5rem;
+}
+
+.agreement-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.85rem;
+  color: #5a6c7d;
+  font-weight: 600;
+  cursor: pointer;
+  line-height: 1.5;
+}
+
+.agreement-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  border: 2px solid #5a6c7d;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.agreement-checkbox span {
+  flex: 1;
+}

@@ -1,0 +1,224 @@
+/* ========================================
+   YOUTH LINK - Landing Page Navbar
+   Professional + Minimalist Design
+   Colors: #CDEB3C (Lime) | #A78BFA (Purple)
+======================================== */
+
+/* Base styles */
+.yl-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: rgba(244, 233, 215, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 3px solid rgba(90, 108, 125, 0.3);
+  box-shadow: 0 4px 20px rgba(90, 108, 125, 0.15);
+  padding: 0 2rem;
+}
+
+.yl-nav {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: 1rem 0;
+}
+
+/* Brand/Logo */
+.yl-brand {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  color: white;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  position: relative;
+  padding: 0.5rem 1rem;
+  background: rgb(217, 125, 85);
+  border: 2px solid #5a6c7d;
+  box-shadow: 3px 3px 0px #5a6c7d;
+  transform: rotate(-1deg);
+}
+
+.yl-brand::before {
+  content: '✦';
+  font-size: 1rem;
+  color: white;
+  display: flex;
+  align-items: center;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+.yl-brand:hover {
+  transform: rotate(0deg) translateY(-1px);
+  box-shadow: 4px 4px 0px #5a6c7d;
+}
+
+.yl-brand:focus {
+  transform: rotate(0deg);
+}
+
+/* Navigation Links */
+.yl-links {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  justify-content: center;
+}
+
+.yl-links li {
+  margin: 0;
+}
+
+.yl-links button {
+  background: transparent;
+  border: none;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #5a6c7d;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border-radius: 0;
+  transition: all 0.2s ease;
+  position: relative;
+  outline: none;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 2px solid transparent;
+}
+
+.yl-links button::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 3px;
+  background: rgb(217, 125, 85);
+  transition: width 0.3s ease;
+}
+
+.yl-links button:hover {
+  color: rgb(217, 125, 85);
+  border: 2px solid rgb(217, 125, 85);
+  transform: translateY(-2px);
+}
+
+.yl-links button:hover::after {
+  width: 100%;
+}
+
+.yl-links button.active {
+  color: white;
+  background: rgb(111, 164, 175);
+  border: 2px solid #5a6c7d;
+  box-shadow: 2px 2px 0px #5a6c7d;
+  font-weight: 800;
+}
+
+.yl-links button.active::after {
+  display: none;
+}
+
+/* CTA Button */
+.yl-actions {
+  display: flex;
+  align-items: center;
+}
+
+.yl-cta {
+  display: inline-block;
+  padding: 0.6rem 1.5rem;
+  background: rgb(184, 196, 169);
+  color: white;
+  text-decoration: none;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 800;
+  border-radius: 0;
+  box-shadow: 3px 3px 0px #5a6c7d;
+  transition: all 0.2s ease;
+  border: 2px solid #5a6c7d;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.yl-cta:hover {
+  background: rgb(174, 186, 159);
+  box-shadow: 4px 4px 0px #5a6c7d;
+  transform: rotate(0deg) translate(-1px, -1px);
+}
+
+.yl-cta:active {
+  transform: rotate(0deg) translate(0, 0);
+  box-shadow: 2px 2px 0px #5a6c7d;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .yl-header {
+    padding: 0 1rem;
+  }
+
+  .yl-nav {
+    gap: 1rem;
+  }
+
+  .yl-brand {
+    font-size: 1rem;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .yl-links {
+    gap: 0.8rem;
+  }
+
+  .yl-links button {
+    font-size: 0.8rem;
+    padding: 0.6rem 1rem;
+  }
+
+  .yl-cta {
+    padding: 0.6rem 1.4rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .yl-links {
+    display: none;
+  }
+
+  .yl-nav {
+    justify-content: space-between;
+  }
+}
+
+/* Accessibility */
+.yl-brand:focus-visible,
+.yl-links button:focus-visible,
+.yl-cta:focus-visible {
+  outline: 3px solid rgb(217, 125, 85);
+  outline-offset: 3px;
+}

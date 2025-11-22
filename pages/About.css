@@ -1,0 +1,230 @@
+/* About Section */
+.about-section {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  background: 
+    repeating-linear-gradient(
+      90deg,
+      rgba(111, 164, 175, 0.05) 0px,
+      rgba(111, 164, 175, 0.05) 2px,
+      transparent 2px,
+      transparent 12px
+    ),
+    linear-gradient(180deg, rgb(184, 196, 169) 0%, rgb(194, 206, 179) 100%);
+  padding: 7rem 2rem;
+  position: relative;
+}
+
+.about-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Section Header */
+.section-header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.section-badge {
+  display: inline-block;
+  background: rgb(217, 125, 85);
+  color: white;
+  padding: 0.6rem 1.8rem;
+  border-radius: 0;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 1.5rem;
+  border: 3px solid #5a6c7d;
+  box-shadow: 5px 5px 0px #5a6c7d;
+  transform: rotate(-1deg);
+}
+
+.section-title {
+  font-family: 'Playfair Display', 'Georgia', serif;
+  font-size: 3rem;
+  font-weight: 900;
+  color: #5a6c7d;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+  text-shadow: 3px 3px 0px rgba(111, 164, 175, 0.3);
+  position: relative;
+  display: inline-block;
+  background: linear-gradient(180deg, transparent 65%, rgba(244, 233, 215, 0.6) 65%);
+  padding: 0 0.5rem;
+}
+
+.section-subtitle {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  color: #5a6c7d;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.7;
+  font-weight: 500;
+}
+
+/* Features Grid */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 2rem;
+  margin-bottom: 4rem;
+}
+
+.feature-card {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 2rem 2rem;
+  border-radius: 0;
+  text-align: center;
+  transition: all 0.3s ease;
+  border: 4px solid #5a6c7d;
+  box-shadow: 6px 6px 0px #5a6c7d;
+  position: relative;
+  transform: rotate(0deg);
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 30px;
+  height: 30px;
+  background: rgb(217, 125, 85);
+  border: 3px solid #5a6c7d;
+  transform: rotate(45deg);
+}
+
+.feature-card:hover {
+  transform: rotate(-1deg) translateY(-5px);
+  box-shadow: 10px 10px 0px #5a6c7d;
+  background: rgba(255, 255, 255, 1);
+}
+
+.feature-icon {
+  font-size: 3.5rem;
+  margin-bottom: 1.5rem;
+  filter: drop-shadow(3px 3px 0px rgba(90, 108, 125, 0.2));
+  display: inline-block;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.feature-card:nth-child(even) .feature-icon {
+  animation-delay: 0.3s;
+}
+
+.feature-title {
+  font-family: 'Playfair Display', 'Georgia', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #5a6c7d;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.feature-description {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.95rem;
+  color: #6b7c8f;
+  line-height: 1.7;
+  font-weight: 500;
+}
+
+/* Stats Section */
+.stats-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 3rem 2rem;
+  border-radius: 0;
+  border: 4px dashed #5a6c7d;
+  position: relative;
+}
+
+.stats-section::before {
+  content: '★';
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2.5rem;
+  color: rgb(217, 125, 85);
+  background: rgb(184, 196, 169);
+  padding: 0.3rem 1rem;
+  border: 3px solid #5a6c7d;
+}
+
+.stat-item {
+  text-align: center;
+  position: relative;
+  padding: 1rem;
+  border: 3px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+  border: 3px solid rgb(111, 164, 175);
+  background: rgba(111, 164, 175, 0.1);
+  transform: scale(1.05);
+}
+
+.stat-number {
+  font-family: 'Playfair Display', 'Georgia', serif;
+  font-size: 3rem;
+  font-weight: 900;
+  color: rgb(217, 125, 85);
+  margin-bottom: 0.5rem;
+  text-shadow: 2px 2px 0px rgba(90, 108, 125, 0.2);
+  position: relative;
+}
+
+.stat-label {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  color: #5a6c7d;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .about-section {
+    padding: 4rem 1.5rem;
+  }
+
+  .section-title {
+    font-size: 2.5rem;
+  }
+
+  .section-subtitle {
+    font-size: 1rem;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .stats-section {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+
+  .stat-number {
+    font-size: 2.5rem;
+  }
+}
