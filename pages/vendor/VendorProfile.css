@@ -1,0 +1,278 @@
+/* Vendor Profile Page */
+.vendor-profile-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, rgb(184, 196, 169) 0%, rgb(194, 206, 179) 100%);
+  padding: 5rem 1.5rem 2rem;
+}
+
+.vendor-profile-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Page Header */
+.vendor-profile-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.vendor-profile-title {
+  font-family: 'Playfair Display', 'Georgia', serif;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #5a6c7d;
+  margin-bottom: 0.4rem;
+  text-shadow: 2px 2px 0px rgba(217, 125, 85, 0.2);
+}
+
+.vendor-profile-subtitle {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+  color: #6b7c8f;
+  font-weight: 500;
+}
+
+/* Profile Content */
+.vendor-profile-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.vendor-profile-section {
+  background: white;
+  padding: 1.5rem;
+  border: 2px solid #5a6c7d;
+  box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.4);
+}
+
+.vendor-section-heading {
+  font-family: 'Playfair Display', 'Georgia', serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #5a6c7d;
+  margin: 0 0 1.2rem 0;
+  padding-bottom: 0.8rem;
+  border-bottom: 2px dashed rgba(90, 108, 125, 0.2);
+}
+
+/* Profile Form */
+.vendor-profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.vendor-profile-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.vendor-profile-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.vendor-profile-form-field label {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #5a6c7d;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.vendor-profile-form-field input,
+.vendor-profile-form-field textarea {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+  padding: 0.7rem 1rem;
+  border: 2px solid #5a6c7d;
+  background: white;
+  color: #5a6c7d;
+  transition: all 0.2s ease;
+  outline: none;
+  font-weight: 500;
+  box-shadow: 2px 2px 0px rgba(90, 108, 125, 0.2);
+}
+
+.vendor-profile-form-field input:focus,
+.vendor-profile-form-field textarea:focus {
+  border-color: rgb(184, 196, 169);
+  box-shadow: 3px 3px 0px rgba(184, 196, 169, 0.3);
+  transform: translate(-1px, -1px);
+}
+
+.vendor-profile-form-field textarea {
+  resize: vertical;
+}
+
+.vendor-profile-save-btn {
+  background: rgb(184, 196, 169);
+  color: white;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 800;
+  padding: 0.7rem 2rem;
+  border: 2px solid #5a6c7d;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.4);
+  align-self: flex-start;
+}
+
+.vendor-profile-save-btn:hover {
+  background: rgb(174, 186, 159);
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0px rgba(90, 108, 125, 0.5);
+}
+
+/* Business Stats */
+.vendor-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.vendor-stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: rgba(184, 196, 169, 0.1);
+  border: 2px solid rgba(184, 196, 169, 0.3);
+}
+
+.vendor-stat-label {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.75rem;
+  color: #6b7c8f;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.vendor-stat-value {
+  font-family: 'Playfair Display', 'Georgia', serif;
+  font-size: 1.5rem;
+  color: rgb(184, 196, 169);
+  font-weight: 800;
+}
+
+/* Payment Information */
+.vendor-payment-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.vendor-payment-text {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+  color: #5a6c7d;
+  font-weight: 500;
+  margin: 0;
+  padding: 0.8rem;
+  background: rgba(111, 164, 175, 0.05);
+  border-left: 3px solid rgb(111, 164, 175);
+}
+
+.vendor-payment-text strong {
+  font-weight: 700;
+  color: #5a6c7d;
+}
+
+.vendor-update-payment-btn {
+  background: rgb(111, 164, 175);
+  color: white;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.7rem 1.5rem;
+  border: 2px solid #5a6c7d;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 2px 2px 0px rgba(90, 108, 125, 0.3);
+  align-self: flex-start;
+}
+
+.vendor-update-payment-btn:hover {
+  background: rgb(101, 154, 165);
+  transform: translateY(-1px);
+  box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.4);
+}
+
+/* Security */
+.vendor-password-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border: 2px solid rgba(90, 108, 125, 0.3);
+  background: rgba(217, 125, 85, 0.05);
+}
+
+.vendor-password-info {
+  flex: 1;
+}
+
+.vendor-password-label {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #5a6c7d;
+  margin: 0 0 0.3rem 0;
+}
+
+.vendor-password-text {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.8rem;
+  color: #6b7c8f;
+  font-weight: 500;
+  margin: 0;
+}
+
+.vendor-change-pwd-btn {
+  background: white;
+  color: rgb(217, 125, 85);
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  border: 2px solid rgb(217, 125, 85);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.vendor-change-pwd-btn:hover {
+  background: rgba(217, 125, 85, 0.1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .vendor-profile-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .vendor-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .vendor-password-section {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .vendor-change-pwd-btn {
+    width: 100%;
+  }
+}

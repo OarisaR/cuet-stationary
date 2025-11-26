@@ -4,15 +4,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: 
-    repeating-linear-gradient(
-      45deg,
-      rgba(217, 125, 85, 0.05) 0px,
-      rgba(217, 125, 85, 0.05) 2px,
-      transparent 2px,
-      transparent 12px
-    ),
-    linear-gradient(135deg, rgb(111, 164, 175) 0%, rgb(184, 196, 169) 100%);
+ background-image: url("/bg.png");
+background-size: cover;
+background-position: center;
+background-repeat: no-repeat;
+
   padding: 2rem;
   position: relative;
   overflow: hidden;
