@@ -1,6 +1,6 @@
 import React from "react";
 import "./Home.css";
-
+//VENDOR HOME
 const Home = () => {
   return (
     <section id="home" className="home-section">
