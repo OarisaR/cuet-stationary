@@ -1,10 +1,76 @@
 "use client";
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import "./Dashboard.css";
 
+type Order = {
+  id: number;
+  customer: string;
+  amount: number;
+  status: "pending" | "processed";
+};
+
+type LowStockItem = {
+  id: number;
+  name: string;
+  stock: number;
+  emoji: string;
+};
+
 const VendorDashboard = () => {
   const router = useRouter();
+  const [orders, setOrders] = useState<Order[]>([
+    { id: 1234, customer: "John Doe", amount: 32.0, status: "pending" },
+    { id: 1233, customer: "Jane Smith", amount: 15.0, status: "pending" },
+    { id: 1232, customer: "Bob Johnson", amount: 48.5, status: "pending" },
+  ]);
+
+  const [lowStockItems, setLowStockItems] = useState<LowStockItem[]>([
+    { id: 1, name: "Premium Notebook", stock: 3, emoji: "📓" },
+    { id: 2, name: "Pen Set", stock: 5, emoji: "✏️" },
+    { id: 3, name: "Geometry Set", stock: 2, emoji: "📐" },
+  ]);
+
+  const [restockAmounts, setRestockAmounts] = useState<Record<number, number>>({
+    1: 10,
+    2: 10,
+    3: 10,
+  });
+
+  const [message, setMessage] = useState<string | null>(null);
+
+  const pendingCount = useMemo(
+    () => orders.filter((o) => o.status === "pending").length,
+    [orders]
+  );
+
+  const handleProcessOrder = (id: number) => {
+    setOrders((prev) =>
+      prev.map((o) => (o.id === id ? { ...o, status: "processed" } : o))
+    );
+    setMessage(`Order #${id} marked as processed`);
+  };
+
+  const handleRestock = (id: number) => {
+    const amount = restockAmounts[id] ?? 10;
+    if (amount <= 0) {
+      setMessage("Restock amount must be at least 1.");
+      return;
+    }
+    setLowStockItems((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, stock: item.stock + amount } : item
+      )
+    );
+    const item = lowStockItems.find((i) => i.id === id);
+    if (item) {
+      setMessage(`${item.name} restocked to ${item.stock + amount} units`);
+    }
+  };
+
+  const handleRestockAmountChange = (id: number, value: number) => {
+    setRestockAmounts((prev) => ({ ...prev, [id]: value }));
+  };
 
   return (
     <div className="vendor-dashboard-page">
@@ -15,6 +81,15 @@ const VendorDashboard = () => {
           <h1 className="vendor-welcome-title">Welcome Back, Vendor! 👋</h1>
           <p className="vendor-welcome-text">Here's your business overview</p>
         </div>
+
+        {message && (
+          <div className="vendor-toast" role="status">
+            <span>{message}</span>
+            <button aria-label="Dismiss" onClick={() => setMessage(null)}>
+              ×
+            </button>
+          </div>
+        )}
 
         {/* Stats Cards */}
         <div className="vendor-stats-grid">
@@ -29,7 +104,7 @@ const VendorDashboard = () => {
           <div className="vendor-stat-card" onClick={() => router.push("/vendor/orders")}>
             <div className="vendor-stat-icon">📦</div>
             <div className="vendor-stat-info">
-              <h3 className="vendor-stat-number">8</h3>
+              <h3 className="vendor-stat-number">{pendingCount}</h3>
               <p className="vendor-stat-label">Pending Orders</p>
             </div>
           </div>
@@ -45,7 +120,7 @@ const VendorDashboard = () => {
           <div className="vendor-stat-card" onClick={() => router.push("/vendor/inventory")}>
             <div className="vendor-stat-icon">⚠️</div>
             <div className="vendor-stat-info">
-              <h3 className="vendor-stat-number">5</h3>
+              <h3 className="vendor-stat-number">{lowStockItems.length}</h3>
               <p className="vendor-stat-label">Low Stock Items</p>
             </div>
           </div>
@@ -64,32 +139,22 @@ const VendorDashboard = () => {
           </div>
 
           <div className="vendor-orders-list">
-            <div className="vendor-order-item">
-              <div className="vendor-order-info">
-                <span className="vendor-order-id">Order #1234</span>
-                <span className="vendor-order-customer">Customer: John Doe</span>
+            {orders.map((order) => (
+              <div key={order.id} className={`vendor-order-item ${order.status === "processed" ? "order-processed" : ""}`}>
+                <div className="vendor-order-info">
+                  <span className="vendor-order-id">Order #{order.id}</span>
+                  <span className="vendor-order-customer">Customer: {order.customer}</span>
+                </div>
+                <span className="vendor-order-amount">${order.amount.toFixed(2)}</span>
+                <button
+                  className="vendor-order-action-btn"
+                  disabled={order.status === "processed"}
+                  onClick={() => handleProcessOrder(order.id)}
+                >
+                  {order.status === "processed" ? "Processed" : "Process Order"}
+                </button>
               </div>
-              <span className="vendor-order-amount">$32.00</span>
-              <button className="vendor-order-action-btn">Process Order</button>
-            </div>
-
-            <div className="vendor-order-item">
-              <div className="vendor-order-info">
-                <span className="vendor-order-id">Order #1233</span>
-                <span className="vendor-order-customer">Customer: Jane Smith</span>
-              </div>
-              <span className="vendor-order-amount">$15.00</span>
-              <button className="vendor-order-action-btn">Process Order</button>
-            </div>
-
-            <div className="vendor-order-item">
-              <div className="vendor-order-info">
-                <span className="vendor-order-id">Order #1232</span>
-                <span className="vendor-order-customer">Customer: Bob Johnson</span>
-              </div>
-              <span className="vendor-order-amount">$48.50</span>
-              <button className="vendor-order-action-btn">Process Order</button>
-            </div>
+            ))}
           </div>
         </section>
 
@@ -106,26 +171,25 @@ const VendorDashboard = () => {
           </div>
 
           <div className="vendor-low-stock-grid">
-            <div className="vendor-product-alert-card">
-              <div className="vendor-product-emoji">📓</div>
-              <h3 className="vendor-product-alert-name">Premium Notebook</h3>
-              <p className="vendor-product-stock">Stock: <span className="stock-low">3 left</span></p>
-              <button className="vendor-restock-btn">Restock</button>
-            </div>
-
-            <div className="vendor-product-alert-card">
-              <div className="vendor-product-emoji">✏️</div>
-              <h3 className="vendor-product-alert-name">Pen Set</h3>
-              <p className="vendor-product-stock">Stock: <span className="stock-low">5 left</span></p>
-              <button className="vendor-restock-btn">Restock</button>
-            </div>
-
-            <div className="vendor-product-alert-card">
-              <div className="vendor-product-emoji">📐</div>
-              <h3 className="vendor-product-alert-name">Geometry Set</h3>
-              <p className="vendor-product-stock">Stock: <span className="stock-low">2 left</span></p>
-              <button className="vendor-restock-btn">Restock</button>
-            </div>
+            {lowStockItems.map((item) => (
+              <div key={item.id} className="vendor-product-alert-card">
+                <div className="vendor-product-emoji">{item.emoji}</div>
+                <h3 className="vendor-product-alert-name">{item.name}</h3>
+                <p className="vendor-product-stock">Stock: <span className={item.stock <= 5 ? "stock-low" : ""}>{item.stock} left</span></p>
+                <div className="restock-control">
+                  <input
+                    type="number"
+                    min={1}
+                    value={restockAmounts[item.id] ?? 10}
+                    onChange={(e) => handleRestockAmountChange(item.id, parseInt(e.target.value, 10) || 0)}
+                    aria-label={`Restock amount for ${item.name}`}
+                  />
+                  <button className="vendor-restock-btn" onClick={() => handleRestock(item.id)}>
+                    Restock +{restockAmounts[item.id] ?? 10}
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </section>
 

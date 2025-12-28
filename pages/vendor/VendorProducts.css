@@ -113,6 +113,20 @@
   gap: 1.5rem;
 }
 
+.vendor-products-empty {
+  grid-column: 1 / -1;
+  background: white;
+  border: 2px dashed rgba(90, 108, 125, 0.35);
+  padding: 1.5rem;
+  box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.25);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  color: #5a6c7d;
+  font-family: 'Poppins', sans-serif;
+}
+
 .vendor-product-card {
   background: white;
   padding: 1.5rem;
@@ -249,6 +263,212 @@
 
 .vendor-product-delete-btn:hover {
   background: rgba(200, 100, 100, 0.1);
+}
+
+/* Toast Message */
+.vendor-toast {
+  margin: 0 0 1rem 0;
+  padding: 0.9rem 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid #5a6c7d;
+  box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.3);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Poppins', sans-serif;
+  color: #5a6c7d;
+  font-weight: 600;
+}
+
+.vendor-toast button {
+  background: transparent;
+  border: none;
+  color: #5a6c7d;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  font-weight: 700;
+}
+
+/* Default Badge */
+.default-badge {
+  display: inline-block;
+  margin-left: 0.4rem;
+  font-size: 0.65rem;
+  padding: 0.2rem 0.4rem;
+  background: rgba(111, 164, 175, 0.15);
+  color: rgb(111, 164, 175);
+  border: 1px solid rgb(111, 164, 175);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  vertical-align: middle;
+}
+
+/* Modal Overlay */
+.vendor-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(90, 108, 125, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+/* Modal */
+.vendor-modal {
+  background: white;
+  border: 3px solid #5a6c7d;
+  box-shadow: 6px 6px 0px rgba(90, 108, 125, 0.5);
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.vendor-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 1.5rem;
+  border-bottom: 2px solid #5a6c7d;
+  background: rgba(184, 196, 169, 0.1);
+}
+
+.vendor-modal-header h2 {
+  font-family: 'Playfair Display', 'Georgia', serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #5a6c7d;
+  margin: 0;
+}
+
+.vendor-modal-close {
+  background: transparent;
+  border: none;
+  font-size: 2rem;
+  color: #5a6c7d;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+  font-weight: 700;
+  transition: transform 0.2s ease;
+}
+
+.vendor-modal-close:hover {
+  transform: scale(1.2);
+}
+
+.vendor-modal-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.modal-emoji-preview {
+  font-size: 3.5rem;
+  text-align: center;
+  filter: drop-shadow(2px 2px 0px rgba(90, 108, 125, 0.15));
+  margin-bottom: 0.5rem;
+}
+
+.modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-family: 'Poppins', sans-serif;
+}
+
+.modal-field span {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #5a6c7d;
+}
+
+.modal-field input {
+  font-family: 'Poppins', sans-serif;
+  border: 2px solid #5a6c7d;
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  background: #fff;
+  color: #5a6c7d;
+  outline: none;
+  transition: all 0.2s ease;
+  box-shadow: 2px 2px 0px rgba(90, 108, 125, 0.2);
+  font-weight: 600;
+}
+
+.modal-field input:focus {
+  border-color: rgb(184, 196, 169);
+  box-shadow: 3px 3px 0px rgba(184, 196, 169, 0.3);
+}
+
+.modal-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.vendor-modal-footer {
+  padding: 1.2rem 1.5rem;
+  border-top: 2px solid #5a6c7d;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.8rem;
+  background: rgba(244, 233, 215, 0.3);
+}
+
+.modal-btn {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 800;
+  padding: 0.75rem 1.5rem;
+  border: 2px solid #5a6c7d;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.modal-cancel-btn {
+  background: white;
+  color: #5a6c7d;
+  box-shadow: 2px 2px 0px rgba(90, 108, 125, 0.3);
+}
+
+.modal-cancel-btn:hover {
+  background: rgba(90, 108, 125, 0.08);
+  transform: translateY(-1px);
+  box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.4);
+}
+
+.modal-save-btn {
+  background: rgb(184, 196, 169);
+  color: white;
+  box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.4);
+}
+
+.modal-save-btn:hover {
+  background: rgb(174, 186, 159);
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0px rgba(90, 108, 125, 0.5);
+}
+
+.vendor-product-delete-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.vendor-product-delete-btn:disabled:hover {
+  background: transparent;
 }
 
 /* Responsive */

@@ -14,10 +14,33 @@ const VendorInventory = () => {
     { id: 8, name: "Sketchbook", stock: 8, emoji: "📔" },
   ]);
 
-  const updateStock = (id: number, change: number) => {
+  const [adjustments, setAdjustments] = useState<Record<number, number>>({});
+
+  const updateStock = (id: number, newStock: number) => {
     setProducts(products.map(p =>
-      p.id === id ? { ...p, stock: Math.max(0, p.stock + change) } : p
+      p.id === id ? { ...p, stock: Math.max(0, newStock) } : p
     ));
+    // Clear adjustment after update
+    setAdjustments(prev => {
+      const updated = { ...prev };
+      delete updated[id];
+      return updated;
+    });
+  };
+
+  const handleAdjustmentChange = (id: number, value: number) => {
+    setAdjustments(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleUpdate = (id: number) => {
+    const product = products.find(p => p.id === id);
+    if (!product) return;
+    
+    const adjustment = adjustments[id];
+    if (adjustment === undefined || adjustment === 0) return;
+    
+    const newStock = product.stock + adjustment;
+    updateStock(id, newStock);
   };
 
   const getStockStatus = (stock: number) => {
@@ -92,27 +115,23 @@ const VendorInventory = () => {
                       </span>
                     </td>
                     <td className="inventory-actions">
-                      <button 
-                        className="inventory-btn inventory-btn-decrease"
-                        onClick={() => updateStock(product.id, -5)}
-                      >
-                        −5
-                      </button>
-                      <button 
-                        className="inventory-btn inventory-btn-increase"
-                        onClick={() => updateStock(product.id, 10)}
-                      >
-                        +10
-                      </button>
-                      <button 
-                        className="inventory-btn inventory-btn-update"
-                        onClick={() => {
-                          const newStock = prompt(`Enter new stock for ${product.name}:`, product.stock.toString());
-                          if (newStock) updateStock(product.id, parseInt(newStock) - product.stock);
-                        }}
-                      >
-                        Update
-                      </button>
+                      <div className="inventory-control">
+                        <input
+                          type="number"
+                          className="inventory-input"
+                          value={adjustments[product.id] ?? 0}
+                          onChange={(e) => handleAdjustmentChange(product.id, parseInt(e.target.value, 10) || 0)}
+                          placeholder="±0"
+                          aria-label={`Adjust stock for ${product.name}`}
+                        />
+                        <button 
+                          className="inventory-btn inventory-btn-update"
+                          onClick={() => handleUpdate(product.id)}
+                          disabled={!adjustments[product.id] || adjustments[product.id] === 0}
+                        >
+                          Update
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -121,18 +140,7 @@ const VendorInventory = () => {
           </table>
         </div>
 
-        {/* Bulk Actions */}
-        <div className="inventory-bulk-actions">
-          <h3 className="bulk-actions-title">Bulk Actions</h3>
-          <div className="bulk-actions-buttons">
-            <button className="bulk-action-btn">
-              Export Stock Report
-            </button>
-            <button className="bulk-action-btn">
-              Restock Low Items
-            </button>
-          </div>
-        </div>
+        
 
       </div>
     </div>

@@ -144,6 +144,11 @@
   box-shadow: 2px 2px 0px rgba(90, 108, 125, 0.3);
 }
 
+.vendor-order-item.order-processed {
+  opacity: 0.8;
+  background: rgba(184, 196, 169, 0.12);
+}
+
 .vendor-order-info {
   flex: 1;
   display: flex;
@@ -194,6 +199,13 @@
   box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.4);
 }
 
+.vendor-order-action-btn:disabled {
+  background: rgba(184, 196, 169, 0.5);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
 /* Low Stock Grid */
 .vendor-low-stock-grid {
   display: grid;
@@ -203,7 +215,7 @@
 
 .vendor-product-alert-card {
   background: white;
-  padding: 1.2rem;
+  padding: 1rem;
   border: 2px solid rgb(217, 125, 85);
   box-shadow: 3px 3px 0px rgba(217, 125, 85, 0.3);
   text-align: center;
@@ -222,7 +234,7 @@
 
 .vendor-product-alert-name {
   font-family: 'Poppins', sans-serif;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 700;
   color: #5a6c7d;
   margin: 0 0 0.5rem 0;
@@ -230,7 +242,7 @@
 
 .vendor-product-stock {
   font-family: 'Poppins', sans-serif;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: #6b7c8f;
   font-weight: 600;
   margin: 0 0 0.8rem 0;
@@ -242,13 +254,12 @@
 }
 
 .vendor-restock-btn {
-  width: 100%;
   background: rgb(217, 125, 85);
   color: white;
   font-family: 'Poppins', sans-serif;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 800;
-  padding: 0.5rem;
+  padding: 0.5rem 0.7rem;
   border: 2px solid #5a6c7d;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -260,6 +271,35 @@
   background: rgb(200, 110, 70);
   transform: translateY(-1px);
   box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.4);
+}
+
+.restock-control {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.restock-control input {
+  width: 68px;
+  padding: 0.35rem 0.45rem;
+  border: 2px solid #5a6c7d;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #5a6c7d;
+  box-shadow: 2px 2px 0px rgba(90, 108, 125, 0.2);
+  text-align: center;
+}
+
+.restock-control input:focus {
+  outline: none;
+  border-color: rgb(184, 196, 169);
+  box-shadow: 3px 3px 0px rgba(184, 196, 169, 0.3);
+}
+
+.restock-control .vendor-restock-btn {
+  flex: 0 0 auto;
 }
 
 /* Quick Actions */
@@ -291,6 +331,30 @@
 .vendor-quick-action-btn:hover {
   transform: translate(-2px, -2px);
   box-shadow: 5px 5px 0px rgba(90, 108, 125, 0.5);
+}
+
+/* Toast */
+.vendor-toast {
+  margin: 0 0 1rem 0;
+  padding: 0.9rem 1rem;
+  background: rgba(255, 255, 255, 0.8);
+  border: 2px solid #5a6c7d;
+  box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.3);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Poppins', sans-serif;
+  color: #5a6c7d;
+}
+
+.vendor-toast button {
+  background: transparent;
+  border: none;
+  color: #5a6c7d;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
 }
 
 /* Responsive */
