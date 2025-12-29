@@ -1,7 +1,7 @@
 /* Vendor Orders Page */
 .vendor-orders-page {
   min-height: 100vh;
-  background: linear-gradient(180deg, rgb(111, 164, 175) 0%, rgb(121, 174, 185) 100%);
+  background: linear-gradient(135deg, #a8c5c0 0%, #b5d2cd 50%, #a8c5c0 100%);
   padding: 5rem 1.5rem 2rem;
 }
 
@@ -12,24 +12,26 @@
 
 /* Page Header */
 .vendor-orders-header {
-  margin-bottom: 2rem;
+  margin-bottom: 2.2rem;
   text-align: center;
 }
 
 .vendor-orders-title {
   font-family: 'Playfair Display', 'Georgia', serif;
-  font-size: 2rem;
+  font-size: 2.2rem;
   font-weight: 800;
-  color: white;
-  margin-bottom: 0.4rem;
-  text-shadow: 2px 2px 0px rgba(90, 108, 125, 0.3);
+  color: #fffef8;
+  margin-bottom: 0.5rem;
+  text-shadow: 3px 3px 0px rgba(122, 143, 126, 0.35);
+  letter-spacing: -0.5px;
 }
 
 .vendor-orders-subtitle {
   font-family: 'Poppins', sans-serif;
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.95);
   font-weight: 500;
+  letter-spacing: 0.3px;
 }
 
 /* Filters */
@@ -42,30 +44,32 @@
 }
 
 .vendor-orders-filter-btn {
-  background: white;
-  border: 2px solid #5a6c7d;
-  color: #5a6c7d;
+  background: linear-gradient(135deg, #fffef8 0%, #fefbf3 100%);
+  border: 2px solid #7a8f7e;
+  color: #4a5f4e;
   font-family: 'Poppins', sans-serif;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1.2rem;
   cursor: pointer;
   transition: all 0.2s ease;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.6px;
+  border-radius: 2px;
 }
 
 .vendor-orders-filter-btn:hover {
-  background: rgba(184, 196, 169, 0.2);
-  border-color: rgb(184, 196, 169);
-  color: rgb(184, 196, 169);
+  background: rgba(184, 196, 169, 0.25);
+  border-color: #b8c4a9;
+  color: #7a8f7e;
+  transform: translateY(-1px);
 }
 
 .vendor-orders-filter-btn.active {
-  background: rgb(184, 196, 169);
+  background: linear-gradient(135deg, #b8c4a9 0%, #a8b499 100%);
   color: white;
-  border-color: #5a6c7d;
-  box-shadow: 2px 2px 0px rgba(90, 108, 125, 0.4);
+  border-color: #7a8f7e;
+  box-shadow: 3px 3px 0px rgba(122, 143, 126, 0.35);
 }
 
 /* Orders List */
@@ -87,6 +91,12 @@
 .vendor-no-orders-icon {
   font-size: 3.5rem;
   margin-bottom: 1rem;
+  color: #6b7c8f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .vendor-no-orders-text {
@@ -98,16 +108,17 @@
 
 /* Order Card */
 .vendor-order-card {
-  background: white;
-  padding: 1.2rem;
-  border: 2px solid #5a6c7d;
-  box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.3);
+  background: linear-gradient(135deg, #fffef8 0%, #fefbf3 100%);
+  padding: 1.4rem;
+  border: 3px solid #7a8f7e;
+  box-shadow: 5px 5px 0px rgba(122, 143, 126, 0.35);
   transition: all 0.2s ease;
+  border-radius: 2px;
 }
 
 .vendor-order-card:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 5px 5px 0px rgba(90, 108, 125, 0.4);
+  transform: translate(-3px, -3px);
+  box-shadow: 7px 7px 0px rgba(122, 143, 126, 0.45);
 }
 
 .vendor-order-card-header {
@@ -149,30 +160,33 @@
   border: 2px solid;
   text-transform: uppercase;
   letter-spacing: 0.3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .vendor-badge-pending {
-  background: rgba(217, 125, 85, 0.2);
-  color: rgb(180, 100, 65);
-  border-color: rgb(217, 125, 85);
+  background: rgba(212, 151, 125, 0.18);
+  color: #b87d5f;
+  border-color: #d4977d;
 }
 
 .vendor-badge-processing {
-  background: rgba(217, 180, 85, 0.2);
-  color: rgb(180, 140, 65);
-  border-color: rgb(217, 180, 85);
+  background: rgba(230, 200, 140, 0.18);
+  color: #b8a070;
+  border-color: #e6c88c;
 }
 
 .vendor-badge-shipped {
-  background: rgba(111, 164, 175, 0.2);
-  color: rgb(80, 130, 140);
-  border-color: rgb(111, 164, 175);
+  background: rgba(155, 181, 176, 0.18);
+  color: #6f9a94;
+  border-color: #9bb5b0;
 }
 
 .vendor-badge-delivered {
-  background: rgba(184, 196, 169, 0.2);
-  color: rgb(100, 120, 85);
-  border-color: rgb(184, 196, 169);
+  background: rgba(184, 196, 169, 0.18);
+  color: #7a8f7e;
+  border-color: #b8c4a9;
 }
 
 .vendor-order-card-body {

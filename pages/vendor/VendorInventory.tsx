@@ -1,46 +1,84 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { getCurrentUser } from "@/lib/auth";
+import { getVendorProducts, updateProductStock } from "@/lib/vendor-service";
+import type { Product } from "@/lib/firestore-types";
+import { BiLoaderAlt } from "react-icons/bi";
+import { FaExclamationTriangle, FaChartBar, FaBox } from "react-icons/fa";
 import "./VendorInventory.css";
 
 const VendorInventory = () => {
-  const [products, setProducts] = useState([
-    { id: 1, name: "Premium Notebook", stock: 45, emoji: "📓" },
-    { id: 2, name: "Pen Set (10pcs)", stock: 5, emoji: "✏️" },
-    { id: 3, name: "Geometry Set", stock: 2, emoji: "📐" },
-    { id: 4, name: "Color Markers", stock: 30, emoji: "🖍️" },
-    { id: 5, name: "Sticky Notes", stock: 3, emoji: "📝" },
-    { id: 6, name: "Calculator", stock: 20, emoji: "🔢" },
-    { id: 7, name: "Highlighters", stock: 15, emoji: "🖊️" },
-    { id: 8, name: "Sketchbook", stock: 8, emoji: "📔" },
-  ]);
+  const router = useRouter();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [vendorId, setVendorId] = useState<string | null>(null);
+  const [adjustments, setAdjustments] = useState<Record<string, number>>({});
+  const [message, setMessage] = useState<string | null>(null);
 
-  const [adjustments, setAdjustments] = useState<Record<number, number>>({});
+  useEffect(() => {
+    const initInventory = async () => {
+      try {
+        const user = getCurrentUser();
+        if (!user) {
+          router.push("/signin");
+          return;
+        }
 
-  const updateStock = (id: number, newStock: number) => {
-    setProducts(products.map(p =>
-      p.id === id ? { ...p, stock: Math.max(0, newStock) } : p
-    ));
-    // Clear adjustment after update
-    setAdjustments(prev => {
-      const updated = { ...prev };
-      delete updated[id];
-      return updated;
-    });
+        setVendorId(user.uid);
+        const productsData = await getVendorProducts(user.uid);
+        setProducts(productsData);
+      } catch (error) {
+        console.error("Error loading inventory:", error);
+        setMessage("Error loading inventory. Please refresh the page.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initInventory();
+  }, [router]);
+
+  const updateStock = async (productId: string, adjustment: number) => {
+    if (!vendorId) return;
+    
+    try {
+      await updateProductStock(productId, adjustment, vendorId, "Manual adjustment from inventory");
+      
+      // Update local state
+      setProducts(products.map(p =>
+        p.id === productId ? { ...p, stock: Math.max(0, p.stock + adjustment) } : p
+      ));
+      
+      // Clear adjustment after update
+      setAdjustments(prev => {
+        const updated = { ...prev };
+        delete updated[productId];
+        return updated;
+      });
+      
+      const product = products.find(p => p.id === productId);
+      if (product) {
+        setMessage(`${product.name} stock updated successfully`);
+      }
+    } catch (error) {
+      console.error("Error updating stock:", error);
+      setMessage("Failed to update stock. Please try again.");
+    }
   };
 
-  const handleAdjustmentChange = (id: number, value: number) => {
-    setAdjustments(prev => ({ ...prev, [id]: value }));
+  const handleAdjustmentChange = (productId: string, value: number) => {
+    setAdjustments(prev => ({ ...prev, [productId]: value }));
   };
 
-  const handleUpdate = (id: number) => {
-    const product = products.find(p => p.id === id);
-    if (!product) return;
+  const handleUpdate = (productId: string) => {
+    const adjustment = adjustments[productId];
+    if (adjustment === undefined || adjustment === 0) {
+      setMessage("Please enter an adjustment amount");
+      return;
+    }
     
-    const adjustment = adjustments[id];
-    if (adjustment === undefined || adjustment === 0) return;
-    
-    const newStock = product.stock + adjustment;
-    updateStock(id, newStock);
+    updateStock(productId, adjustment);
   };
 
   const getStockStatus = (stock: number) => {
@@ -51,6 +89,19 @@ const VendorInventory = () => {
 
   const criticalStockCount = products.filter(p => p.stock <= 5).length;
   const lowStockCount = products.filter(p => p.stock > 5 && p.stock <= 15).length;
+
+  if (loading) {
+    return (
+      <div className="vendor-inventory-page">
+        <div className="vendor-inventory-container">
+          <div style={{ textAlign: "center", padding: "2rem" }}>
+            <div style={{ fontSize: "2rem", marginBottom: "1rem" }}><BiLoaderAlt style={{ animation: "spin 1s linear infinite" }} /></div>
+            <p>Loading inventory...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="vendor-inventory-page">
@@ -64,24 +115,46 @@ const VendorInventory = () => {
           </div>
         </div>
 
+        {message && (
+          <div style={{
+            padding: "1rem",
+            marginBottom: "1rem",
+            background: "#4f46e5",
+            color: "white",
+            borderRadius: "8px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}>
+            <span>{message}</span>
+            <button onClick={() => setMessage(null)} style={{
+              background: "transparent",
+              border: "none",
+              color: "white",
+              cursor: "pointer",
+              fontSize: "1.5rem",
+            }}>×</button>
+          </div>
+        )}
+
         {/* Alert Summary */}
         <div className="inventory-alerts">
           <div className="inventory-alert alert-critical">
-            <div className="alert-icon">⚠️</div>
+            <div className="alert-icon"><FaExclamationTriangle style={{ color: "#dc2626" }} /></div>
             <div className="alert-info">
               <h3 className="alert-number">{criticalStockCount}</h3>
               <p className="alert-label">Critical Stock Items</p>
             </div>
           </div>
           <div className="inventory-alert alert-warning">
-            <div className="alert-icon">📊</div>
+            <div className="alert-icon"><FaChartBar style={{ color: "#f59e0b" }} /></div>
             <div className="alert-info">
               <h3 className="alert-number">{lowStockCount}</h3>
               <p className="alert-label">Low Stock Items</p>
             </div>
           </div>
           <div className="inventory-alert alert-info">
-            <div className="alert-icon">📦</div>
+            <div className="alert-icon"><FaBox style={{ color: "#3b82f6" }} /></div>
             <div className="alert-info">
               <h3 className="alert-number">{products.length}</h3>
               <p className="alert-label">Total Products</p>

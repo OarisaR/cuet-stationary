@@ -68,7 +68,11 @@
 }
 
 .alert-icon {
-  font-size: 2rem;
+  font-size: 2.5rem;
+  color: #5a6c7d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .alert-info {

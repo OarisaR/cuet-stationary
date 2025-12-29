@@ -1,10 +1,81 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { getCurrentUser } from "@/lib/auth";
+import { getStudentOrders, getWishlist, getAllProducts } from "@/lib/student-service";
+import type { Order } from "@/lib/firestore-types";
+import type { WishlistItem } from "@/lib/student-service";
 import "./Dashboard.css";
-import { FiPackage, FiHeart, FiStar } from "react-icons/fi";
+import { FiPackage, FiHeart } from "react-icons/fi";
+
 const Dashboard = () => {
   const router = useRouter();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [wishlistCount, setWishlistCount] = useState(0);
+  const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const initDashboard = async () => {
+      try {
+        const user = getCurrentUser();
+        if (!user) {
+          router.push("/signin");
+          return;
+        }
+
+        const [ordersData, wishlistData, productsData] = await Promise.all([
+          getStudentOrders(user.uid),
+          getWishlist(user.uid),
+          getAllProducts(),
+        ]);
+
+        setOrders(ordersData);
+        setWishlistCount(wishlistData.length);
+        setFeaturedProducts(productsData.slice(0, 4));
+      } catch (error) {
+        console.error("Error loading dashboard:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initDashboard();
+  }, [router]);
+
+  const activeOrders = orders.filter(o => o.status === "pending" || o.status === "processing" || o.status === "shipped");
+
+  const formatDate = (timestamp: any) => {
+    if (!timestamp || !timestamp.toDate) return "N/A";
+    return timestamp.toDate().toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
+  const getStatusClass = (status: string) => {
+    switch (status) {
+      case "delivered": return "status-delivered";
+      case "shipped": return "status-shipping";
+      case "processing": return "status-processing";
+      case "pending": return "status-pending";
+      default: return "";
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="dashboard-page">
+        <div className="dashboard-container">
+          <div style={{ textAlign: "center", padding: "2rem" }}>
+            <div style={{ fontSize: "2rem", marginBottom: "1rem" }}>⏳</div>
+            <p>Loading dashboard...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard-page">
@@ -21,7 +92,7 @@ const Dashboard = () => {
           <div className="stat-card" onClick={() => router.push("/student/orders")}>
           <div className="stat-icon" style={{color:" rgb(217, 125, 85)"}}><FiPackage /></div>
             <div className="stat-info">
-              <h3 className="stat-number">3</h3>
+              <h3 className="stat-number">{activeOrders.length}</h3>
               <p className="stat-label">Active Orders</p>
             </div>
           </div>
@@ -29,7 +100,7 @@ const Dashboard = () => {
           <div className="stat-card" onClick={() => router.push("/student/wishlist")}>
             <div className="stat-icon"  style={{color:" rgb(217, 125, 85)"}}><FiHeart/></div>
             <div className="stat-info">
-              <h3 className="stat-number">12</h3>
+              <h3 className="stat-number">{wishlistCount}</h3>
               <p className="stat-label">Wishlist Items</p>
             </div>
           </div>
@@ -45,38 +116,27 @@ const Dashboard = () => {
           </div>
 
           <div className="orders-list">
-            <div className="order-item">
-              <div className="order-info">
-                <span className="order-id">Order #1234</span>
-                <span className="order-date">Nov 20, 2025</span>
+            {orders.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "2rem", color: "#999" }}>
+                <div style={{ fontSize: "3rem", marginBottom: "0.5rem" }}>📦</div>
+                <p>No orders yet</p>
               </div>
-              <span className="order-status status-delivered">Delivered</span>
-              <button className="order-action-btn" onClick={() => router.push("/student/orders/1234")}>
-                View Details
-              </button>
-            </div>
-
-            <div className="order-item">
-              <div className="order-info">
-                <span className="order-id">Order #1233</span>
-                <span className="order-date">Nov 18, 2025</span>
-              </div>
-              <span className="order-status status-shipping">Shipping</span>
-              <button className="order-action-btn" onClick={() => router.push("/student/orders/1233")}>
-                Track Order
-              </button>
-            </div>
-
-            <div className="order-item">
-              <div className="order-info">
-                <span className="order-id">Order #1232</span>
-                <span className="order-date">Nov 15, 2025</span>
-              </div>
-              <span className="order-status status-processing">Processing</span>
-              <button className="order-action-btn" onClick={() => router.push("/student/orders/1232")}>
-                View Details
-              </button>
-            </div>
+            ) : (
+              orders.slice(0, 3).map((order) => (
+                <div key={order.id} className="order-item">
+                  <div className="order-info">
+                    <span className="order-id">Order #{order.id.substring(0, 8)}</span>
+                    <span className="order-date">{formatDate(order.createdAt)}</span>
+                  </div>
+                  <span className={`order-status ${getStatusClass(order.status)}`}>
+                    {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                  </span>
+                  <button className="order-action-btn" onClick={() => router.push("/student/orders")}>
+                    View Details
+                  </button>
+                </div>
+              ))
+            )}
           </div>
         </section>
 
@@ -90,33 +150,26 @@ const Dashboard = () => {
           </div>
 
           <div className="products-grid">
-            <div className="product-card">
-              <div className="product-image">📓</div>
-              <h3 className="product-name">Premium Notebook</h3>
-              <p className="product-price">$5.99</p>
-              <button className="add-cart-btn">Add to Cart</button>
-            </div>
-
-            <div className="product-card">
-              <div className="product-image">✏️</div>
-              <h3 className="product-name">Pen Set (10pcs)</h3>
-              <p className="product-price">$3.50</p>
-              <button className="add-cart-btn">Add to Cart</button>
-            </div>
-
-            <div className="product-card">
-              <div className="product-image">📐</div>
-              <h3 className="product-name">Geometry Set</h3>
-              <p className="product-price">$8.00</p>
-              <button className="add-cart-btn">Add to Cart</button>
-            </div>
-
-            <div className="product-card">
-              <div className="product-image">🖍️</div>
-              <h3 className="product-name">Color Markers</h3>
-              <p className="product-price">$6.25</p>
-              <button className="add-cart-btn">Add to Cart</button>
-            </div>
+            {featuredProducts.length === 0 ? (
+              <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "2rem", color: "#999" }}>
+                <div style={{ fontSize: "3rem", marginBottom: "0.5rem" }}>🏪</div>
+                <p>No products available</p>
+              </div>
+            ) : (
+              featuredProducts.map((product) => (
+                <div key={product.id} className="product-card">
+                  <div className="product-image">{product.emoji}</div>
+                  <h3 className="product-name">{product.name}</h3>
+                  <p className="product-price">${product.price.toFixed(2)}</p>
+                  <button 
+                    className="add-cart-btn"
+                    onClick={() => router.push("/student/shop")}
+                  >
+                    View Details
+                  </button>
+                </div>
+              ))
+            )}
           </div>
         </section>
 

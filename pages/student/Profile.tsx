@@ -1,56 +1,172 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Profile.css";
+import { getCurrentUser } from "@/lib/auth";
+import {
+  getStudentProfile,
+  saveStudentProfile,
+  type StudentProfile,
+} from "@/lib/student-service";
 
 const Profile = () => {
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
+  const [user, setUser] = useState<any>(null);
+  const [profile, setProfile] = useState<StudentProfile | null>(null);
+  const [showSetupPrompt, setShowSetupPrompt] = useState(false);
+
   const [formData, setFormData] = useState({
-    name: "John Doe",
-    email: "john.doe@student.cuet.ac.bd",
-    phone: "+880 1712-345678",
-    studentId: "2021001",
+    displayName: "",
+    email: "",
+    phone: "",
+    studentId: "",
+    deliveryAddress: "",
   });
 
-  const [addresses] = useState([
-    { id: 1, label: "Home", address: "123 Main St, Chittagong" },
-    { id: 2, label: "Dorm", address: "CUET Campus, Chittagong" },
-  ]);
+  useEffect(() => {
+    loadProfile();
+  }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const loadProfile = async () => {
+    try {
+      setLoading(true);
+      const currentUser = await getCurrentUser();
+      if (!currentUser) {
+        window.location.href = "/signin";
+        return;
+      }
+
+      setUser(currentUser);
+      const profileData = await getStudentProfile(currentUser.uid);
+
+      if (profileData) {
+        setProfile(profileData);
+        setFormData({
+          displayName: profileData.displayName || "",
+          email: profileData.email || "",
+          phone: profileData.phone || "",
+          studentId: profileData.studentId || "",
+          deliveryAddress: profileData.deliveryAddress || "",
+        });
+
+        // Show prompt if no delivery address
+        if (!profileData.deliveryAddress) {
+          setShowSetupPrompt(true);
+        }
+      } else {
+        // New user - show setup prompt
+        setShowSetupPrompt(true);
+        setFormData({
+          displayName: currentUser.displayName || "",
+          email: currentUser.email || "",
+          phone: "",
+          studentId: "",
+          deliveryAddress: "",
+        });
+      }
+    } catch (error) {
+      console.error("Error loading profile:", error);
+      setMessage("Error loading profile");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Profile updated successfully!");
+    if (!user) return;
+
+    try {
+      setSaving(true);
+      await saveStudentProfile(user.uid, {
+        displayName: formData.displayName,
+        phone: formData.phone,
+        studentId: formData.studentId,
+        deliveryAddress: formData.deliveryAddress,
+      });
+      setMessage("Profile updated successfully!");
+      if (formData.deliveryAddress) {
+        setShowSetupPrompt(false);
+      }
+      setTimeout(() => setMessage(""), 3000);
+      await loadProfile();
+    } catch (error) {
+      console.error("Error saving profile:", error);
+      setMessage("Error saving profile");
+    } finally {
+      setSaving(false);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="profile-page">
+        <div className="profile-container">
+          <div style={{ textAlign: "center", padding: "3rem" }}>
+            <p>Loading profile...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="profile-page">
       <div className="profile-container">
-        
         {/* Page Header */}
         <div className="profile-header">
           <h1 className="profile-title">My Profile</h1>
           <p className="profile-subtitle">Manage your account settings</p>
         </div>
 
+        {/* Setup Prompt for New Users */}
+        {showSetupPrompt && (
+          <div style={{
+            padding: "1rem",
+            marginBottom: "1rem",
+            background: "#ff9800",
+            color: "white",
+            borderRadius: "8px",
+            textAlign: "center",
+          }}>
+            ⚠️ Please complete your profile and add a delivery address to start shopping!
+          </div>
+        )}
+
+        {/* Success/Error Message */}
+        {message && (
+          <div style={{
+            padding: "1rem",
+            marginBottom: "1rem",
+            background: message.includes("Error") ? "#f44336" : "#4f46e5",
+            color: "white",
+            borderRadius: "8px",
+            textAlign: "center",
+          }}>
+            {message}
+          </div>
+        )}
+
         <div className="profile-content">
-          
           {/* Personal Info */}
           <section className="profile-section">
             <h2 className="section-heading">Personal Information</h2>
             <form className="profile-form" onSubmit={handleSubmit}>
-              
               <div className="profile-form-row">
                 <div className="profile-form-field">
                   <label>Full Name</label>
                   <input
                     type="text"
-                    name="name"
-                    value={formData.name}
+                    name="displayName"
+                    value={formData.displayName}
                     onChange={handleChange}
                     required
                   />
@@ -77,6 +193,7 @@ const Profile = () => {
                     value={formData.email}
                     onChange={handleChange}
                     required
+                    disabled
                   />
                 </div>
 
@@ -88,37 +205,28 @@ const Profile = () => {
                     value={formData.phone}
                     onChange={handleChange}
                     required
+                    placeholder="+880 1712-345678"
                   />
                 </div>
               </div>
 
-              <button type="submit" className="profile-save-btn">
-                Save Changes
+              <div className="profile-form-field">
+                <label>Delivery Address</label>
+                <textarea
+                  name="deliveryAddress"
+                  value={formData.deliveryAddress}
+                  onChange={handleChange}
+                  required
+                  placeholder="Enter your complete delivery address (e.g., Room 123, Hall 4, CUET Campus, Chittagong)"
+                  rows={3}
+                  className="profile-textarea"
+                />
+              </div>
+
+              <button type="submit" className="profile-save-btn" disabled={saving}>
+                {saving ? "Saving..." : "Save Changes"}
               </button>
             </form>
-          </section>
-
-          {/* Delivery Addresses */}
-          <section className="profile-section">
-            <div className="section-header-row">
-              <h2 className="section-heading">Delivery Addresses</h2>
-              <button className="profile-add-btn">+ Add New</button>
-            </div>
-            
-            <div className="addresses-list">
-              {addresses.map(addr => (
-                <div key={addr.id} className="address-card">
-                  <div className="address-info">
-                    <span className="address-label">{addr.label}</span>
-                    <p className="address-text">{addr.address}</p>
-                  </div>
-                  <div className="address-actions">
-                    <button className="address-edit-btn">Edit</button>
-                    <button className="address-delete-btn">Delete</button>
-                  </div>
-                </div>
-              ))}
-            </div>
           </section>
 
           {/* Change Password */}
@@ -127,14 +235,12 @@ const Profile = () => {
             <div className="password-section">
               <div className="password-info">
                 <p className="password-label">Password</p>
-                <p className="password-text">Last changed 2 months ago</p>
+                <p className="password-text">Manage your password through your email provider</p>
               </div>
-              <button className="profile-change-pwd-btn">Change Password</button>
+              <button className="profile-change-pwd-btn" disabled>Change Password</button>
             </div>
           </section>
-
         </div>
-
       </div>
     </div>
   );

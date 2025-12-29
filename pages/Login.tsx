@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signInWithEmail, getAuthErrorMessage } from "@/lib/auth";
 import "./Login.css";
 
 const Login = () => {
@@ -9,19 +10,37 @@ const Login = () => {
     email: "",
     password: ""
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
+    if (error) setError(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login data:", formData);
-    // Add your login logic here
-    alert("Login successful!");
+    setError(null);
+    setLoading(true);
+
+    try {
+      const { user, role } = await signInWithEmail(formData.email, formData.password);
+      
+      // Redirect based on user role
+      if (role === "vendor") {
+        router.push('/vendor/dashboard');
+      } else if (role === "student") {
+        router.push('/student/dashboard');
+      }
+    } catch (err: any) {
+      const errorCode = err.code || "";
+      setError(getAuthErrorMessage(errorCode));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -44,6 +63,13 @@ const Login = () => {
             <p className="auth-subtitle">Sign in to your account</p>
           </div>
 
+          {/* Error Message */}
+          {error && (
+            <div className="auth-error">
+              {error}
+            </div>
+          )}
+
           {/* Login Form */}
           <form className="auth-form" onSubmit={handleSubmit}>
             
@@ -56,6 +82,7 @@ const Login = () => {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="your.email@example.com"
+                autoComplete="email"
                 required
               />
             </div>
@@ -69,6 +96,7 @@ const Login = () => {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Enter your password"
+                autoComplete="current-password"
                 required
               />
             </div>
@@ -81,8 +109,8 @@ const Login = () => {
               <a href="#" className="forgot-password">Forgot Password?</a>
             </div>
 
-            <button type="submit" className="auth-submit-btn">
-              Sign In
+            <button type="submit" className="auth-submit-btn" disabled={loading}>
+              {loading ? "Signing In..." : "Sign In"}
             </button>
           </form>
 

@@ -1,7 +1,7 @@
 /* Vendor Products Page */
 .vendor-products-page {
   min-height: 100vh;
-  background: linear-gradient(180deg, rgb(244, 233, 215) 0%, rgb(250, 245, 235) 100%);
+  background: linear-gradient(135deg, #f5ead5 0%, #fdf6e8 50%, #f5ead5 100%);
   padding: 5rem 1.5rem 2rem;
 }
 
@@ -15,46 +15,52 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 2.2rem;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 1.2rem;
 }
 
 .vendor-products-title {
   font-family: 'Playfair Display', 'Georgia', serif;
-  font-size: 2rem;
+  font-size: 2.1rem;
   font-weight: 800;
-  color: #5a6c7d;
-  margin-bottom: 0.4rem;
-  text-shadow: 2px 2px 0px rgba(184, 196, 169, 0.2);
+  color: #4a5f4e;
+  margin-bottom: 0.5rem;
+  text-shadow: 2px 2px 0px rgba(184, 196, 169, 0.25);
+  letter-spacing: -0.5px;
 }
 
 .vendor-products-subtitle {
   font-family: 'Poppins', sans-serif;
-  font-size: 0.9rem;
-  color: #6b7c8f;
+  font-size: 0.95rem;
+  color: #9aaa9e;
   font-weight: 500;
+  letter-spacing: 0.3px;
 }
 
 .vendor-add-product-btn {
-  background: rgb(184, 196, 169);
+  background: linear-gradient(135deg, #b8c4a9 0%, #a8b499 100%);
   color: white;
   font-family: 'Poppins', sans-serif;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 800;
-  padding: 0.8rem 1.8rem;
-  border: 2px solid #5a6c7d;
+  padding: 0.9rem 2rem;
+  border: 3px solid #7a8f7e;
   cursor: pointer;
   transition: all 0.2s ease;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.4);
+  letter-spacing: 0.8px;
+  box-shadow: 4px 4px 0px rgba(122, 143, 126, 0.35);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  border-radius: 2px;
 }
 
 .vendor-add-product-btn:hover {
-  background: rgb(174, 186, 159);
+  background: linear-gradient(135deg, #a8b499 0%, #98a489 100%);
   transform: translate(-2px, -2px);
-  box-shadow: 5px 5px 0px rgba(90, 108, 125, 0.5);
+  box-shadow: 6px 6px 0px rgba(122, 143, 126, 0.45);
 }
 
 /* Search Bar */
@@ -94,10 +100,13 @@
   background: rgb(184, 196, 169);
   border: 2px solid #5a6c7d;
   color: white;
-  font-size: 1.1rem;
+  font-size: 1.3rem;
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .vendor-products-search-btn:hover {
@@ -128,19 +137,20 @@
 }
 
 .vendor-product-card {
-  background: white;
-  padding: 1.5rem;
-  border: 2px solid #5a6c7d;
-  box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.3);
+  background: linear-gradient(135deg, #fffef8 0%, #fefbf3 100%);
+  padding: 1.6rem;
+  border: 3px solid #7a8f7e;
+  box-shadow: 5px 5px 0px rgba(122, 143, 126, 0.35);
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.1rem;
   transition: all 0.2s ease;
+  border-radius: 2px;
 }
 
 .vendor-product-card:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 5px 5px 0px rgba(90, 108, 125, 0.4);
+  transform: translate(-3px, -3px);
+  box-shadow: 7px 7px 0px rgba(122, 143, 126, 0.45);
 }
 
 .vendor-product-image {
@@ -240,6 +250,10 @@
   transition: all 0.2s ease;
   text-transform: uppercase;
   letter-spacing: 0.3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
 }
 
 .vendor-product-edit-btn {

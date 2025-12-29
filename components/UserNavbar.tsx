@@ -1,12 +1,39 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { getCurrentUser } from "@/lib/auth";
+import { getCartItems } from "@/lib/student-service";
 import "./UserNavbar.css";
 
 const UserNavbar = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const [cartCount] = useState(3); // Example cart count
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    const fetchCartCount = async () => {
+      try {
+        const user = getCurrentUser();
+        if (user) {
+          const items = await getCartItems(user.uid);
+          setCartCount(items.length);
+        }
+      } catch (error) {
+        console.error("Error fetching cart count:", error);
+      }
+    };
+
+    fetchCartCount();
+    
+    // Refresh cart count every 2 seconds when on cart or shop page
+    const interval = setInterval(() => {
+      if (pathname === "/student/cart" || pathname === "/student/shop") {
+        fetchCartCount();
+      }
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [pathname]);
 
   const isActive = (path: string) => pathname === path;
 

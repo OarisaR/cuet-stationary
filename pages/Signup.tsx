@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signUpWithEmail, getAuthErrorMessage } from "@/lib/auth";
 import "./Signup.css";
 
 const Signup = () => {
@@ -11,26 +12,47 @@ const Signup = () => {
     password: "",
     confirmPassword: ""
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
+    if (error) setError(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords don't match!");
+      setError("Passwords don't match!");
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError("Password should be at least 6 characters.");
       return;
     }
     
-    console.log("Signup data:", formData);
-    // Add your signup logic here
-    alert("Account created successfully!");
-    router.push('/signin');
+    setLoading(true);
+
+    try {
+      await signUpWithEmail(formData.email, formData.password, formData.name);
+      alert("Student account created successfully! Welcome aboard.");
+      router.push('/signin');
+    } catch (err: any) {
+      console.error("Signup error:", err);
+      const errorCode = err.code || "";
+      const errorMessage = errorCode 
+        ? getAuthErrorMessage(errorCode) 
+        : err.message || "Failed to create account. Please try again.";
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -50,8 +72,15 @@ const Signup = () => {
           {/* Header */}
           <div className="auth-header">
             <h1 className="auth-title">Join Us!</h1>
-            <p className="auth-subtitle">Create your account</p>
+            <p className="auth-subtitle">Create your student account</p>
           </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="auth-error">
+              {error}
+            </div>
+          )}
 
           {/* Signup Form */}
           <form className="auth-form" onSubmit={handleSubmit}>
@@ -117,8 +146,8 @@ const Signup = () => {
               </label>
             </div>
 
-            <button type="submit" className="auth-submit-btn">
-              Create Account
+            <button type="submit" className="auth-submit-btn" disabled={loading}>
+              {loading ? "Creating Account..." : "Create Account"}
             </button>
           </form>
 

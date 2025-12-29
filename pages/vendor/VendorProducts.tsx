@@ -1,73 +1,55 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { getCurrentUser } from "@/lib/auth";
+import { getVendorProducts, updateProduct, deleteProduct } from "@/lib/vendor-service";
+import type { Product, ProductInput } from "@/lib/firestore-types";
+import { BiLoaderAlt } from "react-icons/bi";
+import { FaPlus, FaSearch, FaEdit, FaTrash } from "react-icons/fa";
 import "./VendorProducts.css";
-
-type Product = {
-  id: number;
-  name: string;
-  price: number;
-  stock: number;
-  category: string;
-  emoji: string;
-  custom?: boolean;
-};
-
-const STORAGE_KEY = "vendorProductsCustom";
-
-const defaultProducts: Product[] = [
-  { id: 1, name: "Premium Notebook", price: 5.99, stock: 45, category: "Notebooks", emoji: "📓", custom: false },
-  { id: 2, name: "Pen Set (10pcs)", price: 3.5, stock: 5, category: "Pens", emoji: "✏️", custom: false },
-  { id: 3, name: "Geometry Set", price: 8.0, stock: 2, category: "Tools", emoji: "📐", custom: false },
-  { id: 4, name: "Color Markers", price: 6.25, stock: 30, category: "Art", emoji: "🖍️", custom: false },
-  { id: 5, name: "Sticky Notes", price: 2.99, stock: 3, category: "Accessories", emoji: "📝", custom: false },
-  { id: 6, name: "Calculator", price: 12.0, stock: 20, category: "Tools", emoji: "🔢", custom: false },
-];
 
 const VendorProducts = () => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
-  const [products, setProducts] = useState<Product[]>(defaultProducts);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [vendorId, setVendorId] = useState<string | null>(null);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    try {
-      const storedRaw = localStorage.getItem(STORAGE_KEY);
-      if (storedRaw) {
-        const parsed = JSON.parse(storedRaw) as Product[];
-        const storedArray = Array.isArray(parsed) ? parsed : [];
-        setProducts([...defaultProducts, ...storedArray]);
-      }
-    } catch (err) {
-      console.error("Could not read stored products", err);
-    }
-  }, []);
-
-  const handleDelete = (product: Product) => {
-    if (!product.custom) {
-      setMessage("Default products cannot be deleted.");
-      return;
-    }
-    if (confirm(`Delete "${product.name}"? This cannot be undone.`)) {
+    const initProducts = async () => {
       try {
-        // Get only custom products from storage
-        const storedRaw = localStorage.getItem(STORAGE_KEY);
-        const stored = storedRaw ? JSON.parse(storedRaw) : [];
-        const storedArray = Array.isArray(stored) ? stored : [];
-        
-        // Filter out the deleted product
-        const updatedCustom = storedArray.filter((p: Product) => p.id !== product.id);
-        
-        // Update storage and state
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedCustom));
-        setProducts([...defaultProducts, ...updatedCustom]);
-        setMessage(`${product.name} has been deleted.`);
-      } catch (err) {
-        console.error("Delete failed", err);
-        setMessage("Failed to delete product. Please try again.");
+        const user = getCurrentUser();
+        if (!user) {
+          router.push("/signin");
+          return;
+        }
+
+        setVendorId(user.uid);
+        const productsData = await getVendorProducts(user.uid);
+        setProducts(productsData);
+      } catch (error) {
+        console.error("Error loading products:", error);
+        setMessage("Error loading products. Please refresh the page.");
+      } finally {
+        setLoading(false);
       }
+    };
+
+    initProducts();
+  }, [router]);
+
+  const handleDelete = async (product: Product) => {
+    if (!confirm(`Delete "${product.name}"? This cannot be undone.`)) return;
+
+    try {
+      await deleteProduct(product.id);
+      setProducts((prev) => prev.filter((p) => p.id !== product.id));
+      setMessage(`${product.name} has been deleted.`);
+    } catch (error) {
+      console.error("Delete failed", error);
+      setMessage("Failed to delete product. Please try again.");
     }
   };
 
@@ -79,7 +61,7 @@ const VendorProducts = () => {
     setEditingProduct(null);
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (!editingProduct) return;
 
     if (!editingProduct.name.trim()) {
@@ -96,30 +78,25 @@ const VendorProducts = () => {
     }
 
     try {
-      if (editingProduct.custom) {
-        // Update in localStorage
-        const storedRaw = localStorage.getItem(STORAGE_KEY);
-        const stored = storedRaw ? JSON.parse(storedRaw) : [];
-        const storedArray = Array.isArray(stored) ? stored : [];
-        
-        const updatedCustom = storedArray.map((p: Product) => 
-          p.id === editingProduct.id ? editingProduct : p
-        );
-        
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedCustom));
-        setProducts([...defaultProducts, ...updatedCustom]);
-      } else {
-        // For default products, only update in state (non-persistent)
-        const allProducts = products.map(p => 
-          p.id === editingProduct.id ? editingProduct : p
-        );
-        setProducts(allProducts);
-      }
-
+      const updates: Partial<ProductInput> = {
+        name: editingProduct.name,
+        price: editingProduct.price,
+        stock: editingProduct.stock,
+        category: editingProduct.category,
+        emoji: editingProduct.emoji,
+        description: editingProduct.description,
+      };
+      
+      await updateProduct(editingProduct.id, updates);
+      
+      setProducts((prev) =>
+        prev.map((p) => (p.id === editingProduct.id ? editingProduct : p))
+      );
+      
       setMessage(`${editingProduct.name} has been updated.`);
       setEditingProduct(null);
-    } catch (err) {
-      console.error("Save failed", err);
+    } catch (error) {
+      console.error("Save failed", error);
       setMessage("Failed to save changes. Please try again.");
     }
   };
@@ -139,6 +116,19 @@ const VendorProducts = () => {
     return <span className="stock-status stock-high">In Stock</span>;
   };
 
+  if (loading) {
+    return (
+      <div className="vendor-products-page">
+        <div className="vendor-products-container">
+          <div style={{ textAlign: "center", padding: "2rem" }}>
+            <div style={{ fontSize: "2rem", marginBottom: "1rem" }}><BiLoaderAlt style={{ animation: "spin 1s linear infinite" }} /></div>
+            <p>Loading products...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="vendor-products-page">
       <div className="vendor-products-container">
@@ -153,7 +143,7 @@ const VendorProducts = () => {
             className="vendor-add-product-btn"
             onClick={() => router.push("/vendor/products/add")}
           >
-            ➕ Add New Product
+            <FaPlus style={{ marginRight: "0.5rem" }} /> Add New Product
           </button>
         </div>
 
@@ -175,7 +165,7 @@ const VendorProducts = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <button className="vendor-products-search-btn">🔍</button>
+          <button className="vendor-products-search-btn"><FaSearch /></button>
         </div>
 
         {/* Products Grid */}
@@ -187,7 +177,7 @@ const VendorProducts = () => {
                 className="vendor-add-product-btn"
                 onClick={() => router.push("/vendor/products/add")}
               >
-                ➕ Add New Product
+                <FaPlus style={{ marginRight: "0.5rem" }} /> Add New Product
               </button>
             </div>
           ) : (
@@ -197,7 +187,6 @@ const VendorProducts = () => {
                 <div className="vendor-product-details">
                   <h3 className="vendor-product-name">
                     {product.name}
-                    {!product.custom && <span className="default-badge">Default</span>}
                   </h3>
                   <p className="vendor-product-category">{product.category}</p>
                   <div className="vendor-product-info-row">
@@ -211,14 +200,13 @@ const VendorProducts = () => {
                     className="vendor-product-edit-btn" 
                     onClick={() => handleEditClick(product)}
                   >
-                    ✏️ Edit
+                    <FaEdit style={{ marginRight: "0.5rem" }} /> Edit
                   </button>
                   <button 
                     className="vendor-product-delete-btn" 
                     onClick={() => handleDelete(product)}
-                    disabled={!product.custom}
                   >
-                    🗑️ Delete
+                    <FaTrash style={{ marginRight: "0.5rem" }} /> Delete
                   </button>
                 </div>
               </div>

@@ -1,35 +1,93 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { getCurrentUser } from "@/lib/auth";
+import { getVendorOrders, updateOrderStatus } from "@/lib/vendor-service";
+import type { Order, OrderStatus } from "@/lib/firestore-types";
+import { BiLoaderAlt } from "react-icons/bi";
+import { FaClock, FaCog, FaTruck, FaCheckCircle, FaTimes, FaBox } from "react-icons/fa";
 import "./VendorOrders.css";
 
 const VendorOrders = () => {
-  const [filter, setFilter] = useState("all");
+  const router = useRouter();
+  const [filter, setFilter] = useState<OrderStatus | "all">("all");
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [vendorId, setVendorId] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
 
-  const orders = [
-    { id: "1234", customer: "John Doe", items: 3, total: 32.00, status: "pending", date: "Nov 20, 2025" },
-    { id: "1233", customer: "Jane Smith", items: 2, total: 15.00, status: "processing", date: "Nov 19, 2025" },
-    { id: "1232", customer: "Bob Johnson", items: 4, total: 48.50, status: "shipped", date: "Nov 18, 2025" },
-    { id: "1231", customer: "Alice Brown", items: 1, total: 8.00, status: "delivered", date: "Nov 15, 2025" },
-    { id: "1230", customer: "Charlie Wilson", items: 2, total: 12.00, status: "pending", date: "Nov 20, 2025" },
-  ];
+  useEffect(() => {
+    const initOrders = async () => {
+      try {
+        const user = getCurrentUser();
+        if (!user) {
+          router.push("/signin");
+          return;
+        }
+
+        setVendorId(user.uid);
+        const ordersData = await getVendorOrders(user.uid);
+        setOrders(ordersData);
+      } catch (error) {
+        console.error("Error loading orders:", error);
+        setMessage("Error loading orders. Please refresh the page.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initOrders();
+  }, [router]);
 
   const filteredOrders = filter === "all" 
     ? orders 
     : orders.filter(o => o.status === filter);
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: OrderStatus) => {
     switch (status) {
-      case "pending": return <span className="vendor-order-badge vendor-badge-pending">Pending ⏳</span>;
-      case "processing": return <span className="vendor-order-badge vendor-badge-processing">Processing 🔄</span>;
-      case "shipped": return <span className="vendor-order-badge vendor-badge-shipped">Shipped 🚚</span>;
-      case "delivered": return <span className="vendor-order-badge vendor-badge-delivered">Delivered ✓</span>;
+      case "pending": return <span className="vendor-order-badge vendor-badge-pending"><FaClock style={{ fontSize: "0.8rem" }} /> Pending</span>;
+      case "processing": return <span className="vendor-order-badge vendor-badge-processing"><FaCog style={{ fontSize: "0.8rem" }} /> Processing</span>;
+      case "shipped": return <span className="vendor-order-badge vendor-badge-shipped"><FaTruck style={{ fontSize: "0.8rem" }} /> Shipped</span>;
+      case "delivered": return <span className="vendor-order-badge vendor-badge-delivered"><FaCheckCircle style={{ fontSize: "0.8rem" }} /> Delivered</span>;
+      case "cancelled": return <span className="vendor-order-badge vendor-badge-cancelled"><FaTimes style={{ fontSize: "0.8rem" }} /> Cancelled</span>;
       default: return null;
     }
   };
 
-  const handleStatusUpdate = (orderId: string, newStatus: string) => {
-    alert(`Order #${orderId} status updated to: ${newStatus}`);
+  const handleStatusUpdate = async (orderId: string, newStatus: OrderStatus) => {
+    try {
+      await updateOrderStatus(orderId, newStatus);
+      setOrders((prev) =>
+        prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
+      );
+      setMessage(`Order #${orderId.substring(0, 8)} status updated to: ${newStatus}`);
+    } catch (error) {
+      console.error("Error updating order status:", error);
+      setMessage("Failed to update order status. Please try again.");
+    }
   };
+
+  const formatDate = (timestamp: any) => {
+    if (!timestamp || !timestamp.toDate) return "N/A";
+    return timestamp.toDate().toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="vendor-orders-page">
+        <div className="vendor-orders-container">
+          <div style={{ textAlign: "center", padding: "2rem" }}>
+            <div style={{ fontSize: "2rem", marginBottom: "1rem" }}><BiLoaderAlt style={{ animation: "spin 1s linear infinite" }} /></div>
+            <p>Loading orders...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="vendor-orders-page">
@@ -40,6 +98,28 @@ const VendorOrders = () => {
           <h1 className="vendor-orders-title">Orders Management</h1>
           <p className="vendor-orders-subtitle">Manage and track customer orders</p>
         </div>
+
+        {message && (
+          <div style={{
+            padding: "1rem",
+            marginBottom: "1rem",
+            background: "#4f46e5",
+            color: "white",
+            borderRadius: "8px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}>
+            <span>{message}</span>
+            <button onClick={() => setMessage(null)} style={{
+              background: "transparent",
+              border: "none",
+              color: "white",
+              cursor: "pointer",
+              fontSize: "1.5rem",
+            }}>×</button>
+          </div>
+        )}
 
         {/* Filters */}
         <div className="vendor-orders-filters">
@@ -79,7 +159,7 @@ const VendorOrders = () => {
         <div className="vendor-orders-list">
           {filteredOrders.length === 0 ? (
             <div className="vendor-no-orders">
-              <div className="vendor-no-orders-icon">📦</div>
+              <div className="vendor-no-orders-icon" style={{ color: "#6b7c8f" }}><FaBox /></div>
               <p className="vendor-no-orders-text">No orders found</p>
             </div>
           ) : (
@@ -88,7 +168,7 @@ const VendorOrders = () => {
                 <div className="vendor-order-card-header">
                   <div className="vendor-order-id-section">
                     <span className="vendor-order-label">Order ID:</span>
-                    <span className="vendor-order-id-text">#{order.id}</span>
+                    <span className="vendor-order-id-text">#{order.id.substring(0, 8)}</span>
                   </div>
                   {getStatusBadge(order.status)}
                 </div>
@@ -96,24 +176,23 @@ const VendorOrders = () => {
                 <div className="vendor-order-card-body">
                   <div className="vendor-order-detail">
                     <span className="vendor-detail-label">Customer:</span>
-                    <span className="vendor-detail-value">{order.customer}</span>
+                    <span className="vendor-detail-value">{order.customerName}</span>
                   </div>
                   <div className="vendor-order-detail">
                     <span className="vendor-detail-label">Date:</span>
-                    <span className="vendor-detail-value">{order.date}</span>
+                    <span className="vendor-detail-value">{formatDate(order.createdAt)}</span>
                   </div>
                   <div className="vendor-order-detail">
                     <span className="vendor-detail-label">Items:</span>
-                    <span className="vendor-detail-value">{order.items} items</span>
+                    <span className="vendor-detail-value">{order.items.length} items</span>
                   </div>
                   <div className="vendor-order-detail">
                     <span className="vendor-detail-label">Total:</span>
-                    <span className="vendor-detail-value vendor-detail-price">${order.total.toFixed(2)}</span>
+                    <span className="vendor-detail-value vendor-detail-price">${order.totalAmount.toFixed(2)}</span>
                   </div>
                 </div>
 
                 <div className="vendor-order-card-actions">
-                  <button className="vendor-order-btn vendor-order-btn-view">View Details</button>
                   {order.status === "pending" && (
                     <button 
                       className="vendor-order-btn vendor-order-btn-process"
@@ -138,7 +217,6 @@ const VendorOrders = () => {
                       Mark as Delivered
                     </button>
                   )}
-                  <button className="vendor-order-btn vendor-order-btn-contact">Contact Customer</button>
                 </div>
               </div>
             ))

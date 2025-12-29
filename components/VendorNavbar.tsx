@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { FaBell, FaStar } from "react-icons/fa";
 import "./VendorNavbar.css";
 
 const VendorNavbar = () => {
@@ -50,7 +51,7 @@ const VendorNavbar = () => {
           role="button"
           aria-label="Go to dashboard"
         >
-          <span className="brand-star">✦</span>
+          <span className="brand-star"><FaStar /></span>
           VENDOR PANEL
         </div>
 
@@ -105,7 +106,7 @@ const VendorNavbar = () => {
         {/* Right Actions */}
         <div className="vendor-actions">
           <button className="notification-btn" onClick={toggleNotifications}>
-            🔔
+            <FaBell />
             {unreadCount > 0 && (
               <span className="notification-badge">{unreadCount}</span>
             )}

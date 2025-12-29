@@ -1,76 +1,149 @@
 "use client";
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { getCurrentUser } from "@/lib/auth";
+import {
+  getVendorStats,
+  getLowStockProducts,
+  getOrdersByStatus,
+  updateOrderStatus,
+  updateProductStock,
+  seedVendorDemoData,
+} from "@/lib/vendor-service";
+import type { Order, Product, VendorStats } from "@/lib/firestore-types";
+import { FaHandSparkles, FaDollarSign, FaBox, FaExclamationTriangle, FaSeedling, FaInbox, FaCheckCircle, FaPlus, FaClipboardList } from "react-icons/fa";
+import { BiLoaderAlt } from "react-icons/bi";
 import "./Dashboard.css";
-
-type Order = {
-  id: number;
-  customer: string;
-  amount: number;
-  status: "pending" | "processed";
-};
-
-type LowStockItem = {
-  id: number;
-  name: string;
-  stock: number;
-  emoji: string;
-};
 
 const VendorDashboard = () => {
   const router = useRouter();
-  const [orders, setOrders] = useState<Order[]>([
-    { id: 1234, customer: "John Doe", amount: 32.0, status: "pending" },
-    { id: 1233, customer: "Jane Smith", amount: 15.0, status: "pending" },
-    { id: 1232, customer: "Bob Johnson", amount: 48.5, status: "pending" },
-  ]);
-
-  const [lowStockItems, setLowStockItems] = useState<LowStockItem[]>([
-    { id: 1, name: "Premium Notebook", stock: 3, emoji: "📓" },
-    { id: 2, name: "Pen Set", stock: 5, emoji: "✏️" },
-    { id: 3, name: "Geometry Set", stock: 2, emoji: "📐" },
-  ]);
-
-  const [restockAmounts, setRestockAmounts] = useState<Record<number, number>>({
-    1: 10,
-    2: 10,
-    3: 10,
-  });
-
+  const [loading, setLoading] = useState(true);
+  const [vendorId, setVendorId] = useState<string | null>(null);
+  const [stats, setStats] = useState<VendorStats | null>(null);
+  const [pendingOrders, setPendingOrders] = useState<Order[]>([]);
+  const [lowStockItems, setLowStockItems] = useState<Product[]>([]);
+  const [restockAmounts, setRestockAmounts] = useState<Record<string, number>>({});
   const [message, setMessage] = useState<string | null>(null);
 
-  const pendingCount = useMemo(
-    () => orders.filter((o) => o.status === "pending").length,
-    [orders]
-  );
+  useEffect(() => {
+    const initDashboard = async () => {
+      try {
+        const user = getCurrentUser();
+        if (!user) {
+          router.push("/signin");
+          return;
+        }
 
-  const handleProcessOrder = (id: number) => {
-    setOrders((prev) =>
-      prev.map((o) => (o.id === id ? { ...o, status: "processed" } : o))
-    );
-    setMessage(`Order #${id} marked as processed`);
+        setVendorId(user.uid);
+
+        // Fetch dashboard data
+        const [statsData, lowStock, pending] = await Promise.all([
+          getVendorStats(user.uid),
+          getLowStockProducts(user.uid, 10),
+          getOrdersByStatus(user.uid, "pending"),
+        ]);
+
+        setStats(statsData);
+        setLowStockItems(lowStock);
+        setPendingOrders(pending);
+
+        // Initialize restock amounts
+        const initialAmounts: Record<string, number> = {};
+        lowStock.forEach((item: Product) => {
+          initialAmounts[item.id] = 10;
+        });
+        setRestockAmounts(initialAmounts);
+      } catch (error) {
+        console.error("Error loading dashboard:", error);
+        setMessage("Error loading dashboard data. Please refresh the page.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initDashboard();
+  }, [router]);
+
+  const handleProcessOrder = async (orderId: string) => {
+    if (!vendorId) return;
+    try {
+      await updateOrderStatus(orderId, "processing");
+      setPendingOrders((prev) => prev.filter((o) => o.id !== orderId));
+      setMessage(`Order #${orderId} marked as processing`);
+      
+      // Refresh stats
+      const newStats = await getVendorStats(vendorId);
+      setStats(newStats);
+    } catch (error) {
+      console.error("Error processing order:", error);
+      setMessage("Failed to process order. Please try again.");
+    }
   };
 
-  const handleRestock = (id: number) => {
-    const amount = restockAmounts[id] ?? 10;
+  const handleRestock = async (productId: string) => {
+    if (!vendorId) return;
+    const amount = restockAmounts[productId] ?? 10;
     if (amount <= 0) {
       setMessage("Restock amount must be at least 1.");
       return;
     }
-    setLowStockItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, stock: item.stock + amount } : item
-      )
-    );
-    const item = lowStockItems.find((i) => i.id === id);
-    if (item) {
-      setMessage(`${item.name} restocked to ${item.stock + amount} units`);
+
+    try {
+      await updateProductStock(productId, amount, vendorId, "Manual restock from dashboard");
+      
+      // Update UI
+      setLowStockItems((prev) =>
+        prev.map((item) =>
+          item.id === productId ? { ...item, stock: item.stock + amount } : item
+        )
+      );
+      
+      const item = lowStockItems.find((i) => i.id === productId);
+      if (item) {
+        setMessage(`${item.name} restocked to ${item.stock + amount} units`);
+      }
+      
+      // Refresh stats
+      const newStats = await getVendorStats(vendorId);
+      setStats(newStats);
+    } catch (error) {
+      console.error("Error restocking:", error);
+      setMessage("Failed to restock. Please try again.");
     }
   };
 
-  const handleRestockAmountChange = (id: number, value: number) => {
-    setRestockAmounts((prev) => ({ ...prev, [id]: value }));
+  const handleRestockAmountChange = (productId: string, value: number) => {
+    setRestockAmounts((prev) => ({ ...prev, [productId]: value }));
   };
+
+  // Seed demo data (call once)
+  const handleSeedDemoData = async () => {
+    if (!vendorId) return;
+    if (!confirm("This will add demo products and orders. Continue?")) return;
+    
+    try {
+      setMessage("Seeding demo data...");
+      await seedVendorDemoData(vendorId);
+      setMessage("Demo data added! Refreshing...");
+      window.location.reload();
+    } catch (error) {
+      console.error("Error seeding demo data:", error);
+      setMessage("Failed to seed demo data. Please try again.");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="vendor-dashboard-page">
+        <div className="vendor-dashboard-container">
+          <div style={{ textAlign: "center", padding: "2rem" }}>
+            <div style={{ fontSize: "2rem", marginBottom: "1rem" }}><BiLoaderAlt style={{ animation: "spin 1s linear infinite" }} /></div>
+            <p>Loading dashboard...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="vendor-dashboard-page">
@@ -78,7 +151,7 @@ const VendorDashboard = () => {
         
         {/* Welcome Section */}
         <div className="vendor-welcome-section">
-          <h1 className="vendor-welcome-title">Welcome Back, Vendor! 👋</h1>
+          <h1 className="vendor-welcome-title">Welcome Back, Vendor! <FaHandSparkles style={{ display: "inline", color: "#fbbf24" }} /></h1>
           <p className="vendor-welcome-text">Here's your business overview</p>
         </div>
 
@@ -94,37 +167,62 @@ const VendorDashboard = () => {
         {/* Stats Cards */}
         <div className="vendor-stats-grid">
           <div className="vendor-stat-card">
-            <div className="vendor-stat-icon">💰</div>
+            <div className="vendor-stat-icon"><FaDollarSign style={{ color: "#10b981" }} /></div>
             <div className="vendor-stat-info">
-              <h3 className="vendor-stat-number">$2,450</h3>
+              <h3 className="vendor-stat-number">${stats?.totalSales.toFixed(2) || "0.00"}</h3>
               <p className="vendor-stat-label">Total Sales</p>
             </div>
           </div>
 
           <div className="vendor-stat-card" onClick={() => router.push("/vendor/orders")}>
-            <div className="vendor-stat-icon">📦</div>
+            <div className="vendor-stat-icon"><FaBox style={{ color: "#3b82f6" }} /></div>
             <div className="vendor-stat-info">
-              <h3 className="vendor-stat-number">{pendingCount}</h3>
+              <h3 className="vendor-stat-number">{stats?.pendingOrders || 0}</h3>
               <p className="vendor-stat-label">Pending Orders</p>
             </div>
           </div>
 
           <div className="vendor-stat-card" onClick={() => router.push("/vendor/products")}>
-            <div className="vendor-stat-icon">📦</div>
+            <div className="vendor-stat-icon"><FaBox style={{ color: "#8b5cf6" }} /></div>
             <div className="vendor-stat-info">
-              <h3 className="vendor-stat-number">45</h3>
+              <h3 className="vendor-stat-number">{stats?.totalProducts || 0}</h3>
               <p className="vendor-stat-label">Total Products</p>
             </div>
           </div>
 
           <div className="vendor-stat-card" onClick={() => router.push("/vendor/inventory")}>
-            <div className="vendor-stat-icon">⚠️</div>
+            <div className="vendor-stat-icon"><FaExclamationTriangle style={{ color: "#f59e0b" }} /></div>
             <div className="vendor-stat-info">
-              <h3 className="vendor-stat-number">{lowStockItems.length}</h3>
+              <h3 className="vendor-stat-number">{stats?.lowStockItems || 0}</h3>
               <p className="vendor-stat-label">Low Stock Items</p>
             </div>
           </div>
         </div>
+
+        {/* Seed Demo Data Button (for first-time setup) */}
+        {stats && stats.totalProducts === 0 && (
+          <div style={{ textAlign: "center", margin: "2rem 0" }}>
+            <button
+              onClick={handleSeedDemoData}
+              style={{
+                padding: "0.75rem 1.5rem",
+                background: "#4f46e5",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontSize: "1rem",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                margin: "0 auto",
+              }}
+            >
+              <FaSeedling /> Seed Demo Data (Products & Orders)
+            </button>
+          </div>
+        )}
+
 
         {/* Pending Orders */}
         <section className="vendor-dashboard-section">
@@ -139,29 +237,34 @@ const VendorDashboard = () => {
           </div>
 
           <div className="vendor-orders-list">
-            {orders.map((order) => (
-              <div key={order.id} className={`vendor-order-item ${order.status === "processed" ? "order-processed" : ""}`}>
-                <div className="vendor-order-info">
-                  <span className="vendor-order-id">Order #{order.id}</span>
-                  <span className="vendor-order-customer">Customer: {order.customer}</span>
-                </div>
-                <span className="vendor-order-amount">${order.amount.toFixed(2)}</span>
-                <button
-                  className="vendor-order-action-btn"
-                  disabled={order.status === "processed"}
-                  onClick={() => handleProcessOrder(order.id)}
-                >
-                  {order.status === "processed" ? "Processed" : "Process Order"}
-                </button>
+            {pendingOrders.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "2rem", color: "#999" }}>
+                <div style={{ fontSize: "3rem", marginBottom: "0.5rem", color: "#9ca3af" }}><FaInbox /></div>
+                <p>No pending orders</p>
               </div>
-            ))}
+            ) : (
+              pendingOrders.slice(0, 3).map((order) => (
+                <div key={order.id} className="vendor-order-item">
+                  <div className="vendor-order-info">
+                    <span className="vendor-order-id">Order #{order.id.substring(0, 8)}</span>
+                    <span className="vendor-order-customer">Customer: {order.customerName}</span>
+                  </div>
+                  <span className="vendor-order-amount">${order.totalAmount.toFixed(2)}</span>
+                  <button
+                    className="vendor-order-action-btn"
+                    onClick={() => handleProcessOrder(order.id)}
+                  >
+                    Process
+                  </button>
+                </div>
+              ))
+            )}
           </div>
         </section>
-
         {/* Low Stock Alert */}
         <section className="vendor-dashboard-section">
           <div className="vendor-section-head">
-            <h2 className="vendor-section-title">Low Stock Alert ⚠️</h2>
+            <h2 className="vendor-section-title">Low Stock Alert</h2>
             <button 
               className="vendor-view-all-btn"
               onClick={() => router.push("/vendor/inventory")}
@@ -171,25 +274,39 @@ const VendorDashboard = () => {
           </div>
 
           <div className="vendor-low-stock-grid">
-            {lowStockItems.map((item) => (
-              <div key={item.id} className="vendor-product-alert-card">
-                <div className="vendor-product-emoji">{item.emoji}</div>
-                <h3 className="vendor-product-alert-name">{item.name}</h3>
-                <p className="vendor-product-stock">Stock: <span className={item.stock <= 5 ? "stock-low" : ""}>{item.stock} left</span></p>
-                <div className="restock-control">
-                  <input
-                    type="number"
-                    min={1}
-                    value={restockAmounts[item.id] ?? 10}
-                    onChange={(e) => handleRestockAmountChange(item.id, parseInt(e.target.value, 10) || 0)}
-                    aria-label={`Restock amount for ${item.name}`}
-                  />
-                  <button className="vendor-restock-btn" onClick={() => handleRestock(item.id)}>
-                    Restock +{restockAmounts[item.id] ?? 10}
-                  </button>
-                </div>
+            {lowStockItems.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "2rem", color: "#999", gridColumn: "1 / -1" }}>
+                <div style={{ fontSize: "3rem", marginBottom: "0.5rem", color: "#10b981" }}><FaCheckCircle /></div>
+                <p>All items have sufficient stock</p>
               </div>
-            ))}
+            ) : (
+              lowStockItems.map((item) => (
+                <div key={item.id} className="vendor-product-alert-card">
+                  <div className="vendor-product-emoji">{item.emoji}</div>
+                  <h3 className="vendor-product-alert-name">{item.name}</h3>
+                  <p className="vendor-product-stock">
+                    Stock: <span className={item.stock <= 5 ? "stock-low" : ""}>{item.stock} left</span>
+                  </p>
+                  <div className="vendor-restock-controls">
+                    <input
+                      type="number"
+                      min="1"
+                      value={restockAmounts[item.id] ?? 10}
+                      onChange={(e) => handleRestockAmountChange(item.id, parseInt(e.target.value, 10) || 0)}
+                      className="vendor-restock-input"
+                      aria-label={`Restock amount for ${item.name}`}
+                    />
+                    <button
+                      className="vendor-restock-btn"
+                      onClick={() => handleRestock(item.id)}
+                      aria-label={`Restock ${item.name}`}
+                    >
+                      Restock
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </section>
 
@@ -199,13 +316,13 @@ const VendorDashboard = () => {
             className="vendor-quick-action-btn"
             onClick={() => router.push("/vendor/products/add")}
           >
-            ➕ Add New Product
+            <FaPlus style={{ marginRight: "0.5rem" }} /> Add New Product
           </button>
           <button 
             className="vendor-quick-action-btn"
             onClick={() => router.push("/vendor/orders")}
           >
-            📋 View All Orders
+            <FaClipboardList style={{ marginRight: "0.5rem" }} /> View All Orders
           </button>
         </section>
 

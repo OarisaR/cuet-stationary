@@ -1,22 +1,98 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { getCurrentUser } from "@/lib/auth";
+import { getWishlist, removeFromWishlist, addToCart, getProductById } from "@/lib/student-service";
+import type { WishlistItem } from "@/lib/student-service";
 import "./Wishlist.css";
 
 const Wishlist = () => {
   const router = useRouter();
-  const [wishlistItems, setWishlistItems] = useState([
-    { id: 1, name: "Premium Notebook", price: 5.99, emoji: "📓" },
-    { id: 2, name: "Pen Set (10pcs)", price: 3.50, emoji: "✏️" },
-    { id: 3, name: "Geometry Set", price: 8.00, emoji: "📐" },
-    { id: 4, name: "Color Markers", price: 6.25, emoji: "🖍️" },
-    { id: 5, name: "Sticky Notes Pack", price: 2.99, emoji: "📝" },
-    { id: 6, name: "Calculator", price: 12.00, emoji: "🔢" },
-  ]);
+  const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [studentId, setStudentId] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
 
-  const removeItem = (id: number) => {
-    setWishlistItems(items => items.filter(item => item.id !== id));
+  useEffect(() => {
+    const initWishlist = async () => {
+      try {
+        const user = getCurrentUser();
+        if (!user) {
+          router.push("/signin");
+          return;
+        }
+
+        setStudentId(user.uid);
+        const items = await getWishlist(user.uid);
+        setWishlistItems(items);
+      } catch (error) {
+        console.error("Error loading wishlist:", error);
+        setMessage("Error loading wishlist. Please refresh the page.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initWishlist();
+  }, [router]);
+
+  const removeItem = async (wishlistItemId: string, itemName: string) => {
+    try {
+      await removeFromWishlist(wishlistItemId);
+      setWishlistItems(items => items.filter(item => item.id !== wishlistItemId));
+      setMessage(`${itemName} removed from wishlist`);
+      setTimeout(() => setMessage(null), 2000);
+    } catch (error) {
+      console.error("Error removing item:", error);
+      setMessage("Failed to remove item. Please try again.");
+    }
   };
+
+  const handleAddToCart = async (item: WishlistItem) => {
+    if (!studentId) return;
+    try {
+      const product = await getProductById(item.productId);
+      if (product) {
+        await addToCart(studentId, product, 1);
+        setMessage(`${item.productName} added to cart!`);
+        setTimeout(() => setMessage(null), 2000);
+      }
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      setMessage("Failed to add to cart. Please try again.");
+    }
+  };
+
+  const handleAddAllToCart = async () => {
+    if (!studentId) return;
+    let successCount = 0;
+    for (const item of wishlistItems) {
+      try {
+        const product = await getProductById(item.productId);
+        if (product) {
+          await addToCart(studentId, product, 1);
+          successCount++;
+        }
+      } catch (error) {
+        console.error("Error adding item to cart:", error);
+      }
+    }
+    setMessage(`${successCount} items added to cart!`);
+    setTimeout(() => setMessage(null), 2000);
+  };
+
+  if (loading) {
+    return (
+      <div className="wishlist-page">
+        <div className="wishlist-container">
+          <div style={{ textAlign: "center", padding: "2rem" }}>
+            <div style={{ fontSize: "2rem", marginBottom: "1rem" }}>⏳</div>
+            <p>Loading wishlist...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="wishlist-page">
@@ -28,38 +104,62 @@ const Wishlist = () => {
           <p className="wishlist-subtitle">{wishlistItems.length} items saved</p>
         </div>
 
+        {message && (
+          <div style={{
+            padding: "1rem",
+            marginBottom: "1rem",
+            background: "#4f46e5",
+            color: "white",
+            borderRadius: "8px",
+            textAlign: "center",
+          }}>
+            {message}
+          </div>
+        )}
+
         {wishlistItems.length === 0 ? (
           <div className="empty-wishlist">
             <div className="empty-icon">💔</div>
-            <p className="empty-text">Your wishlist is empty</p>
-            <button className="shop-now-btn" onClick={() => router.push("/student/shop")}>
-              Explore Products
+            <h2>Your wishlist is empty</h2>
+            <p>Start adding items you love!</p>
+            <button 
+              className="shop-now-btn"
+              onClick={() => router.push("/student/shop")}
+            >
+              Shop Now
             </button>
           </div>
         ) : (
           <>
             <div className="wishlist-grid">
-              {wishlistItems.map(item => (
-                <div key={item.id} className="wishlist-card">
+              {wishlistItems.map((item) => (
+                <div key={item.id} className="wishlist-item-card">
                   <button 
-                    className="wishlist-remove" 
-                    onClick={() => removeItem(item.id)}
+                    className="wishlist-remove-btn"
+                    onClick={() => removeItem(item.id, item.productName)}
                   >
                     ✕
                   </button>
-                  <div className="wishlist-item-image">{item.emoji}</div>
-                  <h3 className="wishlist-item-name">{item.name}</h3>
-                  <p className="wishlist-item-price">${item.price.toFixed(2)}</p>
+                  <div className="wishlist-item-image">{item.productEmoji}</div>
+                  <h3 className="wishlist-item-name">{item.productName}</h3>
+                  <p className="wishlist-item-price">${item.productPrice.toFixed(2)}</p>
                   <div className="wishlist-actions">
-                    <button className="wishlist-add-cart">Add to Cart</button>
-                    <button className="wishlist-view-btn">View</button>
+                    <button 
+                      className="wishlist-add-cart"
+                      onClick={() => handleAddToCart(item)}
+                    >
+                      Add to Cart
+                    </button>
                   </div>
                 </div>
               ))}
             </div>
 
             <div className="wishlist-footer">
-              <button className="add-all-cart-btn">
+              <button 
+                className="add-all-cart-btn"
+                onClick={handleAddAllToCart}
+              >
                 Add All to Cart
               </button>
             </div>

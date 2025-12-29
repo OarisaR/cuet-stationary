@@ -1,9 +1,12 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { getCurrentUser } from "@/lib/auth";
+import { addProduct } from "@/lib/vendor-service";
+import type { ProductInput } from "@/lib/firestore-types";
 import "./AddProduct.css";
 
-interface ProductInput {
+interface ProductForm {
   name: string;
   price: string;
   stock: string;
@@ -12,11 +15,10 @@ interface ProductInput {
   description: string;
 }
 
-const CUSTOM_PRODUCT_KEY = "vendorProductsCustom";
-
 const AddProduct = () => {
   const router = useRouter();
-  const [form, setForm] = useState<ProductInput>({
+  const [vendorId, setVendorId] = useState<string | null>(null);
+  const [form, setForm] = useState<ProductForm>({
     name: "",
     price: "",
     stock: "",
@@ -28,11 +30,13 @@ const AddProduct = () => {
   const [status, setStatus] = useState<"idle" | "saving">("idle");
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (!localStorage.getItem(CUSTOM_PRODUCT_KEY)) {
-      localStorage.setItem(CUSTOM_PRODUCT_KEY, "[]");
+    const user = getCurrentUser();
+    if (!user) {
+      router.push("/signin");
+      return;
     }
-  }, []);
+    setVendorId(user.uid);
+  }, [router]);
 
   const previewPrice = useMemo(() => {
     const price = parseFloat(form.price);
@@ -50,9 +54,14 @@ const AddProduct = () => {
     if (error) setError(null);
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
+
+    if (!vendorId) {
+      setError("User not authenticated. Please sign in again.");
+      return;
+    }
 
     const name = form.name.trim();
     const category = form.category.trim() || "General";
@@ -74,24 +83,18 @@ const AddProduct = () => {
       return;
     }
 
-    const newProduct = {
-      id: Date.now(),
+    const productInput: ProductInput = {
       name,
       category,
       price: parseFloat(price.toFixed(2)),
       stock,
       emoji,
       description,
-      custom: true,
     };
 
     setStatus("saving");
     try {
-      const existingRaw = typeof window !== "undefined" ? localStorage.getItem(CUSTOM_PRODUCT_KEY) : null;
-      const existing = existingRaw ? JSON.parse(existingRaw) : [];
-      const existingArray = Array.isArray(existing) ? existing : [];
-      const updated = [...existingArray, newProduct];
-      localStorage.setItem(CUSTOM_PRODUCT_KEY, JSON.stringify(updated));
+      await addProduct(vendorId, productInput);
       router.push("/vendor/products?added=1");
     } catch (err) {
       console.error("Failed to save product", err);
