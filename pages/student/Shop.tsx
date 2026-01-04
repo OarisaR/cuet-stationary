@@ -1,10 +1,10 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getCurrentUser } from "@/lib/auth";
-import { getAllProducts, addToCart, addToWishlist } from "@/lib/student-service";
-import type { Product } from "@/lib/firestore-types";
+import { authAPI, studentAPI } from "@/lib/api-client";
+import type { Product } from "@/lib/models";
 import "./Shop.css";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 const Shop = () => {
   const router = useRouter();
@@ -14,19 +14,27 @@ const Shop = () => {
   const [loading, setLoading] = useState(true);
   const [studentId, setStudentId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [wishlistProductIds, setWishlistProductIds] = useState<Set<string>>(new Set());
+  const [wishlistItems, setWishlistItems] = useState<any[]>([]);
 
   useEffect(() => {
     const initShop = async () => {
       try {
-        const user = getCurrentUser();
-        if (!user) {
+        const response = await authAPI.getCurrentUser();
+        if (!response || !response.user) {
           router.push("/signin");
           return;
         }
 
-        setStudentId(user.uid);
-        const productsData = await getAllProducts();
+        setStudentId(response.user.id);
+        const [productsData, wishlistData] = await Promise.all([
+          studentAPI.getProducts(),
+          studentAPI.getWishlist()
+        ]);
         setProducts(productsData);
+        setWishlistItems(wishlistData);
+        const wishlistIds = new Set<string>(wishlistData.map((item: any) => item.productId.toString()));
+        setWishlistProductIds(wishlistIds);
       } catch (error) {
         console.error("Error loading products:", error);
         setMessage("Error loading products. Please refresh the page.");
@@ -41,7 +49,7 @@ const Shop = () => {
   const handleAddToCart = async (product: Product) => {
     if (!studentId) return;
     try {
-      await addToCart(studentId, product, 1);
+      await studentAPI.addToCart(product._id!.toString(), 1);
       setMessage(`${product.name} added to cart!`);
       setTimeout(() => setMessage(null), 3000);
     } catch (error) {
@@ -52,8 +60,36 @@ const Shop = () => {
 
   const handleAddToWishlist = async (product: Product) => {
     if (!studentId) return;
+    const productId = product._id!.toString();
+    
+    if (wishlistProductIds.has(productId)) {
+      // Item is in wishlist, remove it
+      try {
+        const wishlistItem = wishlistItems.find((item: any) => item.productId.toString() === productId);
+        if (wishlistItem) {
+          await studentAPI.removeFromWishlist(wishlistItem._id.toString());
+          setWishlistProductIds(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(productId);
+            return newSet;
+          });
+          setWishlistItems(prev => prev.filter(item => item.productId.toString() !== productId));
+          setMessage(`${product.name} removed from wishlist!`);
+          setTimeout(() => setMessage(null), 3000);
+        }
+      } catch (error) {
+        console.error("Error removing from wishlist:", error);
+        setMessage("Failed to remove from wishlist. Please try again.");
+      }
+      return;
+    }
+    
+    // Item not in wishlist, add it
     try {
-      await addToWishlist(studentId, product);
+      const result = await studentAPI.addToWishlist(productId);
+      setWishlistProductIds(prev => new Set(prev).add(productId));
+      // Add to local wishlist items with the returned item ID
+      setWishlistItems(prev => [...prev, { _id: result.itemId || productId, productId: product._id }]);
       setMessage(`${product.name} added to wishlist!`);
       setTimeout(() => setMessage(null), 3000);
     } catch (error) {
@@ -70,12 +106,10 @@ const Shop = () => {
 
   if (loading) {
     return (
-      <div className="shop-page">
-        <div className="shop-container">
-          <div style={{ textAlign: "center", padding: "2rem" }}>
-            <div style={{ fontSize: "2rem", marginBottom: "1rem" }}>⏳</div>
-            <p>Loading products...</p>
-          </div>
+      <div className="shop-page" style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
+          <AiOutlineLoading3Quarters style={{ fontSize: "3rem", animation: "spin 1s linear infinite" }} />
+          <p style={{ margin: 0 }}>Loading products...</p>
         </div>
       </div>
     );
@@ -165,10 +199,10 @@ const Shop = () => {
             </div>
           ) : (
             filteredProducts.map(product => (
-              <div key={product.id} className="shop-product-card">
+              <div key={product._id!.toString()} className="shop-product-card">
                 <div className="shop-product-image">{product.emoji}</div>
                 <h3 className="shop-product-name">{product.name}</h3>
-                <p className="shop-product-price">${product.price.toFixed(2)}</p>
+                <p className="shop-product-price">৳{product.price.toFixed(2)}</p>
                 <p className="shop-product-stock">Stock: {product.stock}</p>
                 <div className="shop-product-actions">
                   <button 
@@ -179,10 +213,10 @@ const Shop = () => {
                     Add to Cart
                   </button>
                   <button 
-                    className="shop-wishlist-btn"
+                    className={`shop-wishlist-btn ${wishlistProductIds.has(product._id!.toString()) ? 'active' : ''}`}
                     onClick={() => handleAddToWishlist(product)}
                   >
-                    ♥
+                    {wishlistProductIds.has(product._id!.toString()) ? '♥' : '♡'}
                   </button>
                 </div>
               </div>

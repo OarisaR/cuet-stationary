@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signUpWithEmail, getAuthErrorMessage } from "@/lib/auth";
+import { authAPI } from "@/lib/api-client";
 import "./Signup.css";
 
 const Signup = () => {
@@ -40,15 +40,12 @@ const Signup = () => {
     setLoading(true);
 
     try {
-      await signUpWithEmail(formData.email, formData.password, formData.name);
+      await authAPI.signup(formData.email, formData.password, formData.name);
       alert("Student account created successfully! Welcome aboard.");
       router.push('/signin');
     } catch (err: any) {
       console.error("Signup error:", err);
-      const errorCode = err.code || "";
-      const errorMessage = errorCode 
-        ? getAuthErrorMessage(errorCode) 
-        : err.message || "Failed to create account. Please try again.";
+      const errorMessage = err.message || "Failed to create account. Please try again.";
       setError(errorMessage);
     } finally {
       setLoading(false);

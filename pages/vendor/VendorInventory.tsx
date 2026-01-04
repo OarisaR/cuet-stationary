@@ -1,10 +1,9 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getCurrentUser } from "@/lib/auth";
-import { getVendorProducts, updateProductStock } from "@/lib/vendor-service";
-import type { Product } from "@/lib/firestore-types";
-import { BiLoaderAlt } from "react-icons/bi";
+import { authAPI, vendorAPI } from "@/lib/api-client";
+import type { Product } from "@/lib/models";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { FaExclamationTriangle, FaChartBar, FaBox } from "react-icons/fa";
 import "./VendorInventory.css";
 
@@ -19,14 +18,14 @@ const VendorInventory = () => {
   useEffect(() => {
     const initInventory = async () => {
       try {
-        const user = getCurrentUser();
-        if (!user) {
+        const response = await authAPI.getCurrentUser();
+        if (!response || !response.user) {
           router.push("/signin");
           return;
         }
 
-        setVendorId(user.uid);
-        const productsData = await getVendorProducts(user.uid);
+        setVendorId(response.user.id);
+        const productsData = await vendorAPI.getProducts();
         setProducts(productsData);
       } catch (error) {
         console.error("Error loading inventory:", error);
@@ -43,11 +42,11 @@ const VendorInventory = () => {
     if (!vendorId) return;
     
     try {
-      await updateProductStock(productId, adjustment, vendorId, "Manual adjustment from inventory");
+      await vendorAPI.updateProductStock(productId, adjustment, "Manual adjustment from inventory");
       
       // Update local state
       setProducts(products.map(p =>
-        p.id === productId ? { ...p, stock: Math.max(0, p.stock + adjustment) } : p
+        p._id!.toString() === productId ? { ...p, stock: Math.max(0, p.stock + adjustment) } : p
       ));
       
       // Clear adjustment after update
@@ -57,7 +56,7 @@ const VendorInventory = () => {
         return updated;
       });
       
-      const product = products.find(p => p.id === productId);
+      const product = products.find(p => p._id!.toString() === productId);
       if (product) {
         setMessage(`${product.name} stock updated successfully`);
       }
@@ -92,12 +91,10 @@ const VendorInventory = () => {
 
   if (loading) {
     return (
-      <div className="vendor-inventory-page">
-        <div className="vendor-inventory-container">
-          <div style={{ textAlign: "center", padding: "2rem" }}>
-            <div style={{ fontSize: "2rem", marginBottom: "1rem" }}><BiLoaderAlt style={{ animation: "spin 1s linear infinite" }} /></div>
-            <p>Loading inventory...</p>
-          </div>
+      <div className="vendor-inventory-page" style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
+          <AiOutlineLoading3Quarters style={{ fontSize: "3rem", animation: "spin 1s linear infinite" }} />
+          <p style={{ margin: 0 }}>Loading inventory...</p>
         </div>
       </div>
     );
@@ -140,21 +137,21 @@ const VendorInventory = () => {
         {/* Alert Summary */}
         <div className="inventory-alerts">
           <div className="inventory-alert alert-critical">
-            <div className="alert-icon"><FaExclamationTriangle style={{ color: "#dc2626" }} /></div>
+            <div className="alert-icon"><FaExclamationTriangle /></div>
             <div className="alert-info">
               <h3 className="alert-number">{criticalStockCount}</h3>
               <p className="alert-label">Critical Stock Items</p>
             </div>
           </div>
           <div className="inventory-alert alert-warning">
-            <div className="alert-icon"><FaChartBar style={{ color: "#f59e0b" }} /></div>
+            <div className="alert-icon"><FaChartBar /></div>
             <div className="alert-info">
               <h3 className="alert-number">{lowStockCount}</h3>
               <p className="alert-label">Low Stock Items</p>
             </div>
           </div>
           <div className="inventory-alert alert-info">
-            <div className="alert-icon"><FaBox style={{ color: "#3b82f6" }} /></div>
+            <div className="alert-icon"><FaBox /></div>
             <div className="alert-info">
               <h3 className="alert-number">{products.length}</h3>
               <p className="alert-label">Total Products</p>
@@ -177,8 +174,9 @@ const VendorInventory = () => {
             <tbody>
               {products.map(product => {
                 const status = getStockStatus(product.stock);
+                const productId = product._id!.toString();
                 return (
-                  <tr key={product.id}>
+                  <tr key={productId}>
                     <td className="inventory-product-emoji">{product.emoji}</td>
                     <td className="inventory-product-name">{product.name}</td>
                     <td className="inventory-stock-number">{product.stock} units</td>
@@ -192,15 +190,15 @@ const VendorInventory = () => {
                         <input
                           type="number"
                           className="inventory-input"
-                          value={adjustments[product.id] ?? 0}
-                          onChange={(e) => handleAdjustmentChange(product.id, parseInt(e.target.value, 10) || 0)}
+                          value={adjustments[productId] ?? 0}
+                          onChange={(e) => handleAdjustmentChange(productId, parseInt(e.target.value, 10) || 0)}
                           placeholder="±0"
                           aria-label={`Adjust stock for ${product.name}`}
                         />
                         <button 
                           className="inventory-btn inventory-btn-update"
-                          onClick={() => handleUpdate(product.id)}
-                          disabled={!adjustments[product.id] || adjustments[product.id] === 0}
+                          onClick={() => handleUpdate(productId)}
+                          disabled={!adjustments[productId] || adjustments[productId] === 0}
                         >
                           Update
                         </button>

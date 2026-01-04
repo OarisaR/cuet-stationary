@@ -11,7 +11,7 @@
       transparent 2px,
       transparent 12px
     ),
-    linear-gradient(180deg, rgb(184, 196, 169) 0%, rgb(194, 206, 179) 100%);
+    linear-gradient(180deg, rgb(140, 170, 120) 0%, rgb(160, 190, 140) 100%);
   padding: 7rem 2rem;
   position: relative;
 }
@@ -162,7 +162,7 @@
   transform: translateX(-50%);
   font-size: 2.5rem;
   color: rgb(217, 125, 85);
-  background: rgb(184, 196, 169);
+  background: rgb(140, 170, 120);
   padding: 0.3rem 1rem;
   border: 3px solid #5a6c7d;
 }

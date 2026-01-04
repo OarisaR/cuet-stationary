@@ -1,7 +1,7 @@
 /* Vendor Dashboard Page */
 .vendor-dashboard-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #d4e4d0 0%, #e8f3e5 50%, #d9e7d4 100%);
+  background: linear-gradient(180deg, rgb(244, 233, 215) 0%, rgb(250, 245, 235) 100%);
   padding: 5rem 1.5rem 2rem;
 }
 
@@ -23,26 +23,24 @@
 /* Welcome Section */
 .vendor-welcome-section {
   margin-bottom: 2rem;
-  padding: 1.8rem;
-  background: linear-gradient(135deg, rgba(255, 253, 247, 0.95) 0%, rgba(255, 250, 240, 0.9) 100%);
-  border: 3px solid #7a8f7e;
-  box-shadow: 6px 6px 0px rgba(122, 143, 126, 0.4);
-  border-radius: 2px;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.6);
+  border: 2px solid #5a6c7d;
+  box-shadow: 4px 4px 0px rgba(90, 108, 125, 0.3);
 }
 
 .vendor-welcome-title {
   font-family: 'Playfair Display', 'Georgia', serif;
-  font-size: 1.9rem;
+  font-size: 1.8rem;
   font-weight: 800;
-  color: #4a5f4e;
-  margin-bottom: 0.5rem;
-  letter-spacing: -0.5px;
+  color: #5a6c7d;
+  margin-bottom: 0.4rem;
 }
 
 .vendor-welcome-text {
   font-family: 'Poppins', sans-serif;
-  font-size: 0.95rem;
-  color: #7a8f7e;
+  font-size: 0.9rem;
+  color: #6b7c8f;
   font-weight: 500;
 }
 
@@ -50,35 +48,30 @@
 .vendor-stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.3rem;
+  gap: 1.2rem;
   margin-bottom: 2.5rem;
 }
 
 .vendor-stat-card {
   display: flex;
   align-items: center;
-  gap: 1.2rem;
-  background: linear-gradient(135deg, #fffef8 0%, #fefbf3 100%);
-  padding: 1.4rem 1.2rem;
-  border: 3px solid #7a8f7e;
-  box-shadow: 5px 5px 0px rgba(122, 143, 126, 0.35);
+  gap: 1rem;
+  background: white;
+  padding: 1.2rem;
+  border: 2px solid #5a6c7d;
+  box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.4);
   cursor: pointer;
-  transition: all 0.25s ease;
-  border-radius: 2px;
+  transition: all 0.2s ease;
 }
 
 .vendor-stat-card:hover {
-  transform: translate(-3px, -3px);
-  box-shadow: 7px 7px 0px rgba(122, 143, 126, 0.45);
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0px rgba(90, 108, 125, 0.5);
 }
 
 .vendor-stat-icon {
-  font-size: 2.8rem;
-  filter: drop-shadow(2px 2px 2px rgba(122, 143, 126, 0.15));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0.9;
+  font-size: 2rem;
+  filter: drop-shadow(1px 1px 0px rgba(90, 108, 125, 0.2));
 }
 
 .vendor-stat-info {
@@ -87,22 +80,21 @@
 
 .vendor-stat-number {
   font-family: 'Playfair Display', 'Georgia', serif;
-  font-size: 2rem;
+  font-size: 1.8rem;
   font-weight: 800;
-  color: #7a8f7e;
+  color: rgb(217, 125, 85);
   margin: 0;
   line-height: 1;
-  letter-spacing: -1px;
 }
 
 .vendor-stat-label {
   font-family: 'Poppins', sans-serif;
-  font-size: 0.75rem;
-  color: #9aaa9e;
+  font-size: 0.8rem;
+  color: #6b7c8f;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin: 0.4rem 0 0 0;
+  letter-spacing: 0.3px;
+  margin: 0.3rem 0 0 0;
 }
 
 /* Dashboard Sections */
@@ -119,32 +111,30 @@
 
 .vendor-section-title {
   font-family: 'Playfair Display', 'Georgia', serif;
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   font-weight: 800;
-  color: #4a5f4e;
+  color: #5a6c7d;
   margin: 0;
-  letter-spacing: -0.3px;
 }
 
 .vendor-view-all-btn {
   background: transparent;
-  border: 2px solid #9bb5b0;
-  color: #6f9a94;
+  border: 2px solid #5a6c7d;
+  color: #5a6c7d;
   font-family: 'Poppins', sans-serif;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  padding: 0.5rem 1.1rem;
+  padding: 0.5rem 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-radius: 2px;
 }
 
 .vendor-view-all-btn:hover {
-  background: #9bb5b0;
+  background: #5a6c7d;
   color: white;
-  box-shadow: 3px 3px 0px rgba(122, 143, 126, 0.35);
+  box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.3);
   transform: translateY(-1px);
 }
 
@@ -158,23 +148,22 @@
 .vendor-order-item {
   display: flex;
   align-items: center;
-  gap: 1.1rem;
-  background: linear-gradient(135deg, #fffef8 0%, #fefbf3 100%);
-  padding: 1.1rem 1.3rem;
-  border: 3px solid #7a8f7e;
-  box-shadow: 4px 4px 0px rgba(122, 143, 126, 0.3);
-  border-radius: 2px;
+  gap: 1rem;
+  background: white;
+  padding: 1rem 1.2rem;
+  border: 2px solid #5a6c7d;
+  box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.3);
   transition: all 0.2s ease;
 }
 
 .vendor-order-item:hover {
   transform: translate(-2px, -2px);
-  box-shadow: 5px 5px 0px rgba(122, 143, 126, 0.35);
+  box-shadow: 5px 5px 0px rgba(90, 108, 125, 0.4);
 }
 
 .vendor-order-item.order-processed {
   opacity: 0.75;
-  background: rgba(212, 228, 208, 0.15);
+  background: rgba(140, 170, 120, 0.15);
 }
 
 .vendor-order-info {
@@ -186,15 +175,15 @@
 
 .vendor-order-id {
   font-family: 'Poppins', sans-serif;
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   font-weight: 700;
-  color: #4a5f4e;
+  color: #5a6c7d;
 }
 
 .vendor-order-customer {
   font-family: 'Poppins', sans-serif;
-  font-size: 0.78rem;
-  color: #9aaa9e;
+  font-size: 0.75rem;
+  color: #6b7c8f;
   font-weight: 500;
 }
 
@@ -202,35 +191,34 @@
   font-family: 'Playfair Display', 'Georgia', serif;
   font-size: 1.2rem;
   font-weight: 800;
-  color: #d4977d;
+  color: rgb(217, 125, 85);
   min-width: 90px;
   text-align: right;
 }
 
 .vendor-order-action-btn {
-  background: linear-gradient(135deg, #b8c4a9 0%, #a8b499 100%);
+  background: rgb(140, 170, 120);
   color: white;
   font-family: 'Poppins', sans-serif;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  padding: 0.6rem 1.1rem;
-  border: 2px solid #7a8f7e;
+  padding: 0.6rem 1rem;
+  border: 2px solid #5a6c7d;
   cursor: pointer;
   transition: all 0.2s ease;
   text-transform: uppercase;
-  box-shadow: 3px 3px 0px rgba(122, 143, 126, 0.3);
-  border-radius: 2px;
+  box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.3);
   letter-spacing: 0.5px;
 }
 
 .vendor-order-action-btn:hover {
-  background: linear-gradient(135deg, #a8b499 0%, #98a489 100%);
+  background: rgb(120, 150, 100);
   transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0px rgba(122, 143, 126, 0.4);
+  box-shadow: 4px 4px 0px rgba(90, 108, 125, 0.4);
 }
 
 .vendor-order-action-btn:disabled {
-  background: rgba(184, 196, 169, 0.5);
+  background: rgba(140, 170, 120, 0.5);
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
@@ -244,67 +232,65 @@
 }
 
 .vendor-product-alert-card {
-  background: linear-gradient(135deg, #fff9f5 0%, #fffbf7 100%);
+  background: white;
   padding: 1.2rem;
-  border: 3px solid #d4977d;
-  box-shadow: 4px 4px 0px rgba(212, 151, 125, 0.35);
+  border: 2px solid rgb(217, 125, 85);
+  box-shadow: 3px 3px 0px rgba(217, 125, 85, 0.3);
   text-align: center;
   transition: all 0.2s ease;
-  border-radius: 2px;
 }
 
 .vendor-product-alert-card:hover {
   transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0px rgba(212, 151, 125, 0.4);
+  box-shadow: 5px 5px 0px rgba(217, 125, 85, 0.4);
 }
 
 .vendor-product-emoji {
-  font-size: 2.8rem;
-  margin-bottom: 0.9rem;
-  filter: drop-shadow(2px 2px 3px rgba(212, 151, 125, 0.15));
+  font-size: 2.5rem;
+  margin-bottom: 0.8rem;
+  filter: drop-shadow(1px 1px 1px rgba(90, 108, 125, 0.15));
 }
 
 .vendor-product-alert-name {
   font-family: 'Poppins', sans-serif;
   font-size: 0.85rem;
   font-weight: 700;
-  color: #4a5f4e;
+  color: #5a6c7d;
   margin: 0 0 0.5rem 0;
 }
 
 .vendor-product-stock {
   font-family: 'Poppins', sans-serif;
   font-size: 0.8rem;
-  color: #9aaa9e;
+  color: #6b7c8f;
   font-weight: 600;
   margin: 0 0 0.9rem 0;
 }
 
 .stock-low {
-  color: #d4977d;
+  color: rgb(217, 125, 85);
   font-weight: 800;
 }
 
 .vendor-restock-btn {
-  background: linear-gradient(135deg, #d4977d 0%, #c8876d 100%);
+  background: rgb(217, 125, 85);
   color: white;
   font-family: 'Poppins', sans-serif;
   font-size: 0.7rem;
   font-weight: 800;
   padding: 0.6rem 0.8rem;
-  border: 2px solid #7a8f7e;
+  border: 2px solid #5a6c7d;
   cursor: pointer;
   transition: all 0.2s ease;
   text-transform: uppercase;
-  box-shadow: 3px 3px 0px rgba(122, 143, 126, 0.3);
-  border-radius: 2px;
+  box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.3);
   letter-spacing: 0.5px;
 }
 
 .vendor-restock-btn:hover {
-  background: linear-gradient(135deg, #c8876d 0%, #bc775d 100%);
+  background: rgb(207, 115, 75);
   transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0px rgba(122, 143, 126, 0.4);
+  box-shadow: 4px 4px 0px rgba(90, 108, 125, 0.4);
 }
 
 .restock-control {
@@ -328,8 +314,8 @@
 
 .restock-control input:focus {
   outline: none;
-  border-color: rgb(184, 196, 169);
-  box-shadow: 3px 3px 0px rgba(184, 196, 169, 0.3);
+  border-color: rgb(140, 170, 120);
+  box-shadow: 3px 3px 0px rgba(140, 170, 120, 0.3);
 }
 
 .restock-control .vendor-restock-btn {
@@ -343,34 +329,34 @@
   flex-wrap: wrap;
   justify-content: center;
   padding: 2rem;
-  background: rgba(255, 255, 255, 0.5);
-  border: 2px dashed rgba(90, 108, 125, 0.3);
+  background: rgba(255, 255, 255, 0.8);
+  border: 2px solid rgba(217, 125, 85, 0.4);
+  box-shadow: 3px 3px 0px rgba(217, 125, 85, 0.2);
 }
 
 .vendor-quick-action-btn {
-  background: linear-gradient(135deg, #9bb5b0 0%, #8aa5a0 100%);
+  background: rgb(217, 125, 85);
   color: white;
   font-family: 'Poppins', sans-serif;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 800;
-  padding: 0.9rem 2.2rem;
-  border: 3px solid #7a8f7e;
+  padding: 0.9rem 2rem;
+  border: 2px solid #5a6c7d;
   cursor: pointer;
   transition: all 0.2s ease;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  box-shadow: 4px 4px 0px rgba(122, 143, 126, 0.35);
+  box-shadow: 4px 4px 0px rgba(90, 108, 125, 0.3);
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
   justify-content: center;
-  border-radius: 2px;
 }
 
 .vendor-quick-action-btn:hover {
   transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0px rgba(122, 143, 126, 0.45);
-  background: linear-gradient(135deg, #8aa5a0 0%, #7a9590 100%);
+  box-shadow: 6px 6px 0px rgba(90, 108, 125, 0.4);
+  background: rgb(207, 115, 75);
 }
 
 /* Toast */

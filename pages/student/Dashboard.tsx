@@ -1,38 +1,40 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getCurrentUser } from "@/lib/auth";
-import { getStudentOrders, getWishlist, getAllProducts } from "@/lib/student-service";
-import type { Order } from "@/lib/firestore-types";
-import type { WishlistItem } from "@/lib/student-service";
+import { authAPI, studentAPI } from "@/lib/api-client";
+import type { Order, Product } from "@/lib/models";
 import "./Dashboard.css";
 import { FiPackage, FiHeart } from "react-icons/fi";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 const Dashboard = () => {
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [wishlistCount, setWishlistCount] = useState(0);
   const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
+  const [studentName, setStudentName] = useState<string>("Student");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const initDashboard = async () => {
       try {
-        const user = getCurrentUser();
-        if (!user) {
+        const response = await authAPI.getCurrentUser();
+        if (!response?.user) {
           router.push("/signin");
           return;
         }
 
-        const [ordersData, wishlistData, productsData] = await Promise.all([
-          getStudentOrders(user.uid),
-          getWishlist(user.uid),
-          getAllProducts(),
+        const [ordersData, wishlistData, productsData, profileData] = await Promise.all([
+          studentAPI.getOrders(),
+          studentAPI.getWishlist(),
+          studentAPI.getProducts(),
+          studentAPI.getProfile(),
         ]);
 
         setOrders(ordersData);
         setWishlistCount(wishlistData.length);
         setFeaturedProducts(productsData.slice(0, 4));
+        setStudentName(profileData?.displayName || response.user.displayName || "Student");
       } catch (error) {
         console.error("Error loading dashboard:", error);
       } finally {
@@ -46,8 +48,9 @@ const Dashboard = () => {
   const activeOrders = orders.filter(o => o.status === "pending" || o.status === "processing" || o.status === "shipped");
 
   const formatDate = (timestamp: any) => {
-    if (!timestamp || !timestamp.toDate) return "N/A";
-    return timestamp.toDate().toLocaleDateString("en-US", {
+    if (!timestamp) return "N/A";
+    const date = typeof timestamp === 'string' ? new Date(timestamp) : (timestamp.toDate ? timestamp.toDate() : new Date(timestamp));
+    return date.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
       year: "numeric",
@@ -66,12 +69,10 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="dashboard-page">
-        <div className="dashboard-container">
-          <div style={{ textAlign: "center", padding: "2rem" }}>
-            <div style={{ fontSize: "2rem", marginBottom: "1rem" }}>⏳</div>
-            <p>Loading dashboard...</p>
-          </div>
+      <div className="dashboard-page" style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
+          <AiOutlineLoading3Quarters style={{ fontSize: "3rem", animation: "spin 1s linear infinite" }} />
+          <p style={{ margin: 0 }}>Loading dashboard...</p>
         </div>
       </div>
     );
@@ -83,7 +84,7 @@ const Dashboard = () => {
         
         {/* Welcome Section */}
         <div className="welcome-section">
-          <h1 className="welcome-title">Welcome Back, Student! 👋</h1>
+          <h1 className="welcome-title">Welcome Back, {studentName}!</h1>
           <p className="welcome-text">Here's what's happening with your orders today</p>
         </div>
 
@@ -123,9 +124,9 @@ const Dashboard = () => {
               </div>
             ) : (
               orders.slice(0, 3).map((order) => (
-                <div key={order.id} className="order-item">
+                <div key={order._id!.toString()} className="order-item">
                   <div className="order-info">
-                    <span className="order-id">Order #{order.id.substring(0, 8)}</span>
+                    <span className="order-id">Order #{order._id!.toString().substring(0, 8)}</span>
                     <span className="order-date">{formatDate(order.createdAt)}</span>
                   </div>
                   <span className={`order-status ${getStatusClass(order.status)}`}>
@@ -157,10 +158,10 @@ const Dashboard = () => {
               </div>
             ) : (
               featuredProducts.map((product) => (
-                <div key={product.id} className="product-card">
+                <div key={product._id!.toString()} className="product-card">
                   <div className="product-image">{product.emoji}</div>
                   <h3 className="product-name">{product.name}</h3>
-                  <p className="product-price">${product.price.toFixed(2)}</p>
+                  <p className="product-price">৳{product.price.toFixed(2)}</p>
                   <button 
                     className="add-cart-btn"
                     onClick={() => router.push("/student/shop")}

@@ -1,8 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { getCurrentUser } from "@/lib/auth";
-import { getCartItems } from "@/lib/student-service";
+import { authAPI, studentAPI } from "@/lib/api-client";
 import "./UserNavbar.css";
 
 const UserNavbar = () => {
@@ -13,10 +12,16 @@ const UserNavbar = () => {
   useEffect(() => {
     const fetchCartCount = async () => {
       try {
-        const user = getCurrentUser();
-        if (user) {
-          const items = await getCartItems(user.uid);
-          setCartCount(items.length);
+        // Check if token exists before making API calls
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+          return;
+        }
+
+        const userResponse = await authAPI.getCurrentUser();
+        if (userResponse && userResponse.user) {
+          const cartItems = await studentAPI.getCart();
+          setCartCount(cartItems.length);
         }
       } catch (error) {
         console.error("Error fetching cart count:", error);
@@ -38,8 +43,9 @@ const UserNavbar = () => {
   const isActive = (path: string) => pathname === path;
 
   const handleLogout = () => {
-    // Add logout logic here
     if (confirm("Are you sure you want to logout?")) {
+      authAPI.logout();
+      localStorage.removeItem('user');
       router.push("/");
     }
   };

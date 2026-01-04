@@ -1,10 +1,10 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getCurrentUser } from "@/lib/auth";
-import { getStudentOrders } from "@/lib/student-service";
-import type { Order, OrderStatus } from "@/lib/firestore-types";
+import { authAPI, studentAPI } from "@/lib/api-client";
+import type { Order, OrderStatus } from "@/lib/models";
 import "./Orders.css";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 const Orders = () => {
   const router = useRouter();
@@ -16,13 +16,13 @@ const Orders = () => {
   useEffect(() => {
     const initOrders = async () => {
       try {
-        const user = getCurrentUser();
-        if (!user) {
+        const response = await authAPI.getCurrentUser();
+        if (!response?.user) {
           router.push("/signin");
           return;
         }
 
-        const ordersData = await getStudentOrders(user.uid);
+        const ordersData = await studentAPI.getOrders();
         setOrders(ordersData);
       } catch (error) {
         console.error("Error loading orders:", error);
@@ -51,8 +51,9 @@ const Orders = () => {
   };
 
   const formatDate = (timestamp: any) => {
-    if (!timestamp || !timestamp.toDate) return "N/A";
-    return timestamp.toDate().toLocaleDateString("en-US", {
+    if (!timestamp) return "N/A";
+    const date = typeof timestamp === 'string' ? new Date(timestamp) : (timestamp.toDate ? timestamp.toDate() : new Date(timestamp));
+    return date.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
       year: "numeric",
@@ -61,12 +62,10 @@ const Orders = () => {
 
   if (loading) {
     return (
-      <div className="orders-page">
-        <div className="orders-container">
-          <div style={{ textAlign: "center", padding: "2rem" }}>
-            <div style={{ fontSize: "2rem", marginBottom: "1rem" }}>⏳</div>
-            <p>Loading orders...</p>
-          </div>
+      <div className="orders-page" style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
+          <AiOutlineLoading3Quarters style={{ fontSize: "3rem", animation: "spin 1s linear infinite" }} />
+          <p style={{ margin: 0 }}>Loading orders...</p>
         </div>
       </div>
     );
@@ -144,11 +143,11 @@ const Orders = () => {
             </div>
           ) : (
             filteredOrders.map(order => (
-              <div key={order.id} className="order-card">
+              <div key={order._id!.toString()} className="order-card">
                 <div className="order-card-header">
                   <div className="order-id-section">
                     <span className="order-label">Order ID:</span>
-                    <span className="order-id">#{order.id.substring(0, 8)}</span>
+                    <span className="order-id">#{order._id!.toString().substring(0, 8)}</span>
                   </div>
                   {getStatusBadge(order.status)}
                 </div>
@@ -164,7 +163,7 @@ const Orders = () => {
                   </div>
                   <div className="order-detail">
                     <span className="detail-label">Total:</span>
-                    <span className="detail-value detail-price">${order.totalAmount.toFixed(2)}</span>
+                    <span className="detail-value detail-price">৳{order.totalAmount.toFixed(2)}</span>
                   </div>
                 </div>
 

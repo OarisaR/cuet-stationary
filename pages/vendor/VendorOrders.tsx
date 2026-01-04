@@ -1,10 +1,9 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getCurrentUser } from "@/lib/auth";
-import { getVendorOrders, updateOrderStatus } from "@/lib/vendor-service";
-import type { Order, OrderStatus } from "@/lib/firestore-types";
-import { BiLoaderAlt } from "react-icons/bi";
+import { authAPI, vendorAPI } from "@/lib/api-client";
+import type { Order, OrderStatus } from "@/lib/models";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { FaClock, FaCog, FaTruck, FaCheckCircle, FaTimes, FaBox } from "react-icons/fa";
 import "./VendorOrders.css";
 
@@ -19,14 +18,14 @@ const VendorOrders = () => {
   useEffect(() => {
     const initOrders = async () => {
       try {
-        const user = getCurrentUser();
-        if (!user) {
+        const response = await authAPI.getCurrentUser();
+        if (!response || !response.user) {
           router.push("/signin");
           return;
         }
 
-        setVendorId(user.uid);
-        const ordersData = await getVendorOrders(user.uid);
+        setVendorId(response.user.id);
+        const ordersData = await vendorAPI.getOrders();
         setOrders(ordersData);
       } catch (error) {
         console.error("Error loading orders:", error);
@@ -56,9 +55,9 @@ const VendorOrders = () => {
 
   const handleStatusUpdate = async (orderId: string, newStatus: OrderStatus) => {
     try {
-      await updateOrderStatus(orderId, newStatus);
+      await vendorAPI.updateOrderStatus(orderId, newStatus);
       setOrders((prev) =>
-        prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
+        prev.map((o) => (o._id!.toString() === orderId ? { ...o, status: newStatus } : o))
       );
       setMessage(`Order #${orderId.substring(0, 8)} status updated to: ${newStatus}`);
     } catch (error) {
@@ -68,8 +67,9 @@ const VendorOrders = () => {
   };
 
   const formatDate = (timestamp: any) => {
-    if (!timestamp || !timestamp.toDate) return "N/A";
-    return timestamp.toDate().toLocaleDateString("en-US", {
+    if (!timestamp) return "N/A";
+    const date = typeof timestamp === 'string' ? new Date(timestamp) : (timestamp.toDate ? timestamp.toDate() : new Date(timestamp));
+    return date.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
       year: "numeric",
@@ -78,12 +78,10 @@ const VendorOrders = () => {
 
   if (loading) {
     return (
-      <div className="vendor-orders-page">
-        <div className="vendor-orders-container">
-          <div style={{ textAlign: "center", padding: "2rem" }}>
-            <div style={{ fontSize: "2rem", marginBottom: "1rem" }}><BiLoaderAlt style={{ animation: "spin 1s linear infinite" }} /></div>
-            <p>Loading orders...</p>
-          </div>
+      <div className="vendor-orders-page" style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
+          <AiOutlineLoading3Quarters style={{ fontSize: "3rem", animation: "spin 1s linear infinite" }} />
+          <p style={{ margin: 0 }}>Loading orders...</p>
         </div>
       </div>
     );
@@ -164,11 +162,11 @@ const VendorOrders = () => {
             </div>
           ) : (
             filteredOrders.map(order => (
-              <div key={order.id} className="vendor-order-card">
+              <div key={order._id!.toString()} className="vendor-order-card">
                 <div className="vendor-order-card-header">
                   <div className="vendor-order-id-section">
                     <span className="vendor-order-label">Order ID:</span>
-                    <span className="vendor-order-id-text">#{order.id.substring(0, 8)}</span>
+                    <span className="vendor-order-id-text">#{order._id!.toString().substring(0, 8)}</span>
                   </div>
                   {getStatusBadge(order.status)}
                 </div>
@@ -188,7 +186,7 @@ const VendorOrders = () => {
                   </div>
                   <div className="vendor-order-detail">
                     <span className="vendor-detail-label">Total:</span>
-                    <span className="vendor-detail-value vendor-detail-price">${order.totalAmount.toFixed(2)}</span>
+                    <span className="vendor-detail-value vendor-detail-price">৳{order.totalAmount.toFixed(2)}</span>
                   </div>
                 </div>
 
@@ -196,7 +194,7 @@ const VendorOrders = () => {
                   {order.status === "pending" && (
                     <button 
                       className="vendor-order-btn vendor-order-btn-process"
-                      onClick={() => handleStatusUpdate(order.id, "processing")}
+                      onClick={() => handleStatusUpdate(order._id!.toString(), "processing")}
                     >
                       Start Processing
                     </button>
@@ -204,7 +202,7 @@ const VendorOrders = () => {
                   {order.status === "processing" && (
                     <button 
                       className="vendor-order-btn vendor-order-btn-ship"
-                      onClick={() => handleStatusUpdate(order.id, "shipped")}
+                      onClick={() => handleStatusUpdate(order._id!.toString(), "shipped")}
                     >
                       Mark as Shipped
                     </button>
@@ -212,7 +210,7 @@ const VendorOrders = () => {
                   {order.status === "shipped" && (
                     <button 
                       className="vendor-order-btn vendor-order-btn-deliver"
-                      onClick={() => handleStatusUpdate(order.id, "delivered")}
+                      onClick={() => handleStatusUpdate(order._id!.toString(), "delivered")}
                     >
                       Mark as Delivered
                     </button>

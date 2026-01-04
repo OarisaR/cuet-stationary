@@ -1,214 +1,30 @@
-# CUET Online Stationery 📚✏️
+# CUET Stationary App 📚✏️
 
-A comprehensive e-commerce platform for CUET students to browse, order, and receive stationery items, with a complete vendor management system. Built with Next.js and Firebase.
+A full-stack e-commerce platform for university stationary supplies built with Next.js 16, MongoDB Atlas, and TypeScript. The application supports two user roles: **Students** (buyers) and **Vendors** (sellers).
 
-## 🌟 Overview
+## 🚀 Tech Stack
 
-**CUET Online Stationery** connects CUET students with campus vendors, enabling seamless ordering and delivery of stationery items including pens, notebooks, lab materials, and art supplies directly at campus halls or designated pickup points.
-
-The platform features **two distinct portals**:
-- **Student Portal** - Browse products, manage cart/wishlist, place orders, track deliveries
-- **Vendor Portal** - Manage products, inventory, orders, and view business analytics
-
----
-
-## 🚀 Features
-
-### Student Portal
-- 🛍️ **Shop** - Browse all available products with category filters (Notebooks, Pens, Tools, Art, Accessories)
-- 🔍 **Search** - Find products by name, category, or description
-- 🛒 **Shopping Cart** - Add items, update quantities, proceed to checkout
-- ❤️ **Wishlist** - Save favorite items for later
-- 📦 **Order Tracking** - View order history with real-time status updates
-- 📊 **Dashboard** - Quick overview of active orders and featured products
-
-### Vendor Portal
-- ➕ **Product Management** - Add, edit, delete products with emoji-based images
-- 📊 **Dashboard** - View sales statistics, pending orders, and low stock alerts
-- 📦 **Order Management** - Process orders and update status (pending → processing → shipped → delivered)
-- 📈 **Inventory Tracking** - Monitor stock levels, receive low stock alerts, log inventory adjustments
-- 🎯 **Demo Data** - One-click seed sample products for testing
+- **Frontend**: Next.js 16.0.1 (App Router), React 19, TypeScript
+- **Backend**: Next.js API Routes (serverless functions)
+- **Database**: MongoDB Atlas
+- **Authentication**: JWT (JSON Web Tokens) with bcrypt password hashing
+- **Styling**: CSS Modules + Tailwind CSS
+- **Type Safety**: Full TypeScript implementation
 
 ---
 
-## 🛠️ Tech Stack
-
-- **Framework:** Next.js 13+ (App Router)
-- **Language:** TypeScript
-- **Database:** Firebase Firestore
-- **Authentication:** Firebase Auth
-- **Styling:** CSS Modules
-- **State Management:** React Hooks (useState, useEffect)
-
----
-
-## 📁 Project Structure
-
-```
-cuet-stationary-app/
-├── app/                          # Next.js app router
-│   ├── student/                  # Student portal pages
-│   │   ├── dashboard/
-│   │   ├── shop/
-│   │   ├── cart/
-│   │   ├── wishlist/
-│   │   ├── orders/
-│   │   └── profile/
-│   └── vendor/                   # Vendor portal pages
-│       ├── dashboard/
-│       ├── products/
-│       ├── orders/
-│       ├── inventory/
-│       └── profile/
-├── components/                   # Reusable components
-│   ├── UserNavbar.tsx           # Student navigation
-│   └── VendorNavbar.tsx         # Vendor navigation
-├── lib/                          # Core business logic
-│   ├── firebase.ts              # Firebase configuration
-│   ├── auth.ts                  # Authentication logic
-│   ├── firestore-types.ts       # TypeScript interfaces
-│   ├── vendor-service.ts        # Vendor CRUD operations
-│   └── student-service.ts       # Student CRUD operations
-└── pages/                        # Legacy page components
-    ├── student/                  # Student components
-    └── vendor/                   # Vendor components
-```
-
----
-
-## 🔥 Firebase Setup
-
-### Collections Structure
-
-#### **products**
-```typescript
-{
-  id: string
-  name: string
-  description: string
-  price: number
-  category: string
-  emoji: string              // 📓 📐 ✏️ 🖍️ etc.
-  stock: number
-  vendorId: string
-  vendorName: string
-  createdAt: Timestamp
-  updatedAt: Timestamp
-}
-```
-
-#### **orders**
-```typescript
-{
-  id: string
-  customerId: string          // Student ID
-  vendorId: string
-  customerName: string
-  customerEmail: string
-  items: OrderItem[]
-  totalAmount: number
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
-  createdAt: Timestamp
-  updatedAt: Timestamp
-}
-```
-
-#### **cart**
-```typescript
-{
-  id: string
-  studentId: string
-  productId: string
-  productName: string
-  productPrice: number
-  productEmoji: string
-  quantity: number
-  vendorId: string
-  addedAt: Timestamp
-}
-```
-
-#### **wishlist**
-```typescript
-{
-  id: string
-  studentId: string
-  productId: string
-  productName: string
-  productPrice: number
-  productEmoji: string
-  vendorId: string
-  addedAt: Timestamp
-}
-```
-
-#### **inventoryAdjustments**
-```typescript
-{
-  id: string
-  productId: string
-  vendorId: string
-  oldStock: number
-  newStock: number
-  change: number
-  reason: string
-  adjustedAt: Timestamp
-}
-```
-
-### Firestore Rules (Basic)
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // Allow authenticated users to read products
-    match /products/{product} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null; // Restrict to vendor in production
-    }
-    
-    // Cart - students can only access their own cart
-    match /cart/{item} {
-      allow read, write: if request.auth != null && 
-                           resource.data.studentId == request.auth.uid;
-    }
-    
-    // Wishlist - students can only access their own wishlist
-    match /wishlist/{item} {
-      allow read, write: if request.auth != null && 
-                           resource.data.studentId == request.auth.uid;
-    }
-    
-    // Orders - users can access their own orders
-    match /orders/{order} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null;
-      allow update: if request.auth != null; // Restrict to vendor in production
-    }
-    
-    // Inventory adjustments
-    match /inventoryAdjustments/{adjustment} {
-      allow read, write: if request.auth != null;
-    }
-  }
-}
-```
-
----
-
-## 🚦 Getting Started
+## ⚡ Quick Start
 
 ### Prerequisites
-- Node.js 18+ installed
-- Firebase project created
-- Firebase configuration (from Firebase Console)
+- Node.js 18+ and npm/yarn/pnpm
+- MongoDB Atlas account (or local MongoDB instance)
 
 ### Installation
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/cuet-stationery.git
-   cd cuet-stationery
+   git clone <repository-url>
+   cd cuet-stationary-app
    ```
 
 2. **Install dependencies**
@@ -216,160 +32,310 @@ service cloud.firestore {
    npm install
    ```
 
-3. **Configure Firebase**
+3. **Configure environment variables**
    
-   Create `lib/firebase.ts` with your Firebase config:
-   ```typescript
-   import { initializeApp } from 'firebase/app';
-   import { getAuth } from 'firebase/auth';
-   import { getFirestore } from 'firebase/firestore';
-
-   const firebaseConfig = {
-     apiKey: "YOUR_API_KEY",
-     authDomain: "YOUR_AUTH_DOMAIN",
-     projectId: "YOUR_PROJECT_ID",
-     storageBucket: "YOUR_STORAGE_BUCKET",
-     messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-     appId: "YOUR_APP_ID"
-   };
-
-   const app = initializeApp(firebaseConfig);
-   export const auth = getAuth(app);
-   export const db = getFirestore(app);
+   Create/edit `.env.local` file in the root directory:
+   ```env
+   # MongoDB
+   MONGODB_URI=your_mongodb_connection_string
+   
+   # JWT
+   JWT_SECRET=your_secret_key_here
    ```
 
-4. **Run development server**
+4. **Test database connection**
+   ```bash
+   npx tsx scripts/test-connection.ts
+   ```
+
+5. **Run development server**
    ```bash
    npm run dev
    ```
 
-5. **Open in browser**
-   ```
-   http://localhost:3000
-   ```
+6. **Open the application**
+   
+   Navigate to [http://localhost:3000](http://localhost:3000)
+
 
 ---
 
-## 👤 User Roles & Authentication
+## 📁 Project Structure
 
-### Vendor Account
-- **Email:** vendor@cuet.com
-- **Password:** (set during account creation)
-- Redirects to `/vendor/dashboard`
+```
+cuet-stationary-app/
+│
+├── app/                          # Next.js App Router (v13+)
+│   ├── api/                      # API Routes (Backend)
+│   │   ├── auth/                 # Authentication endpoints
+│   │   │   ├── login/           # POST /api/auth/login
+│   │   │   ├── signup/          # POST /api/auth/signup
+│   │   │   └── me/              # GET /api/auth/me
+│   │   ├── student/             # Student API endpoints (10 routes)
+│   │   │   ├── cart/            # Cart operations (GET, POST, PUT, DELETE)
+│   │   │   ├── checkout/        # POST checkout order
+│   │   │   ├── orders/          # Order management (GET, GET/:id, PUT/:id/cancel)
+│   │   │   ├── products/        # Product browsing (GET, GET/:id, GET/search, GET/low-stock)
+│   │   │   └── wishlist/        # Wishlist operations (GET, POST, DELETE)
+│   │   └── vendor/              # Vendor API endpoints (13 routes)
+│   │       ├── inventory/       # Inventory management (GET)
+│   │       ├── orders/          # Order fulfillment (GET, GET/:id, PUT/:id/status)
+│   │       ├── products/        # Product CRUD (GET, POST, GET/:id, PUT/:id, DELETE/:id)
+│   │       └── stats/           # Vendor analytics (GET)
+│   │
+│   ├── student/                 # Student route pages (wrappers)
+│   │   ├── cart/page.tsx        # Shopping cart page
+│   │   ├── dashboard/page.tsx   # Student dashboard
+│   │   ├── orders/page.tsx      # Order history
+│   │   ├── profile/page.tsx     # User profile
+│   │   ├── shop/page.tsx        # Product catalog
+│   │   ├── wishlist/page.tsx    # Saved items
+│   │   └── layout.tsx           # Student layout wrapper
+│   │
+│   ├── vendor/                  # Vendor route pages (wrappers)
+│   │   ├── dashboard/page.tsx   # Vendor analytics dashboard
+│   │   ├── inventory/page.tsx   # Stock management
+│   │   ├── orders/page.tsx      # Order fulfillment
+│   │   ├── products/            # Product management
+│   │   │   ├── page.tsx         # Product list
+│   │   │   └── add/page.tsx     # Add new product
+│   │   ├── profile/page.tsx     # Vendor profile
+│   │   └── layout.tsx           # Vendor layout wrapper
+│   │
+│   ├── signin/page.tsx          # Sign in page
+│   ├── signup/page.tsx          # Sign up page
+│   ├── page.tsx                 # Landing page
+│   ├── layout.tsx               # Root layout
+│   └── globals.css              # Global styles
+│
+├── pages/                        # Component implementations (actual UI logic)
+│   ├── student/                 # Student components
+│   │   ├── Cart.tsx             # Cart component with add/remove/update
+│   │   ├── Cart.css
+│   │   ├── Dashboard.tsx        # Student dashboard with stats
+│   │   ├── Dashboard.css
+│   │   ├── Orders.tsx           # Order history and tracking
+│   │   ├── Orders.css
+│   │   ├── Profile.tsx          # Profile management
+│   │   ├── Profile.css
+│   │   ├── Shop.tsx             # Product browsing with search/filter
+│   │   ├── Shop.css
+│   │   ├── Wishlist.tsx         # Wishlist management
+│   │   └── Wishlist.css
+│   │
+│   ├── vendor/                  # Vendor components
+│   │   ├── AddProduct.tsx       # Add/edit product form
+│   │   ├── AddProduct.css
+│   │   ├── Dashboard.tsx        # Vendor analytics (revenue, orders, products)
+│   │   ├── Dashboard.css
+│   │   ├── VendorInventory.tsx  # Stock level monitoring
+│   │   ├── VendorInventory.css
+│   │   ├── VendorOrders.tsx     # Order fulfillment interface
+│   │   ├── VendorOrders.css
+│   │   ├── VendorProducts.tsx   # Product list with edit/delete
+│   │   ├── VendorProducts.css
+│   │   ├── VendorProfile.tsx    # Vendor profile settings
+│   │   └── VendorProfile.css
+│   │
+│   ├── Home.tsx                 # Landing page component
+│   ├── Home.css
+│   ├── Login.tsx                # Login form component
+│   ├── Login.css
+│   ├── Signup.tsx               # Registration form component
+│   ├── Signup.css
+│   ├── About.tsx                # About page component
+│   ├── About.css
+│   ├── Contact.tsx              # Contact page component
+│   ├── Contact.css
+│   └── MainPage.tsx             # Main layout wrapper
+│
+├── components/                   # Shared/reusable components
+│   ├── LandingNavbar.tsx        # Public navigation bar
+│   ├── LandingNavbar.css
+│   ├── UserNavbar.tsx           # Student navigation bar
+│   ├── UserNavbar.css
+│   ├── VendorNavbar.tsx         # Vendor navigation bar
+│   ├── VendorNavbar.css
+│   ├── Footer.tsx               # Footer component
+│   └── Footer.css
+│
+├── lib/                          # Core utilities and services
+│   ├── mongodb.ts               # MongoDB connection utility (singleton pattern)
+│   ├── api-client.ts            # Frontend API client (28 methods)
+│   ├── models.ts                # TypeScript type definitions
+│   ├── jwt.ts                   # JWT token generation/verification
+│   ├── auth-context.tsx         # React Context for authentication state
+│   ├── firestore-types.ts       # Legacy type definitions (to be removed)
+│   ├── student-service.ts       # Legacy service (to be removed)
+│   └── vendor-service.ts        # Legacy service (to be removed)
+│
+├── scripts/                      # Utility scripts
+│   ├── test-connection.ts       # MongoDB connection test
+│   └── create-vendor.ts         # Vendor account creation script
+│
+├── public/                       # Static assets (images, icons, etc.)
+│
+├── .env.local                    # Environment variables (not in git)
+├── .gitignore                    # Git ignore rules
+├── eslint.config.mjs            # ESLint configuration
+├── next.config.ts               # Next.js configuration
+├── next-env.d.ts                # Next.js TypeScript declarations
+├── package.json                 # Dependencies and scripts
+├── postcss.config.mjs           # PostCSS configuration
+├── tsconfig.json                # TypeScript configuration
+└── README.md                    # This file
+```
 
-### Student Account
-- **Email:** Any email NOT in the vendor list
-- **Password:** (set during account creation)
-- Redirects to `/student/dashboard`
+### 🗂️ Folder Details
 
-The system automatically detects the role based on email and routes accordingly.
+#### `/app` - Next.js App Router
+The core of the application using Next.js 13+ App Router convention. Contains:
+- **API Routes**: All backend endpoints organized by domain (auth, student, vendor)
+- **Page Routes**: React Server Components that define routes (student/*, vendor/*)
+- **Layouts**: Shared layouts for different user roles
+
+#### `/pages` - Component Implementations
+Contains the actual React component logic (client components). While the `/app` folder defines routes, `/pages` holds the functional components that are imported and rendered by those routes. This separation allows for better code organization.
+
+#### `/components` - Shared UI Components
+Reusable components used across multiple pages:
+- Navigation bars for different user types (landing, student, vendor)
+- Footer component
+- Future: Buttons, modals, form inputs, etc.
+
+#### `/lib` - Core Libraries
+Business logic and utility functions:
+- **mongodb.ts**: Database connection management with connection pooling
+- **api-client.ts**: Type-safe API client for frontend (wraps fetch calls)
+- **models.ts**: TypeScript interfaces/types for all data models
+- **jwt.ts**: Authentication token handling (sign, verify)
+- **auth-context.tsx**: React Context for managing global auth state
+
+#### `/scripts` - Utility Scripts
+Helper scripts for development and testing:
+- Database connection testing
+- Admin account creation
+- Data seeding (future)
+
+#### `/public` - Static Assets
+Publicly accessible files served at the root URL:
+- Images, icons, logos
+- Fonts (if not using next/font)
+- manifest.json, robots.txt
 
 ---
 
-## 📖 Usage Guide
+## 🚀 Features
 
-### For Vendors
+### Student Portal
+- 🛍️ **Shop** - Browse all available products with category filters
+- 🔍 **Search** - Find products by name or category
+- 🛒 **Shopping Cart** - Add items, update quantities, checkout
+- ❤️ **Wishlist** - Save favorite items for later
+- 📦 **Order Tracking** - View order history with real-time status
+- 📊 **Dashboard** - Quick overview of active orders
 
-1. **Login** with vendor@cuet.com
-2. **Seed Demo Data** (first-time only)
-   - Navigate to Dashboard
-   - Click "Seed Demo Data" button
-   - Sample products will be created
-3. **Add Products**
-   - Go to Products → Add Product
-   - Enter details (name, price, stock, category, emoji)
-   - Submit to create
-4. **Manage Orders**
-   - View pending orders in Dashboard
-   - Navigate to Orders page
-   - Update order status (pending → processing → shipped → delivered)
-5. **Track Inventory**
-   - Monitor stock levels in Inventory page
-   - Receive low stock alerts (≤10 items)
-   - Log inventory adjustments with reasons
-
-### For Students
-
-1. **Create Account** (any email except vendor@cuet.com)
-2. **Browse Shop**
-   - View all available products
-   - Filter by category
-   - Search by keyword
-3. **Add to Cart**
-   - Select products and quantities
-   - Items saved to Firebase cart
-4. **Manage Wishlist**
-   - Save favorite items
-   - Move items to cart when ready
-5. **Checkout**
-   - Review cart items
-   - Place order (auto-splits by vendor)
-   - Cart clears automatically
-6. **Track Orders**
-   - View order history
-   - Filter by status
-   - Monitor delivery progress
+### Vendor Portal
+- ➕ **Product Management** - Add, edit, delete products
+- 📊 **Dashboard** - View sales statistics and pending orders
+- 📦 **Order Management** - Process orders and update status
+- 📈 **Inventory Tracking** - Monitor stock levels and low stock alerts
+- 💰 **Analytics** - Revenue tracking and business insights
 
 ---
 
-## 🔑 Key Services
+## 📚 API Documentation
 
-### Vendor Service (`lib/vendor-service.ts`)
-- `getVendorProducts()` - Fetch vendor's products
-- `addProduct()` - Create new product
-- `updateProduct()` - Edit existing product
-- `deleteProduct()` - Remove product
-- `getVendorOrders()` - Fetch vendor's orders
-- `updateOrderStatus()` - Change order status
-- `updateProductStock()` - Adjust inventory
-- `getLowStockProducts()` - Get products with stock ≤10
-- `getVendorStats()` - Calculate sales statistics
-- `seedVendorDemoData()` - Generate sample products
+### Authentication Endpoints (3)
 
-### Student Service (`lib/student-service.ts`)
-- `getAllProducts()` - Fetch all in-stock products
-- `searchProducts()` - Search by query
-- `getCartItems()` - Fetch student's cart
-- `addToCart()` - Add product to cart
-- `updateCartQuantity()` - Update cart item quantity
-- `removeFromCart()` - Remove cart item
-- `clearCart()` - Empty entire cart
-- `getWishlist()` - Fetch student's wishlist
-- `addToWishlist()` - Add product to wishlist
-- `removeFromWishlist()` - Remove wishlist item
-- `getStudentOrders()` - Fetch student's orders
-- `createOrderFromCart()` - Place order from cart
+- **POST** `/api/auth/signup` - Register new user (student/vendor)
+  - Body: `{ email, password, name, role }`
+  - Returns: `{ token, user }`
+  
+- **POST** `/api/auth/login` - Login and receive JWT token
+  - Body: `{ email, password }`
+  - Returns: `{ token, user }`
+  
+- **GET** `/api/auth/me` - Get current user info
+  - Headers: `Authorization: Bearer <token>`
+  - Returns: `{ user }`
+
+### Student Endpoints (10 routes)
+
+**Products**
+- **GET** `/api/student/products` - Get all products
+- **GET** `/api/student/products/:id` - Get single product
+- **GET** `/api/student/products/search?query=...` - Search products
+- **GET** `/api/student/products/low-stock` - Get low stock items
+
+**Cart**
+- **GET** `/api/student/cart` - Get user's cart
+- **POST** `/api/student/cart` - Add item to cart
+- **PUT** `/api/student/cart` - Update cart item quantity
+- **DELETE** `/api/student/cart/:productId` - Remove item
+
+**Orders**
+- **POST** `/api/student/checkout` - Create order from cart
+- **GET** `/api/student/orders` - Get order history
+- **GET** `/api/student/orders/:id` - Get order details
+- **PUT** `/api/student/orders/:id/cancel` - Cancel order
+
+**Wishlist**
+- **GET** `/api/student/wishlist` - Get wishlist
+- **POST** `/api/student/wishlist` - Add to wishlist
+- **DELETE** `/api/student/wishlist/:productId` - Remove from wishlist
+
+### Vendor Endpoints (13 routes)
+
+**Products**
+- **GET** `/api/vendor/products` - Get vendor's products
+- **POST** `/api/vendor/products` - Create product
+- **GET** `/api/vendor/products/:id` - Get product
+- **PUT** `/api/vendor/products/:id` - Update product
+- **DELETE** `/api/vendor/products/:id` - Delete product
+
+**Orders**
+- **GET** `/api/vendor/orders` - Get vendor's orders
+- **GET** `/api/vendor/orders/:id` - Get order details
+- **PUT** `/api/vendor/orders/:id/status` - Update order status
+
+**Inventory**
+- **GET** `/api/vendor/inventory` - Get inventory overview
+
+**Analytics**
+- **GET** `/api/vendor/stats` - Get vendor statistics
 
 ---
 
-## ⚡ Performance Optimizations
+## 🔐 Authentication Flow
 
-### Firebase Free Tier Considerations
-- **No Firebase Storage** - Using emojis for product images (📓📐✏️)
-- **No Composite Indexes** - Single-field queries with client-side filtering/sorting
-- **Efficient Queries** - All queries filtered by vendorId/studentId first
-- **Minimal Reads** - Data cached in component state
+1. User signs up via `/api/auth/signup` (role: 'student' or 'vendor')
+2. User logs in via `/api/auth/login` and receives JWT token
+3. Token stored in localStorage and sent in Authorization header
+4. Protected routes validate token via JWT middleware
+5. User info accessible via `/api/auth/me` endpoint
 
-### Query Patterns
-```typescript
-// ❌ Requires composite index
-const q = query(
-  collection(db, 'products'),
-  where('vendorId', '==', vendorId),
-  where('stock', '<=', 10),
-  orderBy('stock', 'asc')
-);
+**Token Details:**
+- Expires in 7 days
+- Contains: userId, email, name, role
+- Verified using JWT_SECRET from environment
 
-// ✅ Free tier friendly
-const q = query(
-  collection(db, 'products'),
-  where('vendorId', '==', vendorId)
-);
-const products = await getDocs(q);
-const lowStock = products.docs
-  .map(doc => ({ id: doc.id, ...doc.data() }))
-  .filter(p => p.stock <= 10)
-  .sort((a, b) => a.stock - b.stock);
+---
+
+## 🧪 Testing
+
+### Test Accounts
+
+**Vendor Account:**
+- Email: vendor@cuet.com
+- Password: vendor123
+
+**Student Account:**
+- Create your own via signup page
+
+### Test Database Connection
+```bash
+npx tsx scripts/test-connection.ts
 ```
 
 ---
@@ -378,97 +344,58 @@ const lowStock = products.docs
 
 ### Common Issues
 
-**1. Vendor redirects to student dashboard**
-- Solution: Check `lib/auth.ts` - vendor@cuet.com should be in `VENDOR_EMAILS` array
+**MongoDB Connection Failed**
+- Check `.env.local` file exists
+- Verify MONGODB_URI is correct
+- Ensure IP whitelist includes your IP in MongoDB Atlas
 
-**2. Firestore composite index errors**
-- Solution: All queries use single where() clause with client-side sorting
+**JWT Token Invalid**
+- Check JWT_SECRET is set in `.env.local`
+- Token may be expired (7-day limit)
+- Clear localStorage and login again
 
-**3. Products not showing in shop**
-- Solution: Ensure products have `stock > 0` in Firestore
+**TypeScript Errors**
+- Run `npm install` to ensure all dependencies are installed
+- Delete `.next` folder and restart dev server
 
-**4. Orders not appearing for vendor**
-- Solution: Check that order's `vendorId` matches vendor's user ID
-
-**5. Cart items disappearing**
-- Solution: Verify student is logged in and cart items have correct `studentId`
-
----
-
-## 📝 Testing Checklist
-
-### Vendor Flow
-- [ ] Login redirects to vendor dashboard
-- [ ] Seed demo data creates products
-- [ ] Add new product appears in products list
-- [ ] Edit product updates successfully
-- [ ] Delete product removes from list
-- [ ] Orders show in dashboard and orders page
-- [ ] Update order status reflects changes
-- [ ] Low stock alerts appear in dashboard
-- [ ] Inventory adjustments logged properly
-
-### Student Flow
-- [ ] Login redirects to student dashboard
-- [ ] Products appear in shop
-- [ ] Category filters work
-- [ ] Search finds products
-- [ ] Add to cart saves items
-- [ ] Cart quantities update
-- [ ] Wishlist saves items
-- [ ] Checkout creates orders
-- [ ] Orders appear in orders page
-- [ ] Order statuses display correctly
+**API Routes Not Found**
+- Ensure Next.js dev server is running
+- Check file structure in `app/api/` folder
 
 ---
 
-## 🚧 Known Limitations
+## 🚀 Deployment
 
-- Image upload not supported (using emojis on free Firebase tier)
-- Payment integration not implemented (cash on delivery assumed)
-- No real-time notifications (requires Firebase Cloud Messaging)
-- Basic role system (only vendor@cuet.com vs everyone else)
-- No admin super-user panel
-- Single vendor support per order (no multi-vendor carts merged)
+### Environment Variables (Production)
+```env
+MONGODB_URI=your_mongodb_atlas_connection_string
+JWT_SECRET=your_strong_random_secret_key
+```
 
----
+### Vercel Deployment
+```bash
+npm run build
+vercel --prod
+```
 
-## 🔮 Future Enhancements
-
-- [ ] Real-time order notifications
-- [ ] Payment gateway integration (bKash, SSLCommerz)
-- [ ] Multi-vendor cart consolidation
-- [ ] Advanced search with filters (price range, brand)
-- [ ] Product reviews and ratings
-- [ ] Discount codes and promotions
-- [ ] Email order confirmations
-- [ ] Admin panel for platform management
-- [ ] Image upload with Firebase Storage
-- [ ] Mobile app (React Native)
+### Other Platforms
+```bash
+npm run build
+npm start
+```
 
 ---
 
-## 👥 Team
+## ️ Development Scripts
 
-- **Dipannita Paul Orni** (ID: 2104125)
-- **Umme Sanjida** (ID: 2104126)
-- **Oarisa Rebayet** (ID: 2104129)
-
----
-
-## 📄 License
-
-This project is created for academic purposes at CUET.
+```bash
+npm run dev          # Start development server (port 3000)
+npm run build        # Build for production
+npm run start        # Start production server
+npm run lint         # Run ESLint
+```
 
 ---
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
 
 ---
 

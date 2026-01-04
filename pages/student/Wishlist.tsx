@@ -1,10 +1,10 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getCurrentUser } from "@/lib/auth";
-import { getWishlist, removeFromWishlist, addToCart, getProductById } from "@/lib/student-service";
-import type { WishlistItem } from "@/lib/student-service";
+import { authAPI, studentAPI } from "@/lib/api-client";
+import type { WishlistItem } from "@/lib/models";
 import "./Wishlist.css";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 const Wishlist = () => {
   const router = useRouter();
@@ -16,15 +16,17 @@ const Wishlist = () => {
   useEffect(() => {
     const initWishlist = async () => {
       try {
-        const user = getCurrentUser();
-        if (!user) {
+        const response = await authAPI.getCurrentUser();
+        if (!response || !response.user) {
           router.push("/signin");
           return;
         }
 
-        setStudentId(user.uid);
-        const items = await getWishlist(user.uid);
-        setWishlistItems(items);
+        setStudentId(response.user.id);
+        const wishlist = await studentAPI.getWishlist();
+        console.log('Wishlist items loaded:', wishlist);
+        console.log('First item _id:', wishlist[0]?._id);
+        setWishlistItems(wishlist);
       } catch (error) {
         console.error("Error loading wishlist:", error);
         setMessage("Error loading wishlist. Please refresh the page.");
@@ -38,8 +40,16 @@ const Wishlist = () => {
 
   const removeItem = async (wishlistItemId: string, itemName: string) => {
     try {
-      await removeFromWishlist(wishlistItemId);
-      setWishlistItems(items => items.filter(item => item.id !== wishlistItemId));
+      console.log('Removing item with ID:', wishlistItemId);
+      await studentAPI.removeFromWishlist(wishlistItemId);
+      setWishlistItems(items => {
+        const filtered = items.filter(item => {
+          const itemId = item._id?.toString();
+          console.log('Comparing:', itemId, 'with', wishlistItemId);
+          return itemId !== wishlistItemId;
+        });
+        return filtered;
+      });
       setMessage(`${itemName} removed from wishlist`);
       setTimeout(() => setMessage(null), 2000);
     } catch (error) {
@@ -51,12 +61,9 @@ const Wishlist = () => {
   const handleAddToCart = async (item: WishlistItem) => {
     if (!studentId) return;
     try {
-      const product = await getProductById(item.productId);
-      if (product) {
-        await addToCart(studentId, product, 1);
-        setMessage(`${item.productName} added to cart!`);
-        setTimeout(() => setMessage(null), 2000);
-      }
+      await studentAPI.addToCart(item.productId.toString(), 1);
+      setMessage(`${item.productName} added to cart!`);
+      setTimeout(() => setMessage(null), 2000);
     } catch (error) {
       console.error("Error adding to cart:", error);
       setMessage("Failed to add to cart. Please try again.");
@@ -68,11 +75,8 @@ const Wishlist = () => {
     let successCount = 0;
     for (const item of wishlistItems) {
       try {
-        const product = await getProductById(item.productId);
-        if (product) {
-          await addToCart(studentId, product, 1);
-          successCount++;
-        }
+        await studentAPI.addToCart(item.productId.toString(), 1);
+        successCount++;
       } catch (error) {
         console.error("Error adding item to cart:", error);
       }
@@ -83,12 +87,10 @@ const Wishlist = () => {
 
   if (loading) {
     return (
-      <div className="wishlist-page">
-        <div className="wishlist-container">
-          <div style={{ textAlign: "center", padding: "2rem" }}>
-            <div style={{ fontSize: "2rem", marginBottom: "1rem" }}>⏳</div>
-            <p>Loading wishlist...</p>
-          </div>
+      <div className="wishlist-page" style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
+          <AiOutlineLoading3Quarters style={{ fontSize: "3rem", animation: "spin 1s linear infinite" }} />
+          <p style={{ margin: 0 }}>Loading wishlist...</p>
         </div>
       </div>
     );
@@ -133,16 +135,20 @@ const Wishlist = () => {
           <>
             <div className="wishlist-grid">
               {wishlistItems.map((item) => (
-                <div key={item.id} className="wishlist-item-card">
+                <div key={item.productId.toString()} className="wishlist-item-card">
                   <button 
                     className="wishlist-remove-btn"
-                    onClick={() => removeItem(item.id, item.productName)}
+                    onClick={() => {
+                      console.log('Cross button clicked for item:', item);
+                      console.log('Item _id:', item._id);
+                      removeItem(item._id!.toString(), item.productName);
+                    }}
                   >
                     ✕
                   </button>
                   <div className="wishlist-item-image">{item.productEmoji}</div>
                   <h3 className="wishlist-item-name">{item.productName}</h3>
-                  <p className="wishlist-item-price">${item.productPrice.toFixed(2)}</p>
+                  <p className="wishlist-item-price">৳{item.productPrice.toFixed(2)}</p>
                   <div className="wishlist-actions">
                     <button 
                       className="wishlist-add-cart"

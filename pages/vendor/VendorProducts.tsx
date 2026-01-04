@@ -1,10 +1,9 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getCurrentUser } from "@/lib/auth";
-import { getVendorProducts, updateProduct, deleteProduct } from "@/lib/vendor-service";
-import type { Product, ProductInput } from "@/lib/firestore-types";
-import { BiLoaderAlt } from "react-icons/bi";
+import { authAPI, vendorAPI } from "@/lib/api-client";
+import type { Product, ProductInput } from "@/lib/models";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { FaPlus, FaSearch, FaEdit, FaTrash } from "react-icons/fa";
 import "./VendorProducts.css";
 
@@ -20,14 +19,14 @@ const VendorProducts = () => {
   useEffect(() => {
     const initProducts = async () => {
       try {
-        const user = getCurrentUser();
-        if (!user) {
+        const response = await authAPI.getCurrentUser();
+        if (!response || !response.user) {
           router.push("/signin");
           return;
         }
 
-        setVendorId(user.uid);
-        const productsData = await getVendorProducts(user.uid);
+        setVendorId(response.user.id);
+        const productsData = await vendorAPI.getProducts();
         setProducts(productsData);
       } catch (error) {
         console.error("Error loading products:", error);
@@ -44,8 +43,8 @@ const VendorProducts = () => {
     if (!confirm(`Delete "${product.name}"? This cannot be undone.`)) return;
 
     try {
-      await deleteProduct(product.id);
-      setProducts((prev) => prev.filter((p) => p.id !== product.id));
+      await vendorAPI.deleteProduct(product._id!.toString());
+      setProducts((prev) => prev.filter((p) => p._id!.toString() !== product._id!.toString()));
       setMessage(`${product.name} has been deleted.`);
     } catch (error) {
       console.error("Delete failed", error);
@@ -87,10 +86,10 @@ const VendorProducts = () => {
         description: editingProduct.description,
       };
       
-      await updateProduct(editingProduct.id, updates);
+      await vendorAPI.updateProduct(editingProduct._id!.toString(), updates);
       
       setProducts((prev) =>
-        prev.map((p) => (p.id === editingProduct.id ? editingProduct : p))
+        prev.map((p) => (p._id!.toString() === editingProduct._id!.toString() ? editingProduct : p))
       );
       
       setMessage(`${editingProduct.name} has been updated.`);
@@ -118,12 +117,10 @@ const VendorProducts = () => {
 
   if (loading) {
     return (
-      <div className="vendor-products-page">
-        <div className="vendor-products-container">
-          <div style={{ textAlign: "center", padding: "2rem" }}>
-            <div style={{ fontSize: "2rem", marginBottom: "1rem" }}><BiLoaderAlt style={{ animation: "spin 1s linear infinite" }} /></div>
-            <p>Loading products...</p>
-          </div>
+      <div className="vendor-products-page" style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
+          <AiOutlineLoading3Quarters style={{ fontSize: "3rem", animation: "spin 1s linear infinite" }} />
+          <p style={{ margin: 0 }}>Loading products...</p>
         </div>
       </div>
     );
@@ -141,6 +138,7 @@ const VendorProducts = () => {
           </div>
           <button 
             className="vendor-add-product-btn"
+            
             onClick={() => router.push("/vendor/products/add")}
           >
             <FaPlus style={{ marginRight: "0.5rem" }} /> Add New Product
@@ -162,6 +160,7 @@ const VendorProducts = () => {
             type="search" 
             placeholder="Search products..." 
             className="vendor-products-search-input"
+            
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -182,7 +181,7 @@ const VendorProducts = () => {
             </div>
           ) : (
             filteredProducts.map(product => (
-              <div key={product.id} className="vendor-product-card">
+              <div key={product._id!.toString()} className="vendor-product-card">
                 <div className="vendor-product-image">{product.emoji}</div>
                 <div className="vendor-product-details">
                   <h3 className="vendor-product-name">
@@ -190,7 +189,7 @@ const VendorProducts = () => {
                   </h3>
                   <p className="vendor-product-category">{product.category}</p>
                   <div className="vendor-product-info-row">
-                    <span className="vendor-product-price">${product.price.toFixed(2)}</span>
+                    <span className="vendor-product-price">৳{product.price.toFixed(2)}</span>
                     {getStockStatus(product.stock)}
                   </div>
                   <p className="vendor-product-stock-count">Stock: {product.stock} units</p>
@@ -198,6 +197,7 @@ const VendorProducts = () => {
                 <div className="vendor-product-actions">
                   <button 
                     className="vendor-product-edit-btn" 
+                    
                     onClick={() => handleEditClick(product)}
                   >
                     <FaEdit style={{ marginRight: "0.5rem" }} /> Edit
@@ -260,7 +260,7 @@ const VendorProducts = () => {
 
                 <div className="modal-row">
                   <label className="modal-field">
-                    <span>Price (USD) *</span>
+                    <span>Price (BDT) *</span>
                     <input
                       type="number"
                       value={editingProduct.price}

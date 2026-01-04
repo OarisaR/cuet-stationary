@@ -103,7 +103,7 @@
   font-weight: 500;
   padding: 1.5rem;
   background: rgba(255, 255, 255, 0.6);
-  border: 2px dashed rgb(184, 196, 169);
+  border: 2px dashed rgb(140, 170, 120);
   border-radius: 0;
   position: relative;
 }
@@ -218,7 +218,7 @@
 .shape-2 {
   width: 180px;
   height: 180px;
-  background: rgb(184, 196, 169);
+  background: rgb(140, 170, 120);
   bottom: 15%;
   left: 8%;
   border-radius: 50%;

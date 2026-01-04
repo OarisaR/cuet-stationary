@@ -1,12 +1,9 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import "./Profile.css";
-import { getCurrentUser } from "@/lib/auth";
-import {
-  getStudentProfile,
-  saveStudentProfile,
-  type StudentProfile,
-} from "@/lib/student-service";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { authAPI, studentAPI } from "@/lib/api-client";
+import type { StudentProfile } from "@/lib/models";
 
 const Profile = () => {
   const [loading, setLoading] = useState(true);
@@ -31,14 +28,14 @@ const Profile = () => {
   const loadProfile = async () => {
     try {
       setLoading(true);
-      const currentUser = await getCurrentUser();
-      if (!currentUser) {
+      const response = await authAPI.getCurrentUser();
+      if (!response?.user) {
         window.location.href = "/signin";
         return;
       }
 
-      setUser(currentUser);
-      const profileData = await getStudentProfile(currentUser.uid);
+      setUser(response.user);
+      const profileData = await studentAPI.getProfile();
 
       if (profileData) {
         setProfile(profileData);
@@ -58,8 +55,8 @@ const Profile = () => {
         // New user - show setup prompt
         setShowSetupPrompt(true);
         setFormData({
-          displayName: currentUser.displayName || "",
-          email: currentUser.email || "",
+          displayName: response.user.displayName || "",
+          email: response.user.email || "",
           phone: "",
           studentId: "",
           deliveryAddress: "",
@@ -86,7 +83,7 @@ const Profile = () => {
 
     try {
       setSaving(true);
-      await saveStudentProfile(user.uid, {
+      await studentAPI.updateProfile({
         displayName: formData.displayName,
         phone: formData.phone,
         studentId: formData.studentId,
@@ -108,11 +105,10 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div className="profile-page">
-        <div className="profile-container">
-          <div style={{ textAlign: "center", padding: "3rem" }}>
-            <p>Loading profile...</p>
-          </div>
+      <div className="profile-page" style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
+          <AiOutlineLoading3Quarters style={{ fontSize: "3rem", animation: "spin 1s linear infinite" }} />
+          <p style={{ margin: 0 }}>Loading profile...</p>
         </div>
       </div>
     );

@@ -1,9 +1,8 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getCurrentUser } from "@/lib/auth";
-import { addProduct } from "@/lib/vendor-service";
-import type { ProductInput } from "@/lib/firestore-types";
+import { authAPI, vendorAPI } from "@/lib/api-client";
+import type { ProductInput } from "@/lib/models";
 import "./AddProduct.css";
 
 interface ProductForm {
@@ -15,9 +14,19 @@ interface ProductForm {
   description: string;
 }
 
+// Common emojis for stationary products
+const EMOJI_OPTIONS = [
+  "📦", "📝", "✏️", "🖊️", "🖍️", "📏", "📐", "📌", "📎", "✂️",
+  "📕", "📗", "📘", "📙", "📔", "📓", "📒", "🗂️", "📁", "📂",
+  "🎨", "🖌️", "🖍️", "🖊️", "✒️", "🔖", "📋", "📇", "📑", "🗒️",
+  "📰", "🗞️", "📄", "📃", "📜", "🔢", "🧮", "📊", "📈", "📉",
+  "🗓️", "📅", "📆", "🗂️", "📌", "📍", "🖇️", "📏", "📐", "✂️"
+];
+
 const AddProduct = () => {
   const router = useRouter();
   const [vendorId, setVendorId] = useState<string | null>(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [form, setForm] = useState<ProductForm>({
     name: "",
     price: "",
@@ -30,13 +39,35 @@ const AddProduct = () => {
   const [status, setStatus] = useState<"idle" | "saving">("idle");
 
   useEffect(() => {
-    const user = getCurrentUser();
-    if (!user) {
-      router.push("/signin");
-      return;
-    }
-    setVendorId(user.uid);
+    const checkAuth = async () => {
+      try {
+        const response = await authAPI.getCurrentUser();
+        if (!response || !response.user) {
+          router.push("/signin");
+          return;
+        }
+        setVendorId(response.user.id);
+      } catch (error) {
+        console.error("Auth error:", error);
+        router.push("/signin");
+      }
+    };
+    checkAuth();
   }, [router]);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (showEmojiPicker) {
+        const target = e.target as HTMLElement;
+        if (!target.closest('.emoji-picker-container')) {
+          setShowEmojiPicker(false);
+        }
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showEmojiPicker]);
 
   const previewPrice = useMemo(() => {
     const price = parseFloat(form.price);
@@ -52,6 +83,11 @@ const AddProduct = () => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
     if (error) setError(null);
+  };
+
+  const handleEmojiSelect = (emoji: string) => {
+    setForm((prev) => ({ ...prev, emoji }));
+    setShowEmojiPicker(false);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -94,7 +130,7 @@ const AddProduct = () => {
 
     setStatus("saving");
     try {
-      await addProduct(vendorId, productInput);
+      await vendorAPI.addProduct(productInput);
       router.push("/vendor/products?added=1");
     } catch (err) {
       console.error("Failed to save product", err);
@@ -163,7 +199,7 @@ const AddProduct = () => {
 
             <div className="form-row two-col">
               <label className="form-field">
-                <span>Price (USD) *</span>
+                <span>Price (BDT) *</span>
                 <input
                   name="price"
                   type="number"
@@ -192,18 +228,68 @@ const AddProduct = () => {
             <div className="form-row two-col">
               <label className="form-field">
                 <span>Emoji icon</span>
-                <input
-                  name="emoji"
-                  placeholder="Pick an emoji (e.g. 🖊️)"
-                  value={form.emoji}
-                  onChange={handleChange}
-                  maxLength={4}
-                />
+                <div style={{ position: "relative" }} className="emoji-picker-container">
+                  <input
+                    name="emoji"
+                    placeholder="Pick an emoji (e.g. 🖊️)"
+                    value={form.emoji}
+                    onChange={handleChange}
+                    maxLength={4}
+                    readOnly
+                    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                    style={{ cursor: "pointer" }}
+                  />
+                  {showEmojiPicker && (
+                    <div style={{
+                      position: "absolute",
+                      top: "100%",
+                      left: 0,
+                      zIndex: 1000,
+                      background: "white",
+                      border: "2px solid #5a6c7d",
+                      boxShadow: "4px 4px 0px rgba(90, 108, 125, 0.3)",
+                      padding: "1rem",
+                      maxWidth: "300px",
+                      display: "grid",
+                      gridTemplateColumns: "repeat(10, 1fr)",
+                      gap: "0.5rem",
+                      maxHeight: "200px",
+                      overflowY: "auto",
+                      marginTop: "0.5rem"
+                    }}>
+                      {EMOJI_OPTIONS.map((emoji, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => handleEmojiSelect(emoji)}
+                          style={{
+                            fontSize: "1.5rem",
+                            padding: "0.5rem",
+                            border: "1px solid #5a6c7d",
+                            background: form.emoji === emoji ? "rgba(217, 125, 85, 0.2)" : "white",
+                            cursor: "pointer",
+                            transition: "all 0.2s ease"
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = "rgba(217, 125, 85, 0.1)";
+                            e.currentTarget.style.transform = "scale(1.1)";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = form.emoji === emoji ? "rgba(217, 125, 85, 0.2)" : "white";
+                            e.currentTarget.style.transform = "scale(1)";
+                          }}
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </label>
               <div className="form-field helper-text">
                 <span>Quick tips</span>
                 <ul>
-                  <li>Use emojis to visually group products.</li>
+                  <li>Click the emoji field to choose an icon.</li>
                   <li>Set realistic stock to avoid overselling.</li>
                   <li>Categories help search filters.</li>
                 </ul>
@@ -242,7 +328,7 @@ const AddProduct = () => {
               <div className="preview-body">
                 <div className="preview-header">
                   <h3>{form.name || "Product name"}</h3>
-                  <span className="preview-price">${previewPrice}</span>
+                  <span className="preview-price">৳{previewPrice}</span>
                 </div>
                 <p className="preview-category">{form.category || "General"}</p>
                 <p className="preview-stock">Stock: {previewStock} units</p>
@@ -254,7 +340,7 @@ const AddProduct = () => {
               </div>
             </div>
             <div className="preview-hint">
-              <p>Products you add here will appear instantly in <strong>Products</strong> and are stored locally for now. You can edit or delete them later.</p>
+              <p>Products you add here will be saved to your catalog and appear instantly in <strong>Products</strong>. You can edit or delete them later from the Products page.</p>
             </div>
           </aside>
         </div>

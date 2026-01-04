@@ -178,9 +178,9 @@
   }
   
   .status-delivered {
-    background: rgba(184, 196, 169, 0.2);
+    background: rgba(140, 170, 120, 0.2);
     color: rgb(100, 120, 85);
-    border-color: rgb(184, 196, 169);
+    border-color: rgb(140, 170, 120);
   }
   
   .status-shipping {

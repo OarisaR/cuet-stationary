@@ -6,10 +6,17 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:test": "tsx scripts/test-connection.ts",
+    "db:create-vendor": "tsx scripts/create-vendor.ts"
   },
   "dependencies": {
-    "firebase": "^12.7.0",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^17.2.3",
+    "jsonwebtoken": "^9.0.3",
+    "mongodb": "^7.0.0",
     "next": "16.0.1",
     "react": "19.2.0",
     "react-dom": "19.2.0",
@@ -23,6 +30,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.0.1",
     "tailwindcss": "^4",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   }
 }

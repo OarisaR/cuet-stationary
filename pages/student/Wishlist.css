@@ -1,7 +1,7 @@
 /* Wishlist Page */
 .wishlist-page {
     min-height: 100vh;
-    background: linear-gradient(180deg, rgb(184, 196, 169) 0%, rgb(194, 206, 179) 100%);
+    background: linear-gradient(180deg, rgb(244, 233, 215) 0%, rgb(250, 245, 235) 100%);
     padding: 5rem 1.5rem 2rem;
     position: relative;
   }
@@ -44,27 +44,26 @@
   
   .wishlist-title {
     font-family: 'Playfair Display', 'Georgia', serif;
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: 800;
     color: #5a6c7d;
-    margin-bottom: 0.5rem;
-    text-shadow: 3px 3px 0px rgba(217, 125, 85, 0.3);
-    letter-spacing: 0.5px;
+    margin-bottom: 0.4rem;
+    text-shadow: 2px 2px 0px rgba(217, 125, 85, 0.2);
   }
   
   .wishlist-subtitle {
     font-family: 'Poppins', sans-serif;
-    font-size: 1rem;
+    font-size: 0.9rem;
     color: #6b7c8f;
-    font-weight: 600;
+    font-weight: 500;
   }
   
   /* Empty Wishlist */
   .empty-wishlist {
     background: white;
-    padding: 4rem 3rem;
-    border: 3px solid #5a6c7d;
-    box-shadow: 6px 6px 0px rgba(90, 108, 125, 0.4);
+    padding: 3rem;
+    border: 2px solid #5a6c7d;
+    box-shadow: 4px 4px 0px rgba(90, 108, 125, 0.4);
     text-align: center;
     animation: fadeInUp 0.5s ease-out;
     position: relative;
@@ -82,8 +81,8 @@
   }
   
   .empty-icon {
-    font-size: 5rem;
-    margin-bottom: 1.5rem;
+    font-size: 4rem;
+    margin-bottom: 1rem;
     animation: heartbeat 1.5s ease-in-out infinite;
   }
   
@@ -112,25 +111,25 @@
     background: rgb(217, 125, 85);
     color: white;
     font-family: 'Poppins', sans-serif;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     font-weight: 800;
-    padding: 1rem 3rem;
-    border: 3px solid #5a6c7d;
+    padding: 0.7rem 2rem;
+    border: 2px solid #5a6c7d;
     cursor: pointer;
     transition: all 0.2s ease;
     text-transform: uppercase;
-    letter-spacing: 0.8px;
-    box-shadow: 4px 4px 0px rgba(90, 108, 125, 0.5);
+    letter-spacing: 0.5px;
+    box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.4);
   }
   
   .shop-now-btn:hover {
     transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0px rgba(90, 108, 125, 0.6);
+    box-shadow: 5px 5px 0px rgba(90, 108, 125, 0.5);
   }
   
   .shop-now-btn:active {
     transform: translate(0, 0);
-    box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.5);
+    box-shadow: 2px 2px 0px rgba(90, 108, 125, 0.4);
   }
   
   /* Wishlist Grid */
@@ -144,17 +143,17 @@
   
   .wishlist-item-card {
     background: white;
-    padding: 1.5rem;
-    border: 3px solid #5a6c7d;
-    box-shadow: 5px 5px 0px rgba(90, 108, 125, 0.4);
+    padding: 1.2rem;
+    border: 2px solid #5a6c7d;
+    box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.4);
     text-align: center;
     transition: all 0.2s ease;
     position: relative;
   }
   
   .wishlist-item-card:hover {
-    transform: translate(-3px, -3px);
-    box-shadow: 8px 8px 0px rgba(90, 108, 125, 0.5);
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0px rgba(90, 108, 125, 0.5);
   }
   
   .wishlist-remove-btn {
@@ -174,6 +173,7 @@
     justify-content: center;
     font-weight: 800;
     box-shadow: 2px 2px 0px rgba(90, 108, 125, 0.3);
+    z-index: 10;
   }
   
   .wishlist-remove-btn:hover {
@@ -184,9 +184,9 @@
   }
   
   .wishlist-item-image {
-    font-size: 4rem;
-    margin-bottom: 1rem;
-    filter: drop-shadow(3px 3px 0px rgba(90, 108, 125, 0.2));
+    font-size: 3rem;
+    margin-bottom: 0.8rem;
+    filter: drop-shadow(2px 2px 0px rgba(90, 108, 125, 0.2));
     transition: transform 0.2s ease;
   }
   
@@ -208,11 +208,11 @@
   
   .wishlist-item-price {
     font-family: 'Playfair Display', 'Georgia', serif;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     font-weight: 800;
     color: rgb(217, 125, 85);
-    margin: 0 0 1rem 0;
-    text-shadow: 2px 2px 0px rgba(217, 125, 85, 0.2);
+    margin: 0 0 0.8rem 0;
+    text-shadow: 1px 1px 0px rgba(217, 125, 85, 0.2);
   }
   
   .wishlist-actions {

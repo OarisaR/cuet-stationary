@@ -1,7 +1,7 @@
 /* Vendor Orders Page */
 .vendor-orders-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #a8c5c0 0%, #b5d2cd 50%, #a8c5c0 100%);
+  background: linear-gradient(180deg, rgb(244, 233, 215) 0%, rgb(250, 245, 235) 100%);
   padding: 5rem 1.5rem 2rem;
 }
 
@@ -20,16 +20,16 @@
   font-family: 'Playfair Display', 'Georgia', serif;
   font-size: 2.2rem;
   font-weight: 800;
-  color: #fffef8;
+  color: #5a6c7d;
   margin-bottom: 0.5rem;
-  text-shadow: 3px 3px 0px rgba(122, 143, 126, 0.35);
+  text-shadow: 2px 2px 0px rgba(217, 125, 85, 0.25);
   letter-spacing: -0.5px;
 }
 
 .vendor-orders-subtitle {
   font-family: 'Poppins', sans-serif;
   font-size: 0.95rem;
-  color: rgba(255, 255, 255, 0.95);
+  color: #6b7c8f;
   font-weight: 500;
   letter-spacing: 0.3px;
 }
@@ -44,9 +44,9 @@
 }
 
 .vendor-orders-filter-btn {
-  background: linear-gradient(135deg, #fffef8 0%, #fefbf3 100%);
-  border: 2px solid #7a8f7e;
-  color: #4a5f4e;
+  background: white;
+  border: 2px solid #5a6c7d;
+  color: #5a6c7d;
   font-family: 'Poppins', sans-serif;
   font-size: 0.72rem;
   font-weight: 700;
@@ -55,21 +55,20 @@
   transition: all 0.2s ease;
   text-transform: uppercase;
   letter-spacing: 0.6px;
-  border-radius: 2px;
 }
 
 .vendor-orders-filter-btn:hover {
-  background: rgba(184, 196, 169, 0.25);
-  border-color: #b8c4a9;
-  color: #7a8f7e;
+  background: rgba(140, 170, 120, 0.15);
+  border-color: rgb(140, 170, 120);
+  color: #5a6c7d;
   transform: translateY(-1px);
 }
 
 .vendor-orders-filter-btn.active {
-  background: linear-gradient(135deg, #b8c4a9 0%, #a8b499 100%);
+  background: rgb(140, 170, 120);
   color: white;
-  border-color: #7a8f7e;
-  box-shadow: 3px 3px 0px rgba(122, 143, 126, 0.35);
+  border-color: #5a6c7d;
+  box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.4);
 }
 
 /* Orders List */
@@ -108,17 +107,16 @@
 
 /* Order Card */
 .vendor-order-card {
-  background: linear-gradient(135deg, #fffef8 0%, #fefbf3 100%);
+  background: white;
   padding: 1.4rem;
-  border: 3px solid #7a8f7e;
-  box-shadow: 5px 5px 0px rgba(122, 143, 126, 0.35);
+  border: 2px solid #5a6c7d;
+  box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.4);
   transition: all 0.2s ease;
-  border-radius: 2px;
 }
 
 .vendor-order-card:hover {
-  transform: translate(-3px, -3px);
-  box-shadow: 7px 7px 0px rgba(122, 143, 126, 0.45);
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0px rgba(90, 108, 125, 0.5);
 }
 
 .vendor-order-card-header {
@@ -166,27 +164,27 @@
 }
 
 .vendor-badge-pending {
-  background: rgba(212, 151, 125, 0.18);
-  color: #b87d5f;
-  border-color: #d4977d;
+  background: rgba(217, 125, 85, 0.15);
+  color: rgb(217, 125, 85);
+  border-color: rgb(217, 125, 85);
 }
 
 .vendor-badge-processing {
-  background: rgba(230, 200, 140, 0.18);
-  color: #b8a070;
-  border-color: #e6c88c;
+  background: rgba(140, 170, 120, 0.15);
+  color: rgb(140, 170, 120);
+  border-color: rgb(140, 170, 120);
 }
 
 .vendor-badge-shipped {
-  background: rgba(155, 181, 176, 0.18);
-  color: #6f9a94;
-  border-color: #9bb5b0;
+  background: rgba(90, 108, 125, 0.15);
+  color: #5a6c7d;
+  border-color: #5a6c7d;
 }
 
 .vendor-badge-delivered {
-  background: rgba(184, 196, 169, 0.18);
-  color: #7a8f7e;
-  border-color: #b8c4a9;
+  background: rgba(140, 170, 120, 0.15);
+  color: rgb(140, 170, 120);
+  border-color: rgb(140, 170, 120);
 }
 
 .vendor-order-card-body {
@@ -220,7 +218,7 @@
 .vendor-detail-price {
   font-family: 'Playfair Display', 'Georgia', serif;
   font-size: 1.1rem;
-  color: rgb(184, 196, 169);
+  color: rgb(217, 125, 85);
   font-weight: 800;
 }
 
@@ -255,52 +253,52 @@
 }
 
 .vendor-order-btn-process {
-  background: rgb(217, 180, 85);
+  background: rgb(217, 125, 85);
   color: white;
   border-color: #5a6c7d;
   box-shadow: 2px 2px 0px rgba(90, 108, 125, 0.3);
 }
 
 .vendor-order-btn-process:hover {
-  background: rgb(200, 165, 70);
+  background: rgb(207, 115, 75);
   transform: translateY(-1px);
   box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.4);
 }
 
 .vendor-order-btn-ship {
-  background: rgb(111, 164, 175);
+  background: rgb(140, 170, 120);
   color: white;
   border-color: #5a6c7d;
   box-shadow: 2px 2px 0px rgba(90, 108, 125, 0.3);
 }
 
 .vendor-order-btn-ship:hover {
-  background: rgb(101, 154, 165);
+  background: rgb(120, 150, 100);
   transform: translateY(-1px);
   box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.4);
 }
 
 .vendor-order-btn-deliver {
-  background: rgb(184, 196, 169);
+  background: rgb(140, 170, 120);
   color: white;
   border-color: #5a6c7d;
   box-shadow: 2px 2px 0px rgba(90, 108, 125, 0.3);
 }
 
 .vendor-order-btn-deliver:hover {
-  background: rgb(174, 186, 159);
+  background: rgb(120, 150, 100);
   transform: translateY(-1px);
   box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.4);
 }
 
 .vendor-order-btn-contact {
   background: transparent;
-  color: rgb(111, 164, 175);
-  border-color: rgb(111, 164, 175);
+  color: #5a6c7d;
+  border-color: #5a6c7d;
 }
 
 .vendor-order-btn-contact:hover {
-  background: rgba(111, 164, 175, 0.1);
+  background: rgba(90, 108, 125, 0.1);
 }
 
 /* Responsive */

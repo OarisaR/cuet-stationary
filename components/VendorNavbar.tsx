@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { authAPI } from "@/lib/api-client";
 import { FaBell, FaStar } from "react-icons/fa";
 import "./VendorNavbar.css";
 
@@ -35,6 +36,8 @@ const VendorNavbar = () => {
 
   const handleLogout = () => {
     if (confirm("Are you sure you want to logout?")) {
+      authAPI.logout();
+      localStorage.removeItem('user');
       router.push("/");
     }
   };

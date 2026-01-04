@@ -36,7 +36,7 @@
   font-weight: 800;
   color: #5a6c7d;
   margin: 0;
-  text-shadow: 3px 3px 0px rgba(184, 196, 169, 0.25);
+  text-shadow: 3px 3px 0px rgba(140, 170, 120, 0.25);
 }
 
 .add-product-subtitle {
@@ -105,8 +105,8 @@
 
 .form-field input:focus,
 .form-field textarea:focus {
-  border-color: rgb(184, 196, 169);
-  box-shadow: 4px 4px 0px rgba(184, 196, 169, 0.3);
+  border-color: rgb(140, 170, 120);
+  box-shadow: 4px 4px 0px rgba(140, 170, 120, 0.3);
 }
 
 .form-field textarea {
@@ -115,7 +115,7 @@
 }
 
 .form-field.helper-text {
-  background: rgba(184, 196, 169, 0.1);
+  background: rgba(140, 170, 120, 0.1);
   border: 2px dashed rgba(90, 108, 125, 0.35);
   padding: 0.95rem 1rem;
   box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.15);
@@ -137,7 +137,7 @@
 }
 
 .primary-btn {
-  background: rgb(184, 196, 169);
+  background: rgb(140, 170, 120);
   color: #fff;
   border: 2px solid #5a6c7d;
   font-family: 'Poppins', sans-serif;
@@ -218,7 +218,7 @@
 
 .preview-price {
   font-family: 'Playfair Display', 'Georgia', serif;
-  color: rgb(184, 196, 169);
+  color: rgb(217, 125, 85);
   font-size: 1.2rem;
   font-weight: 800;
 }
@@ -244,7 +244,7 @@
 }
 
 .preview-hint {
-  background: rgba(184, 196, 169, 0.12);
+  background: rgba(140, 170, 120, 0.12);
   border: 2px dashed rgba(90, 108, 125, 0.4);
   padding: 1rem;
   font-family: 'Poppins', sans-serif;

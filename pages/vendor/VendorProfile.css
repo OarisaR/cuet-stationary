@@ -1,7 +1,7 @@
 /* Vendor Profile Page */
 .vendor-profile-page {
   min-height: 100vh;
-  background: linear-gradient(180deg, rgb(184, 196, 169) 0%, rgb(194, 206, 179) 100%);
+  background: linear-gradient(180deg, rgb(244, 233, 215) 0%, rgb(250, 245, 235) 100%);
   padding: 5rem 1.5rem 2rem;
 }
 
@@ -100,8 +100,8 @@
 
 .vendor-profile-form-field input:focus,
 .vendor-profile-form-field textarea:focus {
-  border-color: rgb(184, 196, 169);
-  box-shadow: 3px 3px 0px rgba(184, 196, 169, 0.3);
+  border-color: rgb(140, 170, 120);
+  box-shadow: 3px 3px 0px rgba(140, 170, 120, 0.3);
   transform: translate(-1px, -1px);
 }
 
@@ -110,7 +110,7 @@
 }
 
 .vendor-profile-save-btn {
-  background: rgb(184, 196, 169);
+  background: rgb(140, 170, 120);
   color: white;
   font-family: 'Poppins', sans-serif;
   font-size: 0.85rem;
@@ -126,7 +126,7 @@
 }
 
 .vendor-profile-save-btn:hover {
-  background: rgb(174, 186, 159);
+  background: rgb(120, 150, 100);
   transform: translate(-2px, -2px);
   box-shadow: 5px 5px 0px rgba(90, 108, 125, 0.5);
 }
@@ -143,8 +143,8 @@
   flex-direction: column;
   gap: 0.5rem;
   padding: 1rem;
-  background: rgba(184, 196, 169, 0.1);
-  border: 2px solid rgba(184, 196, 169, 0.3);
+  background: rgba(140, 170, 120, 0.1);
+  border: 2px solid rgba(140, 170, 120, 0.3);
 }
 
 .vendor-stat-label {
@@ -159,7 +159,7 @@
 .vendor-stat-value {
   font-family: 'Playfair Display', 'Georgia', serif;
   font-size: 1.5rem;
-  color: rgb(184, 196, 169);
+  color: rgb(217, 125, 85);
   font-weight: 800;
 }
 
@@ -177,8 +177,8 @@
   font-weight: 500;
   margin: 0;
   padding: 0.8rem;
-  background: rgba(111, 164, 175, 0.05);
-  border-left: 3px solid rgb(111, 164, 175);
+  background: rgba(217, 125, 85, 0.05);
+  border-left: 2px solid rgb(217, 125, 85);
 }
 
 .vendor-payment-text strong {
@@ -187,7 +187,7 @@
 }
 
 .vendor-update-payment-btn {
-  background: rgb(111, 164, 175);
+  background: rgb(140, 170, 120);
   color: white;
   font-family: 'Poppins', sans-serif;
   font-size: 0.8rem;
@@ -203,7 +203,7 @@
 }
 
 .vendor-update-payment-btn:hover {
-  background: rgb(101, 154, 165);
+  background: rgb(120, 150, 100);
   transform: translateY(-1px);
   box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.4);
 }

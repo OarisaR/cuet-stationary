@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signInWithEmail, getAuthErrorMessage } from "@/lib/auth";
+import { authAPI } from "@/lib/api-client";
 import "./Login.css";
 
 const Login = () => {
@@ -27,17 +27,20 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const { user, role } = await signInWithEmail(formData.email, formData.password);
+      const { user, token } = await authAPI.login(formData.email, formData.password);
+      
+      // Token is already stored by authAPI.login in api-client
+      // Just store user info
+      localStorage.setItem('user', JSON.stringify(user));
       
       // Redirect based on user role
-      if (role === "vendor") {
+      if (user.role === "vendor") {
         router.push('/vendor/dashboard');
-      } else if (role === "student") {
+      } else if (user.role === "student") {
         router.push('/student/dashboard');
       }
     } catch (err: any) {
-      const errorCode = err.code || "";
-      setError(getAuthErrorMessage(errorCode));
+      setError(err.message || "Failed to sign in. Please check your credentials.");
     } finally {
       setLoading(false);
     }

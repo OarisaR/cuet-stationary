@@ -12,8 +12,8 @@ const About = () => {
         {/* Section Header */}
         <div className="section-header">
           <span className="section-badge">About Us</span>
-          <h2 className="section-title">Why Choose CUET Online Stationary?</h2>
-          <p className="section-subtitle">
+          <h2 className="section-title"  style={{color: "white"}}>Why Choose CUET Online Stationary?</h2>
+          <p className="section-subtitle"  style={{color: "white"}}>
             We're committed to providing students and professionals with the best 
             stationary products at affordable prices.
           </p>
