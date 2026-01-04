@@ -2,15 +2,30 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { authAPI, vendorAPI } from "@/lib/api-client";
-import type { Order, OrderStatus } from "@/lib/models";
+import type { Order, OrderStatus, Feedback } from "@/lib/models";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { FaClock, FaCog, FaTruck, FaCheckCircle, FaTimes, FaBox } from "react-icons/fa";
 import "./VendorOrders.css";
 
+// Extended OrderItem type with feedback info
+interface OrderItemWithFeedback {
+  productId: any;
+  productName: string;
+  productEmoji: string;
+  quantity: number;
+  price: number;
+  subtotal: number;
+  feedback?: Feedback | null;
+}
+
+interface OrderWithFeedback extends Omit<Order, 'items'> {
+  items: OrderItemWithFeedback[];
+}
+
 const VendorOrders = () => {
   const router = useRouter();
   const [filter, setFilter] = useState<OrderStatus | "all">("all");
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<OrderWithFeedback[]>([]);
   const [loading, setLoading] = useState(true);
   const [vendorId, setVendorId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -189,6 +204,82 @@ const VendorOrders = () => {
                     <span className="vendor-detail-value vendor-detail-price">৳{order.totalAmount.toFixed(2)}</span>
                   </div>
                 </div>
+
+                {/* Show product items with feedback for delivered orders */}
+                {order.status === 'delivered' && (
+                  <div style={{ marginTop: '1rem', borderTop: '1px solid #e5e7eb', paddingTop: '1rem' }}>
+                    <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: '#6b7280' }}>Products & Feedback:</h4>
+                    {order.items.map((item, idx) => (
+                      <div key={idx} style={{ 
+                        padding: '0.75rem',
+                        background: '#f9fafb',
+                        borderRadius: '6px',
+                        marginBottom: '0.5rem',
+                        border: '1px solid #e5e7eb'
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1 }}>
+                            <span style={{ fontSize: '1.5rem' }}>{item.productEmoji}</span>
+                            <div>
+                              <div style={{ fontWeight: '500' }}>{item.productName}</div>
+                              <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>
+                                Qty: {item.quantity} × ৳{item.price} = ৳{item.subtotal}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Feedback display */}
+                          {item.feedback ? (
+                            <div style={{ 
+                              textAlign: 'right', 
+                              padding: '0.5rem',
+                              background: 'white',
+                              borderRadius: '6px',
+                              border: '1px solid #e5e7eb',
+                              minWidth: '200px'
+                            }}>
+                              <div style={{ 
+                                color: '#f59e0b', 
+                                fontSize: '1rem',
+                                marginBottom: '0.25rem'
+                              }}>
+                                {'⭐'.repeat(item.feedback.rating)}
+                              </div>
+                              {item.feedback.comment && (
+                                <div style={{ 
+                                  fontSize: '0.85rem', 
+                                  color: '#374151',
+                                  marginTop: '0.5rem',
+                                  fontStyle: 'italic',
+                                  textAlign: 'left',
+                                  lineHeight: '1.4'
+                                }}>
+                                  "{item.feedback.comment}"
+                                </div>
+                              )}
+                              <div style={{ 
+                                fontSize: '0.75rem', 
+                                color: '#9ca3af',
+                                marginTop: '0.5rem'
+                              }}>
+                                {formatDate(item.feedback.createdAt)}
+                              </div>
+                            </div>
+                          ) : (
+                            <div style={{ 
+                              fontSize: '0.85rem', 
+                              color: '#9ca3af',
+                              fontStyle: 'italic',
+                              padding: '0.5rem'
+                            }}>
+                              No feedback yet
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
                 <div className="vendor-order-card-actions">
                   {order.status === "pending" && (

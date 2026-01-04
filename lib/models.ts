@@ -150,3 +150,33 @@ export interface VendorStats {
   lowStockItems?: number; // Alias for lowStockCount
   pendingOrders?: number;
 }
+
+// Feedback types
+export interface Feedback {
+  _id?: ObjectId;
+  studentId: ObjectId;
+  vendorId: ObjectId;
+  orderId: ObjectId;
+  productId: ObjectId;
+  rating: number; // 1-5
+  comment?: string; // Optional
+  createdAt: Date;
+}
+
+// Payment types
+export type PaymentMethod = 'cash' | 'bkash';
+export type PaymentStatus = 'pending' | 'completed';
+
+export interface Payment {
+  _id?: ObjectId;
+  studentId: ObjectId;
+  vendorId: ObjectId;
+  orderId: ObjectId;
+  paymentMethod: PaymentMethod;
+  paymentStatus: PaymentStatus;
+  amount: number;
+  transactionId?: string; // For bKash
+  paymentDate?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}

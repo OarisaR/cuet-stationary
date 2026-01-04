@@ -5,6 +5,7 @@ import { authAPI, studentAPI } from "@/lib/api-client";
 import type { CartItem } from "@/lib/models";
 import "./Cart.css";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { IoClose } from "react-icons/io5";
 
 const Cart = () => {
   const router = useRouter();
@@ -14,6 +15,9 @@ const Cart = () => {
   const [studentInfo, setStudentInfo] = useState<{ name: string; email: string } | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [checkingOut, setCheckingOut] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'bkash'>('cash');
+  const [transactionId, setTransactionId] = useState('');
 
   useEffect(() => {
     const initCart = async () => {
@@ -32,6 +36,7 @@ const Cart = () => {
         });
         
         const cart = await studentAPI.getCart();
+        console.log("Cart items loaded:", cart);
         setCartItems(cart || []);
       } catch (error) {
         console.error("Error loading cart:", error);
@@ -48,12 +53,12 @@ const Cart = () => {
     try {
       if (newQuantity <= 0) {
         await studentAPI.removeFromCart(cartItemId);
-        setCartItems(items => items.filter(item => item.productId.toString() !== cartItemId));
+        setCartItems(items => items.filter(item => item._id?.toString() !== cartItemId));
       } else {
         await studentAPI.updateCartItem(cartItemId, newQuantity);
         setCartItems(items =>
           items.map(item =>
-            item.productId.toString() === cartItemId ? { ...item, quantity: newQuantity } : item
+            item._id?.toString() === cartItemId ? { ...item, quantity: newQuantity } : item
           )
         );
       }
@@ -65,8 +70,9 @@ const Cart = () => {
 
   const removeItem = async (cartItemId: string) => {
     try {
+      console.log("Removing cart item with ID:", cartItemId);
       await studentAPI.removeFromCart(cartItemId);
-      setCartItems(items => items.filter(item => item.productId.toString() !== cartItemId));
+      setCartItems(items => items.filter(item => item._id?.toString() !== cartItemId));
       setMessage("Item removed from cart");
       setTimeout(() => setMessage(null), 2000);
     } catch (error) {
@@ -75,10 +81,9 @@ const Cart = () => {
     }
   };
 
-  const handleCheckout = async () => {
+  const handleCheckoutClick = async () => {
     if (!studentId || !studentInfo) return;
     
-    setCheckingOut(true);
     try {
       // Check if student has a delivery address
       const profile = await studentAPI.getProfile();
@@ -87,12 +92,33 @@ const Cart = () => {
         setTimeout(() => {
           router.push("/student/profile");
         }, 2500);
-        setCheckingOut(false);
         return;
       }
 
-      await studentAPI.checkout({ customerName: studentInfo.name, customerEmail: studentInfo.email });
+      // Show payment modal
+      setShowPaymentModal(true);
+    } catch (error) {
+      console.error("Error checking profile:", error);
+      setMessage("Failed to proceed. Please try again.");
+    }
+  };
+
+  const handleConfirmPayment = async () => {
+    if (paymentMethod === 'bkash' && !transactionId.trim()) {
+      setMessage("Please enter bKash transaction ID");
+      return;
+    }
+
+    setCheckingOut(true);
+    try {
+      await studentAPI.checkout({ 
+        customerName: studentInfo!.name, 
+        customerEmail: studentInfo!.email,
+        paymentMethod,
+        transactionId: paymentMethod === 'bkash' ? transactionId : undefined
+      });
       setMessage("Order placed successfully!");
+      setShowPaymentModal(false);
       setTimeout(() => {
         router.push("/student/orders");
       }, 1500);
@@ -155,21 +181,21 @@ const Cart = () => {
               {/* Cart Items */}
               <div className="cart-items">
                 {cartItems.map(item => (
-                  <div key={item.productId.toString()} className="cart-item">
+                  <div key={item._id?.toString() || item.productId.toString()} className="cart-item">
                     <div className="cart-item-image">{item.productEmoji}</div>
                     <div className="cart-item-info">
                       <h3 className="cart-item-name">{item.productName}</h3>
                       <p className="cart-item-price">৳{item.productPrice.toFixed(2)}</p>
                     </div>
                     <div className="cart-item-quantity">
-                      <button onClick={() => updateQuantity(item.productId.toString(), item.quantity - 1)}>−</button>
+                      <button onClick={() => updateQuantity(item._id!.toString(), item.quantity - 1)}>−</button>
                       <span>{item.quantity}</span>
-                      <button onClick={() => updateQuantity(item.productId.toString(), item.quantity + 1)}>+</button>
+                      <button onClick={() => updateQuantity(item._id!.toString(), item.quantity + 1)}>+</button>
                     </div>
                     <div className="cart-item-total">
                       ৳{(item.productPrice * item.quantity).toFixed(2)}
                     </div>
-                    <button className="cart-item-remove" onClick={() => removeItem(item.productId.toString())}>
+                    <button className="cart-item-remove" onClick={() => removeItem(item._id!.toString())}>
                       ✕
                     </button>
                   </div>
@@ -199,7 +225,7 @@ const Cart = () => {
 
                 <button 
                   className="checkout-btn" 
-                  onClick={handleCheckout}
+                  onClick={handleCheckoutClick}
                   disabled={checkingOut || cartItems.length === 0}
                 >
                   {checkingOut ? "Processing..." : "Proceed to Checkout"}
@@ -257,6 +283,91 @@ const Cart = () => {
         )}
 
       </div>
+
+      {/* Payment Modal */}
+      {showPaymentModal && (
+        <div className="payment-modal-overlay">
+          <div className="payment-modal-content">
+            <button 
+              className="payment-modal-close" 
+              onClick={() => !checkingOut && setShowPaymentModal(false)}
+              disabled={checkingOut}
+            >
+              <IoClose size={24} />
+            </button>
+
+            <div className="payment-modal-header">
+              <h2 className="payment-modal-title">Payment Details</h2>
+              <p className="payment-modal-subtitle">Choose your payment method</p>
+            </div>
+
+            <div className="payment-total-display">
+              <span>Total Amount:</span>
+              <span className="payment-total-amount">৳{total.toFixed(2)}</span>
+            </div>
+
+            <div className="payment-method-section">
+              <label className="payment-label">Payment Method</label>
+              <select 
+                className="payment-method-select"
+                value={paymentMethod}
+                onChange={(e) => {
+                  setPaymentMethod(e.target.value as 'cash' | 'bkash');
+                  setTransactionId('');
+                }}
+                disabled={checkingOut}
+              >
+                <option value="cash">Cash on Delivery (COD)</option>
+                <option value="bkash">bKash</option>
+              </select>
+            </div>
+
+            {paymentMethod === 'bkash' && (
+              <div className="payment-transaction-section">
+                <label className="payment-label">
+                  bKash Transaction ID
+                  <span className="payment-required">*</span>
+                </label>
+                <input
+                  type="text"
+                  className="payment-transaction-input"
+                  placeholder="Enter transaction ID"
+                  value={transactionId}
+                  onChange={(e) => setTransactionId(e.target.value)}
+                  disabled={checkingOut}
+                />
+                <p className="payment-transaction-hint">
+                  Send payment to: 01XXXXXXXXX and enter the transaction ID
+                </p>
+              </div>
+            )}
+
+            <div className="payment-modal-actions">
+              <button 
+                className="payment-btn-cancel"
+                onClick={() => setShowPaymentModal(false)}
+                disabled={checkingOut}
+              >
+                Cancel
+              </button>
+              <button 
+                className="payment-btn-confirm"
+                onClick={handleConfirmPayment}
+                disabled={checkingOut}
+              >
+                {checkingOut ? (
+                  <>
+                    <AiOutlineLoading3Quarters className="payment-spinner" />
+                    Processing...
+                  </>
+                ) : (
+                  "Confirm Payment"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

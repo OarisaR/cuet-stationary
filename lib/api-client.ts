@@ -155,16 +155,23 @@ export const studentAPI = {
     return response.orders || [];
   },
 
-  async createOrder(shippingAddress?: string, notes?: string) {
+  async createOrder(shippingAddress?: string, notes?: string, paymentMethod?: string, transactionId?: string) {
     return await apiFetch('/student/orders', {
       method: 'POST',
-      body: JSON.stringify({ shippingAddress, notes }),
+      body: JSON.stringify({ shippingAddress, notes, paymentMethod, transactionId }),
     });
   },
 
   // Alias for createOrder for backward compatibility
-  async checkout(options: { customerName?: string; customerEmail?: string; shippingAddress?: string; notes?: string } = {}) {
-    return this.createOrder(options.shippingAddress, options.notes);
+  async checkout(options: { 
+    customerName?: string; 
+    customerEmail?: string; 
+    shippingAddress?: string; 
+    notes?: string;
+    paymentMethod?: string;
+    transactionId?: string;
+  } = {}) {
+    return this.createOrder(options.shippingAddress, options.notes, options.paymentMethod, options.transactionId);
   },
 
   // Products
@@ -192,6 +199,14 @@ export const studentAPI = {
     return await apiFetch('/student/profile', {
       method: 'PATCH',
       body: JSON.stringify(updates),
+    });
+  },
+
+  // Feedback
+  async submitFeedback(orderId: string, productId: string, rating: number, comment?: string) {
+    return await apiFetch('/student/feedback', {
+      method: 'POST',
+      body: JSON.stringify({ orderId, productId, rating, comment }),
     });
   },
 };

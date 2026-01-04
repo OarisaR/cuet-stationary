@@ -4,13 +4,12 @@ import { useRouter } from "next/navigation";
 import { authAPI, studentAPI } from "@/lib/api-client";
 import type { Order, Product } from "@/lib/models";
 import "./Dashboard.css";
-import { FiPackage, FiHeart } from "react-icons/fi";
+import { FiPackage } from "react-icons/fi";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 const Dashboard = () => {
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
-  const [wishlistCount, setWishlistCount] = useState(0);
   const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
   const [studentName, setStudentName] = useState<string>("Student");
   const [loading, setLoading] = useState(true);
@@ -24,15 +23,13 @@ const Dashboard = () => {
           return;
         }
 
-        const [ordersData, wishlistData, productsData, profileData] = await Promise.all([
+        const [ordersData, productsData, profileData] = await Promise.all([
           studentAPI.getOrders(),
-          studentAPI.getWishlist(),
           studentAPI.getProducts(),
           studentAPI.getProfile(),
         ]);
 
         setOrders(ordersData);
-        setWishlistCount(wishlistData.length);
         setFeaturedProducts(productsData.slice(0, 4));
         setStudentName(profileData?.displayName || response.user.displayName || "Student");
       } catch (error) {
@@ -98,11 +95,11 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="stat-card" onClick={() => router.push("/student/wishlist")}>
-            <div className="stat-icon"  style={{color:" rgb(217, 125, 85)"}}><FiHeart/></div>
+          <div className="stat-card" onClick={() => router.push("/student/orders")}>
+            <div className="stat-icon"  style={{color:" rgb(111, 164, 175)"}}><FiPackage/></div>
             <div className="stat-info">
-              <h3 className="stat-number">{wishlistCount}</h3>
-              <p className="stat-label">Wishlist Items</p>
+              <h3 className="stat-number">{orders.length}</h3>
+              <p className="stat-label">Total Orders</p>
             </div>
           </div>
         </div>

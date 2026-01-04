@@ -7,7 +7,7 @@ import { ObjectId } from 'mongodb';
 // PATCH - Update cart item quantity
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = getUserFromRequest(request);
@@ -18,6 +18,7 @@ export async function PATCH(
       );
     }
 
+    const { id } = await params;
     const { quantity } = await request.json();
 
     if (quantity === undefined || quantity < 0) {
@@ -33,13 +34,13 @@ export async function PATCH(
     if (quantity === 0) {
       // Remove item
       await cartCollection.deleteOne({
-        _id: new ObjectId(params.id),
+        _id: new ObjectId(id),
         studentId: new ObjectId(user.userId),
       });
     } else {
       // Update quantity
       await cartCollection.updateOne(
-        { _id: new ObjectId(params.id), studentId: new ObjectId(user.userId) },
+        { _id: new ObjectId(id), studentId: new ObjectId(user.userId) },
         { $set: { quantity } }
       );
     }
@@ -57,7 +58,7 @@ export async function PATCH(
 // DELETE - Remove cart item
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = getUserFromRequest(request);
@@ -68,12 +69,24 @@ export async function DELETE(
       );
     }
 
+    const { id } = await params;
+
+    console.log('DELETE cart item:', {
+      itemId: id,
+      userId: user.userId
+    });
+
     const db = await getDatabase();
     const cartCollection = db.collection<CartItem>('cart');
 
-    await cartCollection.deleteOne({
-      _id: new ObjectId(params.id),
+    const result = await cartCollection.deleteOne({
+      _id: new ObjectId(id),
       studentId: new ObjectId(user.userId),
+    });
+
+    console.log('Delete result:', {
+      deletedCount: result.deletedCount,
+      acknowledged: result.acknowledged
     });
 
     return NextResponse.json({ success: true });

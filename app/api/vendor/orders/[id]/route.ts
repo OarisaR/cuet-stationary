@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserFromRequest } from '@/lib/jwt';
 import { getDatabase } from '@/lib/mongodb';
-import type { Order, Product, InventoryAdjustment } from '@/lib/models';
+import type { Order, Product, InventoryAdjustment, Payment } from '@/lib/models';
 import { ObjectId } from 'mongodb';
 
 // PATCH - Update order status
@@ -30,6 +30,7 @@ export async function PATCH(
 
     const db = await getDatabase();
     const ordersCollection = db.collection<Order>('orders');
+    const paymentsCollection = db.collection<Payment>('payments');
     const productsCollection = db.collection<Product>('products');
     const adjustmentsCollection = db.collection<InventoryAdjustment>('inventoryAdjustments');
 
@@ -83,6 +84,20 @@ export async function PATCH(
       { _id: new ObjectId(id), vendorId: new ObjectId(user.userId) },
       { $set: { status, updatedAt: new Date() } }
     );
+
+    // If order is delivered, update payment status to completed
+    if (status === 'delivered') {
+      await paymentsCollection.updateOne(
+        { orderId: new ObjectId(id) },
+        { 
+          $set: { 
+            paymentStatus: 'completed', 
+            paymentDate: new Date(),
+            updatedAt: new Date() 
+          } 
+        }
+      );
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
