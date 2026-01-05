@@ -1,103 +1,186 @@
 import { ObjectId } from 'mongodb';
 
-// User types
-export type UserRole = 'student' | 'vendor';
-
-export interface User {
+// Student entity
+export interface Student {
   _id?: ObjectId;
+  student_id?: string;
+  name: string; // displayName
   email: string;
+  phone?: string;
   password: string; // hashed
-  displayName: string;
-  role: UserRole;
+  hall_name?: string;
+  delivery_address?: string;
   createdAt: Date;
   updatedAt: Date;
-  // Student-specific
-  phone?: string;
-  studentId?: string;
-  deliveryAddress?: string;
-  // Vendor-specific
+}
+
+// User type alias for backward compatibility
+export type User = Student | Admin;
+
+// Admin entity (Vendors are admins who manage inventory)
+export interface Admin {
+  _id?: ObjectId;
+  username: string; // displayName
+  email: string;
+  password: string; // hashed
   phoneNum?: string;
   address?: string;
   licenseNum?: string;
-}
-
-// Product types
-export interface Product {
-  _id?: ObjectId;
-  vendorId: ObjectId;
-  name: string;
-  price: number;
-  stock: number;
-  category: string;
-  emoji: string;
-  description?: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
-// Cart types
-export interface CartItem {
+// VendorProfile type (frontend compatibility)
+export interface VendorProfile {
   _id?: ObjectId;
-  studentId: ObjectId;
-  productId: ObjectId;
-  productName: string;
-  productPrice: number;
-  productEmoji: string;
-  quantity: number;
-  vendorId: ObjectId;
-  addedAt: Date;
+  email: string;
+  displayName: string;
+  phoneNum?: string;
+  address?: string;
+  licenseNum?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
-// Wishlist types
+// Inventory types (formerly Product)
+export interface Inventory {
+  _id?: ObjectId;
+  product_name: string;
+  category: string;
+  description?: string;
+  brand?: string;
+  price: number;
+  stock_quantity: number;
+  emoji?: string; // keeping for UI
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Product type alias for frontend compatibility (maps to Inventory)
+export interface Product {
+  _id?: ObjectId;
+  name: string;
+  category: string;
+  description?: string;
+  brand?: string;
+  price: number;
+  stock: number;
+  emoji?: string;
+  vendorId?: ObjectId; // deprecated but kept for compatibility
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+// ProductInput for frontend forms
+export interface ProductInput {
+  name: string;
+  category: string;
+  description?: string;
+  brand?: string;
+  price: number;
+  stock: number;
+  emoji?: string;
+}
+
+// Cart types (keeping for student shopping)
+export interface CartItem {
+  _id?: ObjectId;
+  student_id?: ObjectId;
+  inventory_id?: ObjectId;
+  product_name?: string;
+  product_price?: number;
+  product_emoji?: string;
+  quantity: number;
+  addedAt?: Date;
+  // Frontend compatibility fields (added by transformation)
+  studentId?: ObjectId;
+  productId?: ObjectId;
+  productName?: string;
+  productPrice?: number;
+  productEmoji?: string;
+}
+
+// WishlistItem type (frontend compatibility)
 export interface WishlistItem {
   _id?: ObjectId;
   studentId: ObjectId;
   productId: ObjectId;
   productName: string;
   productPrice: number;
-  productEmoji: string;
-  vendorId: ObjectId;
+  productEmoji?: string;
   addedAt: Date;
 }
+
+
 
 // Order types
 export type OrderStatus = 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
 
 export interface OrderItem {
-  productId: ObjectId;
-  productName: string;
-  productEmoji: string;
+  _id?: ObjectId;
+  order_id: ObjectId;
+  inventory_id: ObjectId;
+  product_name: string;
   quantity: number;
-  price: number;
-  subtotal: number;
+  unit_price: number;
 }
 
+// Database Order interface (backend)
 export interface Order {
   _id?: ObjectId;
-  vendorId: ObjectId;
-  customerId: ObjectId;
-  customerName: string;
-  customerEmail: string;
-  items: OrderItem[];
-  totalAmount: number;
-  status: OrderStatus;
-  createdAt: Date;
-  updatedAt: Date;
-  shippingAddress?: string;
+  student_id?: ObjectId;
+  customer_name?: string;
+  customer_email?: string;
+  total_amount?: number;
+  order_status?: OrderStatus;
+  delivery_address?: string;
+  ordered_at?: Date;
+  delivered_at?: Date;
+  updatedAt?: Date;
   notes?: string;
+  // Frontend compatibility fields (added by transformation)
+  studentId?: ObjectId;
+  customerName?: string;
+  customerEmail?: string;
+  totalAmount?: number;
+  status: OrderStatus; // Required for frontend
+  deliveryAddress?: string;
+  orderedAt?: Date;
+  deliveredAt?: Date;
+  createdAt?: Date; // Alias for orderedAt
+  items?: Array<{
+    productId: ObjectId;
+    productName: string;
+    productPrice: number;
+    quantity: number;
+  }>;
+  total?: number;
+  orderStatus?: OrderStatus;
 }
 
-// Inventory Adjustment types
+// Inventory Adjustment types (for admin management)
 export interface InventoryAdjustment {
   _id?: ObjectId;
-  productId: ObjectId;
-  productName: string;
-  vendorId: ObjectId;
+  inventory_id: ObjectId;
+  product_name: string;
+  admin_id?: ObjectId;
   previousStock: number;
   adjustment: number;
   newStock: number;
   reason?: string;
   createdAt: Date;
+}
+
+// Vendor/Admin stats type
+export interface VendorStats {
+  totalOrders: number;
+  totalRevenue: number;
+  totalSales?: number; // Alias for totalRevenue
+  pendingOrders: number;
+  lowStockProducts: number;
+  lowStockItems?: number; // Alias
+  lowStockCount?: number; // Alias
+  totalProducts?: number;
 }
 
 // Auth types
@@ -106,60 +189,47 @@ export interface AuthResponse {
   user?: {
     id: string;
     email: string;
-    displayName: string;
-    role: UserRole;
+    name: string;
+    userType: 'student' | 'admin';
   };
   token?: string;
   message?: string;
 }
 
-// Product Input type for creating/updating products
-export interface ProductInput {
-  name: string;
+// Inventory Input type for creating/updating inventory
+export interface InventoryInput {
+  product_name: string;
   price: number;
-  stock: number;
+  stock_quantity: number;
   category: string;
-  emoji: string;
+  brand?: string;
+  emoji?: string;
   description?: string;
 }
 
 // Profile types
 export interface StudentProfile {
-  displayName: string;
+  name: string;
   email: string;
   phone?: string;
-  studentId?: string;
-  deliveryAddress?: string;
+  student_id?: string;
+  delivery_address?: string;
+  hall_name?: string;
 }
 
-export interface VendorProfile {
-  displayName: string;
+export interface AdminProfile {
+  username: string;
   email: string;
-  phoneNum?: string;
-  address?: string;
-  licenseNum?: string;
-}
-
-// Stats types
-export interface VendorStats {
-  totalProducts: number;
-  totalOrders: number;
-  totalRevenue: number;
-  totalSales?: number; // Alias for totalRevenue
-  lowStockCount: number;
-  lowStockItems?: number; // Alias for lowStockCount
-  pendingOrders?: number;
 }
 
 // Feedback types
 export interface Feedback {
   _id?: ObjectId;
-  studentId: ObjectId;
-  vendorId: ObjectId;
-  orderId: ObjectId;
-  productId: ObjectId;
+  student_id: ObjectId;
+  inventory_id: ObjectId;
+  order_id: ObjectId;
   rating: number; // 1-5
-  comment?: string; // Optional
+  comment?: string;
   createdAt: Date;
 }
 
@@ -169,14 +239,13 @@ export type PaymentStatus = 'pending' | 'completed';
 
 export interface Payment {
   _id?: ObjectId;
-  studentId: ObjectId;
-  vendorId: ObjectId;
-  orderId: ObjectId;
-  paymentMethod: PaymentMethod;
-  paymentStatus: PaymentStatus;
+  student_id: ObjectId;
+  order_id: ObjectId;
+  payment_method: PaymentMethod;
+  payment_status: PaymentStatus;
   amount: number;
+  payment_date?: Date;
   transactionId?: string; // For bKash
-  paymentDate?: Date;
   createdAt: Date;
   updatedAt: Date;
 }

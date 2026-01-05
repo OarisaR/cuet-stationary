@@ -8,7 +8,7 @@ import { ObjectId } from 'mongodb';
 export async function GET(request: NextRequest) {
   try {
     const user = getUserFromRequest(request);
-    if (!user || user.role !== 'vendor') {
+    if (!user || user.userType !== 'admin') {
       return NextResponse.json(
         { success: false, message: 'Unauthorized' },
         { status: 401 }

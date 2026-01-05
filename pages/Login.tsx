@@ -33,10 +33,10 @@ const Login = () => {
       // Just store user info
       localStorage.setItem('user', JSON.stringify(user));
       
-      // Redirect based on user role
-      if (user.role === "vendor") {
+      // Redirect based on user type (admin = vendor/inventory manager)
+      if (user.userType === "admin") {
         router.push('/vendor/dashboard');
-      } else if (user.role === "student") {
+      } else if (user.userType === "student") {
         router.push('/student/dashboard');
       }
     } catch (err: any) {

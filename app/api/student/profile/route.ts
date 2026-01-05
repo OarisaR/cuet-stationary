@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserFromRequest } from '@/lib/jwt';
 import { getDatabase } from '@/lib/mongodb';
-import type { User } from '@/lib/models';
+import type { Student } from '@/lib/models';
 import { ObjectId } from 'mongodb';
 
 // GET - Get student profile
 export async function GET(request: NextRequest) {
   try {
     const user = getUserFromRequest(request);
-    if (!user || user.role !== 'student') {
+    if (!user || user.userType !== 'student') {
       return NextResponse.json(
         { success: false, message: 'Unauthorized' },
         { status: 401 }
@@ -16,9 +16,9 @@ export async function GET(request: NextRequest) {
     }
 
     const db = await getDatabase();
-    const usersCollection = db.collection<User>('users');
+    const studentsCollection = db.collection<Student>('students');
 
-    const profile = await usersCollection.findOne(
+    const profile = await studentsCollection.findOne(
       { _id: new ObjectId(user.userId) },
       { projection: { password: 0 } }
     );
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const user = getUserFromRequest(request);
-    if (!user || user.role !== 'student') {
+    if (!user || user.userType !== 'student') {
       return NextResponse.json(
         { success: false, message: 'Unauthorized' },
         { status: 401 }
@@ -52,7 +52,9 @@ export async function PATCH(request: NextRequest) {
     }
 
     const updates = await request.json();
-    const allowedFields = ['displayName', 'phone', 'studentId', 'deliveryAddress'];
+    console.log('Received updates:', updates);
+    
+    const allowedFields = ['name', 'phone', 'student_id', 'delivery_address', 'hall_name'];
     
     const filteredUpdates = Object.keys(updates)
       .filter(key => allowedFields.includes(key))
@@ -60,6 +62,8 @@ export async function PATCH(request: NextRequest) {
         obj[key] = updates[key];
         return obj;
       }, {} as any);
+
+    console.log('Filtered updates:', filteredUpdates);
 
     if (Object.keys(filteredUpdates).length === 0) {
       return NextResponse.json(
@@ -69,9 +73,9 @@ export async function PATCH(request: NextRequest) {
     }
 
     const db = await getDatabase();
-    const usersCollection = db.collection<User>('users');
+    const studentsCollection = db.collection<Student>('students');
 
-    await usersCollection.updateOne(
+    await studentsCollection.updateOne(
       { _id: new ObjectId(user.userId) },
       { $set: { ...filteredUpdates, updatedAt: new Date() } }
     );

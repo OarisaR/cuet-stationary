@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserFromRequest } from '@/lib/jwt';
 import { getDatabase } from '@/lib/mongodb';
-import type { Feedback, Order } from '@/lib/models';
+import type { Feedback, Order, OrderItem } from '@/lib/models';
 import { ObjectId } from 'mongodb';
 
 // POST - Submit feedback for a product in a delivered order
 export async function POST(request: NextRequest) {
   try {
     const user = getUserFromRequest(request);
-    if (!user || user.role !== 'student') {
+    if (!user || user.userType !== 'student') {
       return NextResponse.json(
         { success: false, message: 'Unauthorized' },
         { status: 401 }
@@ -35,12 +35,13 @@ export async function POST(request: NextRequest) {
 
     const db = await getDatabase();
     const ordersCollection = db.collection<Order>('orders');
+    const orderItemsCollection = db.collection<OrderItem>('order_items');
     const feedbackCollection = db.collection<Feedback>('feedbacks');
 
     // Verify order exists, belongs to student, and is delivered
     const order = await ordersCollection.findOne({
       _id: new ObjectId(orderId),
-      customerId: new ObjectId(user.userId)
+      student_id: new ObjectId(user.userId)
     });
 
     if (!order) {
@@ -50,17 +51,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (order.status !== 'delivered') {
+    if (order.order_status !== 'delivered') {
       return NextResponse.json(
         { success: false, message: 'Feedback can only be given for delivered orders' },
         { status: 400 }
       );
     }
 
-    // Verify product is in the order
-    const productInOrder = order.items.find(
-      item => item.productId.toString() === productId
-    );
+    // Verify product is in the order (check order_items collection)
+    const productInOrder = await orderItemsCollection.findOne({
+      order_id: new ObjectId(orderId),
+      inventory_id: new ObjectId(productId)
+    });
 
     if (!productInOrder) {
       return NextResponse.json(
@@ -71,9 +73,9 @@ export async function POST(request: NextRequest) {
 
     // Check if feedback already exists for this product in this order
     const existingFeedback = await feedbackCollection.findOne({
-      orderId: new ObjectId(orderId),
-      productId: new ObjectId(productId),
-      studentId: new ObjectId(user.userId)
+      order_id: new ObjectId(orderId),
+      inventory_id: new ObjectId(productId),
+      student_id: new ObjectId(user.userId)
     });
 
     if (existingFeedback) {
@@ -85,10 +87,9 @@ export async function POST(request: NextRequest) {
 
     // Create feedback
     const feedback: Feedback = {
-      studentId: new ObjectId(user.userId),
-      vendorId: order.vendorId,
-      orderId: new ObjectId(orderId),
-      productId: new ObjectId(productId),
+      student_id: new ObjectId(user.userId),
+      order_id: new ObjectId(orderId),
+      inventory_id: new ObjectId(productId),
       rating,
       comment: comment?.trim() || undefined,
       createdAt: new Date()

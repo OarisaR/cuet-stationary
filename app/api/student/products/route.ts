@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDatabase } from '@/lib/mongodb';
-import type { Product } from '@/lib/models';
+import type { Inventory } from '@/lib/models';
 
-// GET - Get all products or search
+// GET - Get all inventory/products or search
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -10,9 +10,9 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get('category');
 
     const db = await getDatabase();
-    const productsCollection = db.collection<Product>('products');
+    const inventoryCollection = db.collection<Inventory>('inventory');
 
-    let query: any = { stock: { $gt: 0 } };
+    let query: any = { stock_quantity: { $gt: 0 } };
 
     if (category) {
       query.category = new RegExp(category, 'i');
@@ -20,13 +20,14 @@ export async function GET(request: NextRequest) {
 
     if (search) {
       query.$or = [
-        { name: new RegExp(search, 'i') },
+        { product_name: new RegExp(search, 'i') },
         { category: new RegExp(search, 'i') },
         { description: new RegExp(search, 'i') },
+        { brand: new RegExp(search, 'i') },
       ];
     }
 
-    const products = await productsCollection
+    const products = await inventoryCollection
       .find(query)
       .sort({ createdAt: -1 })
       .toArray();

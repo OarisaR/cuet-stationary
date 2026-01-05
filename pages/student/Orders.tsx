@@ -84,22 +84,56 @@ const Orders = () => {
   };
 
   const submitFeedback = async () => {
-    if (!feedbackModal) return;
+    if (!feedbackModal || submittingFeedback) return;
 
     setSubmittingFeedback(true);
     try {
-      const data = await studentAPI.submitFeedback(
+      await studentAPI.submitFeedback(
         feedbackModal.orderId,
         feedbackModal.productId,
         feedbackRating,
         feedbackComment.trim() || undefined
       );
 
+      // IMMEDIATELY update local state to hide the button
+      setOrders(prevOrders => 
+        prevOrders.map(order => {
+          if (order._id?.toString() === feedbackModal.orderId) {
+            return {
+              ...order,
+              items: order.items.map(item => {
+                if (item.productId?.toString() === feedbackModal.productId) {
+                  return {
+                    ...item,
+                    feedbackGiven: true,
+                    feedback: {
+                      rating: feedbackRating,
+                      comment: feedbackComment.trim() || undefined,
+                      createdAt: new Date(),
+                      student_id: item.productId,
+                      order_id: order._id!,
+                      inventory_id: item.productId
+                    }
+                  };
+                }
+                return item;
+              })
+            };
+          }
+          return order;
+        })
+      );
+
+      // Close modal immediately
+      closeFeedbackModal();
+      
+      // Show success message
       setMessage('Feedback submitted successfully! ✓');
-      // Refresh orders to get updated feedback status
+      
+      // Refresh orders in background to sync with server
       const ordersData = await studentAPI.getOrders();
       setOrders(ordersData);
-      closeFeedbackModal();
+      
       setTimeout(() => setMessage(null), 3000);
     } catch (error: any) {
       console.error('Error submitting feedback:', error);
@@ -153,14 +187,7 @@ const Orders = () => {
         </div>
 
         {message && (
-          <div style={{
-            padding: "1rem",
-            marginBottom: "1rem",
-            background: "#4f46e5",
-            color: "white",
-            borderRadius: "8px",
-            textAlign: "center",
-          }}>
+          <div className="message-notification">
             {message}
           </div>
         )}
@@ -212,93 +239,90 @@ const Orders = () => {
                   </div>
                   <div className="order-detail">
                     <span className="detail-label">Total:</span>
-                    <span className="detail-value detail-price">৳{order.totalAmount.toFixed(2)}</span>
+                    <span className="detail-value detail-price">৳{(order.totalAmount || order.total || 0).toFixed(2)}</span>
                   </div>
                 </div>
 
-                {/* Show product items for delivered orders with feedback options */}
-                {order.status === 'delivered' && (
-                  <div style={{ marginTop: '1rem', borderTop: '1px solid #e5e7eb', paddingTop: '1rem' }}>
-                    <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: '#6b7280' }}>Products:</h4>
-                    {order.items.map((item, idx) => (
-                      <div key={idx} style={{ 
-                        display: 'flex', 
-                        justifyContent: 'space-between', 
-                        alignItems: 'center',
-                        padding: '0.5rem',
-                        background: '#f9fafb',
-                        borderRadius: '6px',
-                        marginBottom: '0.5rem'
-                      }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <span style={{ fontSize: '1.5rem' }}>{item.productEmoji}</span>
-                          <div>
-                            <div style={{ fontWeight: '500' }}>{item.productName}</div>
-                            <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>
-                              Qty: {item.quantity} × ৳{item.price} = ৳{item.subtotal}
-                            </div>
+                {/* Show product items for all orders */}
+                <div style={{ marginTop: '1rem', borderTop: '2px dashed rgba(90, 108, 125, 0.2)', paddingTop: '1rem' }}>
+                  <h4 style={{ margin: '0 0 0.75rem 0', fontSize: '0.85rem', color: '#6b7c8f', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.3px' }}>Order Items:</h4>
+                  {order.items.map((item, idx) => (
+                    <div key={idx} style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center',
+                      padding: '0.75rem',
+                      background: 'rgba(244, 233, 215, 0.3)',
+                      border: '2px solid rgba(90, 108, 125, 0.15)',
+                      marginBottom: '0.5rem'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1 }}>
+                        <span style={{ fontSize: '1.8rem' }}>{item.productEmoji}</span>
+                        <div>
+                          <div style={{ fontWeight: '600', color: '#5a6c7d', fontSize: '0.95rem' }}>{item.productName}</div>
+                          <div style={{ fontSize: '0.85rem', color: '#6b7c8f', marginTop: '0.15rem' }}>
+                            Qty: {item.quantity} × ৳{item.price} = ৳{item.subtotal}
                           </div>
                         </div>
-                        
-                        {/* Feedback section */}
-                        {item.feedbackGiven ? (
-                          <div style={{ textAlign: 'right' }}>
-                            <div style={{ color: '#10b981', fontSize: '0.85rem', fontWeight: '500' }}>
-                              ✓ Feedback Given
-                            </div>
-                            <div style={{ color: '#f59e0b', fontSize: '0.9rem' }}>
-                              {'⭐'.repeat(item.feedback?.rating || 0)}
-                            </div>
-                            {item.feedback?.comment && (
-                              <div style={{ 
-                                fontSize: '0.8rem', 
-                                color: '#6b7280',
-                                marginTop: '0.25rem',
-                                fontStyle: 'italic',
-                                maxWidth: '200px'
-                              }}>
-                                "{item.feedback.comment}"
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          <button
-                            onClick={() => openFeedbackModal(
-                              order._id!.toString(),
-                              item.productId.toString(),
-                              item.productName,
-                              item.productEmoji
-                            )}
-                            style={{
-                              padding: '0.5rem 1rem',
-                              background: '#4f46e5',
-                              color: 'white',
-                              border: 'none',
-                              borderRadius: '6px',
-                              cursor: 'pointer',
-                              fontSize: '0.85rem',
-                              fontWeight: '500'
-                            }}
-                          >
-                            Give Feedback
-                          </button>
-                        )}
                       </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Regular items preview for non-delivered orders */}
-                {order.status !== 'delivered' && (
-                  <div className="order-card-actions">
-                    <div className="order-items-preview">
-                      {order.items.slice(0, 3).map((item, idx) => (
-                        <span key={idx} style={{ marginRight: "0.5rem" }}>{item.productEmoji}</span>
-                      ))}
-                      {order.items.length > 3 && <span>+{order.items.length - 3} more</span>}
+                      
+                      {/* Feedback section - only for delivered orders */}
+                      {order.status === 'delivered' && (
+                        <>
+                          {(item.feedbackGiven || item.feedback) ? (
+                            <div style={{ 
+                              textAlign: 'right',
+                              padding: '0.5rem 0.75rem',
+                              background: 'white',
+                              
+                              minWidth: '150px'
+                            }}>
+                              {item.feedback && (
+                                <>
+                                  <div style={{ color: '#f59e0b', fontSize: '1rem', marginBottom: '0.25rem' }}>
+                                    {'⭐'.repeat(item.feedback.rating)}
+                                  </div>
+                                  {item.feedback.comment && (
+                                    <div style={{ 
+                                      fontSize: '0.8rem', 
+                                      color: '#5a6c7d',
+                                      marginTop: '0.5rem',
+                                      fontStyle: 'italic',
+                                      maxWidth: '200px',
+                                      lineHeight: '1.3'
+                                    }}>
+                                      "{item.feedback.comment}"
+                                    </div>
+                                  )}
+                                </>
+                              )}
+                            </div>
+                          ) : (
+                            <button
+                              className="orders-feedback-btn"
+                              onClick={() => {
+                                console.log('Opening feedback modal for:', {
+                                  orderId: order._id!.toString(),
+                                  productId: item.productId,
+                                  feedbackGiven: item.feedbackGiven,
+                                  hasFeedback: !!item.feedback
+                                });
+                                openFeedbackModal(
+                                  order._id!.toString(),
+                                  item.productId.toString(),
+                                  item.productName,
+                                  item.productEmoji
+                                );
+                              }}
+                            >
+                              Give Feedback
+                            </button>
+                          )}
+                        </>
+                      )}
                     </div>
-                  </div>
-                )}
+                  ))}
+                </div>
               </div>
             ))
           )}

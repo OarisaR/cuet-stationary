@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserFromRequest } from '@/lib/jwt';
 import { getDatabase } from '@/lib/mongodb';
-import type { Product } from '@/lib/models';
+import type { Inventory } from '@/lib/models';
 import { ObjectId } from 'mongodb';
 
-// GET - Get vendor's products
+// GET - Get vendor's/admin's products from inventory
 export async function GET(request: NextRequest) {
   try {
     const user = getUserFromRequest(request);
-    if (!user || user.role !== 'vendor') {
+    if (!user || user.userType !== 'admin') {
       return NextResponse.json(
         { success: false, message: 'Unauthorized' },
         { status: 401 }
@@ -16,10 +16,11 @@ export async function GET(request: NextRequest) {
     }
 
     const db = await getDatabase();
-    const productsCollection = db.collection<Product>('products');
+    const inventoryCollection = db.collection<Inventory>('inventory');
 
-    const products = await productsCollection
-      .find({ vendorId: new ObjectId(user.userId) })
+    // Get all inventory items (admin/vendor manages all inventory)
+    const products = await inventoryCollection
+      .find({})
       .sort({ createdAt: -1 })
       .toArray();
 
@@ -33,20 +34,20 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST - Add new product
+// POST - Add new product to inventory
 export async function POST(request: NextRequest) {
   try {
     const user = getUserFromRequest(request);
-    if (!user || user.role !== 'vendor') {
+    if (!user || user.userType !== 'admin') {
       return NextResponse.json(
         { success: false, message: 'Unauthorized' },
         { status: 401 }
       );
     }
 
-    const { name, price, stock, category, emoji, description } = await request.json();
+    const { name, price, stock, category, emoji, description, brand } = await request.json();
 
-    if (!name || !price || stock === undefined || !category || !emoji) {
+    if (!name || !price || stock === undefined || !category) {
       return NextResponse.json(
         { success: false, message: 'Missing required fields' },
         { status: 400 }
@@ -54,21 +55,21 @@ export async function POST(request: NextRequest) {
     }
 
     const db = await getDatabase();
-    const productsCollection = db.collection<Product>('products');
+    const inventoryCollection = db.collection<Inventory>('inventory');
 
-    const product: Product = {
-      vendorId: new ObjectId(user.userId),
-      name,
+    const product: Inventory = {
+      product_name: name,
       price: parseFloat(price),
-      stock: parseInt(stock),
+      stock_quantity: parseInt(stock),
       category,
+      brand,
       emoji,
       description: description || '',
       createdAt: new Date(),
       updatedAt: new Date(),
     };
 
-    const result = await productsCollection.insertOne(product);
+    const result = await inventoryCollection.insertOne(product);
 
     return NextResponse.json(
       { success: true, productId: result.insertedId.toString() },

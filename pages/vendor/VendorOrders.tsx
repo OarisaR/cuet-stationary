@@ -201,85 +201,64 @@ const VendorOrders = () => {
                   </div>
                   <div className="vendor-order-detail">
                     <span className="vendor-detail-label">Total:</span>
-                    <span className="vendor-detail-value vendor-detail-price">৳{order.totalAmount.toFixed(2)}</span>
+                    <span className="vendor-detail-value vendor-detail-price">৳{(order.totalAmount || order.total || 0).toFixed(2)}</span>
                   </div>
                 </div>
 
-                {/* Show product items with feedback for delivered orders */}
-                {order.status === 'delivered' && (
-                  <div style={{ marginTop: '1rem', borderTop: '1px solid #e5e7eb', paddingTop: '1rem' }}>
-                    <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: '#6b7280' }}>Products & Feedback:</h4>
-                    {order.items.map((item, idx) => (
-                      <div key={idx} style={{ 
-                        padding: '0.75rem',
-                        background: '#f9fafb',
-                        borderRadius: '6px',
-                        marginBottom: '0.5rem',
-                        border: '1px solid #e5e7eb'
-                      }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1 }}>
-                            <span style={{ fontSize: '1.5rem' }}>{item.productEmoji}</span>
-                            <div>
-                              <div style={{ fontWeight: '500' }}>{item.productName}</div>
-                              <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>
-                                Qty: {item.quantity} × ৳{item.price} = ৳{item.subtotal}
-                              </div>
+                {/* Show product items for all orders */}
+                <div style={{ marginTop: '1rem', borderTop: '2px solid rgba(111, 164, 175, 0.2)', paddingTop: '1rem' }}>
+                  <h4 style={{ margin: '0 0 0.75rem 0', fontSize: '0.85rem', color: '#6b7c8f', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.3px' }}>Order Items:</h4>
+                  {order.items.map((item, idx) => (
+                    <div key={idx} style={{ 
+                      padding: '0.75rem',
+                      background: 'rgba(244, 233, 215, 0.3)',
+                      border: '2px solid rgba(90, 108, 125, 0.15)',
+                      marginBottom: '0.5rem'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1 }}>
+                          <span style={{ fontSize: '1.8rem' }}>{item.productEmoji}</span>
+                          <div>
+                            <div style={{ fontWeight: '600', color: '#5a6c7d', fontSize: '0.95rem' }}>{item.productName}</div>
+                            <div style={{ fontSize: '0.85rem', color: '#6b7c8f', marginTop: '0.15rem' }}>
+                              Qty: {item.quantity} × ৳{item.price} = ৳{item.subtotal}
                             </div>
                           </div>
-                          
-                          {/* Feedback display */}
-                          {item.feedback ? (
-                            <div style={{ 
-                              textAlign: 'right', 
-                              padding: '0.5rem',
-                              background: 'white',
-                              borderRadius: '6px',
-                              border: '1px solid #e5e7eb',
-                              minWidth: '200px'
-                            }}>
-                              <div style={{ 
-                                color: '#f59e0b', 
-                                fontSize: '1rem',
-                                marginBottom: '0.25rem'
-                              }}>
-                                {'⭐'.repeat(item.feedback.rating)}
-                              </div>
-                              {item.feedback.comment && (
-                                <div style={{ 
-                                  fontSize: '0.85rem', 
-                                  color: '#374151',
-                                  marginTop: '0.5rem',
-                                  fontStyle: 'italic',
-                                  textAlign: 'left',
-                                  lineHeight: '1.4'
-                                }}>
-                                  "{item.feedback.comment}"
-                                </div>
-                              )}
-                              <div style={{ 
-                                fontSize: '0.75rem', 
-                                color: '#9ca3af',
-                                marginTop: '0.5rem'
-                              }}>
-                                {formatDate(item.feedback.createdAt)}
-                              </div>
-                            </div>
-                          ) : (
-                            <div style={{ 
-                              fontSize: '0.85rem', 
-                              color: '#9ca3af',
-                              fontStyle: 'italic',
-                              padding: '0.5rem'
-                            }}>
-                              No feedback yet
-                            </div>
-                          )}
                         </div>
+                        
+                        {/* Feedback display - only for delivered orders */}
+                        {order.status === 'delivered' && item.feedback && (
+                          <div style={{ 
+                            textAlign: 'right', 
+                            padding: '0.5rem 0.75rem',
+                            background: 'white',
+                            border: '2px solid rgba(245, 158, 11, 0.3)',
+                            minWidth: '150px'
+                          }}>
+                            <div style={{ 
+                              color: '#f59e0b', 
+                              fontSize: '1rem',
+                              marginBottom: '0.25rem'
+                            }}>
+                              {'⭐'.repeat(item.feedback.rating)}
+                            </div>
+                            {item.feedback.comment && (
+                              <div style={{ 
+                                fontSize: '0.8rem', 
+                                color: '#5a6c7d',
+                                marginTop: '0.5rem',
+                                fontStyle: 'italic',
+                                lineHeight: '1.3'
+                              }}>
+                                "{item.feedback.comment}"
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
-                    ))}
-                  </div>
-                )}
+                    </div>
+                  ))}
+                </div>
 
                 <div className="vendor-order-card-actions">
                   {order.status === "pending" && (

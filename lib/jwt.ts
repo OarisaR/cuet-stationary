@@ -1,12 +1,11 @@
 import jwt from 'jsonwebtoken';
-import { UserRole } from './models';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
 export interface JWTPayload {
   userId: string;
   email: string;
-  role: UserRole;
+  userType: 'student' | 'admin';
 }
 
 export function generateToken(payload: JWTPayload): string {

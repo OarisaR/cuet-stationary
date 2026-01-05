@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserFromRequest } from '@/lib/jwt';
 import { getDatabase } from '@/lib/mongodb';
-import type { Order, Product, InventoryAdjustment, Payment } from '@/lib/models';
+import type { Order, Inventory, InventoryAdjustment, Payment } from '@/lib/models';
 import { ObjectId } from 'mongodb';
 
 // PATCH - Update order status
@@ -12,7 +12,7 @@ export async function PATCH(
   try {
     const { id } = await params;
     const user = getUserFromRequest(request);
-    if (!user || user.role !== 'vendor') {
+    if (!user || user.userType !== 'admin') {
       return NextResponse.json(
         { success: false, message: 'Unauthorized' },
         { status: 401 }
@@ -30,14 +30,14 @@ export async function PATCH(
 
     const db = await getDatabase();
     const ordersCollection = db.collection<Order>('orders');
+    const orderItemsCollection = db.collection('order_items');
     const paymentsCollection = db.collection<Payment>('payments');
-    const productsCollection = db.collection<Product>('products');
+    const inventoryCollection = db.collection<Inventory>('inventory');
     const adjustmentsCollection = db.collection<InventoryAdjustment>('inventoryAdjustments');
 
-    // Get current order
+    // Get current order (no vendorId filter - admins see all orders)
     const order = await ordersCollection.findOne({
       _id: new ObjectId(id),
-      vendorId: new ObjectId(user.userId),
     });
 
     if (!order) {
@@ -47,28 +47,33 @@ export async function PATCH(
       );
     }
 
+    // Get order items
+    const orderItems = await orderItemsCollection
+      .find({ order_id: new ObjectId(id) })
+      .toArray();
+
     // If changing from pending to processing, deduct stock
-    if (status === 'processing' && order.status === 'pending') {
-      for (const item of order.items) {
-        const product = await productsCollection.findOne({ _id: item.productId });
+    if (status === 'processing' && order.order_status === 'pending') {
+      for (const item of orderItems) {
+        const product = await inventoryCollection.findOne({ _id: item.inventory_id });
         
         if (product) {
-          const newStock = Math.max(0, product.stock - item.quantity);
+          const newStock = Math.max(0, product.stock_quantity - item.quantity);
           
           // Update product stock
-          await productsCollection.updateOne(
-            { _id: item.productId },
+          await inventoryCollection.updateOne(
+            { _id: item.inventory_id },
             {
-              $set: { stock: newStock, updatedAt: new Date() },
+              $set: { stock_quantity: newStock, updatedAt: new Date() },
             }
           );
 
           // Log inventory adjustment
           const adjustment: InventoryAdjustment = {
-            productId: item.productId,
-            productName: item.productName,
-            vendorId: new ObjectId(user.userId),
-            previousStock: product.stock,
+            inventory_id: item.inventory_id,
+            product_name: item.product_name,
+            admin_id: new ObjectId(user.userId),
+            previousStock: product.stock_quantity,
             adjustment: -item.quantity,
             newStock,
             reason: `Order #${id.substring(0, 8)} accepted`,
@@ -79,20 +84,31 @@ export async function PATCH(
       }
     }
 
-    // Update order status
+    // Prepare update object
+    const orderUpdate: any = {
+      order_status: status,
+      updatedAt: new Date()
+    };
+
+    // If order is being marked as delivered, set delivered_at timestamp
+    if (status === 'delivered') {
+      orderUpdate.delivered_at = new Date();
+    }
+
+    // Update order status (and delivered_at if applicable)
     await ordersCollection.updateOne(
-      { _id: new ObjectId(id), vendorId: new ObjectId(user.userId) },
-      { $set: { status, updatedAt: new Date() } }
+      { _id: new ObjectId(id) },
+      { $set: orderUpdate }
     );
 
     // If order is delivered, update payment status to completed
     if (status === 'delivered') {
       await paymentsCollection.updateOne(
-        { orderId: new ObjectId(id) },
+        { order_id: new ObjectId(id) },
         { 
           $set: { 
-            paymentStatus: 'completed', 
-            paymentDate: new Date(),
+            payment_status: 'completed', 
+            payment_date: new Date(),
             updatedAt: new Date() 
           } 
         }

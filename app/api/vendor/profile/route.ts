@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserFromRequest } from '@/lib/jwt';
 import { getDatabase } from '@/lib/mongodb';
-import type { User } from '@/lib/models';
+import type { Admin } from '@/lib/models';
 import { ObjectId } from 'mongodb';
 
-// GET - Get vendor profile
+// GET - Get vendor/admin profile
 export async function GET(request: NextRequest) {
   try {
     const user = getUserFromRequest(request);
-    if (!user || user.role !== 'vendor') {
+    if (!user || user.userType !== 'admin') {
       return NextResponse.json(
         { success: false, message: 'Unauthorized' },
         { status: 401 }
@@ -16,9 +16,9 @@ export async function GET(request: NextRequest) {
     }
 
     const db = await getDatabase();
-    const usersCollection = db.collection<User>('users');
+    const adminsCollection = db.collection<Admin>('admins');
 
-    const profile = await usersCollection.findOne(
+    const profile = await adminsCollection.findOne(
       { _id: new ObjectId(user.userId) },
       { projection: { password: 0 } }
     );
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const user = getUserFromRequest(request);
-    if (!user || user.role !== 'vendor') {
+    if (!user || user.userType !== 'admin') {
       return NextResponse.json(
         { success: false, message: 'Unauthorized' },
         { status: 401 }
@@ -52,7 +52,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const updates = await request.json();
-    const allowedFields = ['displayName', 'phoneNum', 'address', 'licenseNum'];
+    const allowedFields = ['username', 'phoneNum', 'address', 'licenseNum'];
     
     const filteredUpdates = Object.keys(updates)
       .filter(key => allowedFields.includes(key))
@@ -69,9 +69,9 @@ export async function PATCH(request: NextRequest) {
     }
 
     const db = await getDatabase();
-    const usersCollection = db.collection<User>('users');
+    const adminsCollection = db.collection<Admin>('admins');
 
-    await usersCollection.updateOne(
+    await adminsCollection.updateOne(
       { _id: new ObjectId(user.userId) },
       { $set: { ...filteredUpdates, updatedAt: new Date() } }
     );

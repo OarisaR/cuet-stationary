@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserFromRequest } from '@/lib/jwt';
 import { getDatabase } from '@/lib/mongodb';
-import type { CartItem, Product } from '@/lib/models';
+import type { CartItem, Inventory } from '@/lib/models';
 import { ObjectId } from 'mongodb';
 
 // GET - Get cart items
 export async function GET(request: NextRequest) {
   try {
     const user = getUserFromRequest(request);
-    if (!user || user.role !== 'student') {
+    if (!user || user.userType !== 'student') {
       return NextResponse.json(
         { success: false, message: 'Unauthorized' },
         { status: 401 }
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     const cartCollection = db.collection<CartItem>('cart');
 
     const items = await cartCollection
-      .find({ studentId: new ObjectId(user.userId) })
+      .find({ student_id: new ObjectId(user.userId) })
       .sort({ addedAt: -1 })
       .toArray();
 
@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const user = getUserFromRequest(request);
-    if (!user || user.role !== 'student') {
+    if (!user || user.userType !== 'student') {
       return NextResponse.json(
         { success: false, message: 'Unauthorized' },
         { status: 401 }
@@ -55,10 +55,10 @@ export async function POST(request: NextRequest) {
 
     const db = await getDatabase();
     const cartCollection = db.collection<CartItem>('cart');
-    const productsCollection = db.collection<Product>('products');
+    const inventoryCollection = db.collection<Inventory>('inventory');
 
     // Get product details
-    const product = await productsCollection.findOne({ _id: new ObjectId(productId) });
+    const product = await inventoryCollection.findOne({ _id: new ObjectId(productId) });
     if (!product) {
       return NextResponse.json(
         { success: false, message: 'Product not found' },
@@ -68,8 +68,8 @@ export async function POST(request: NextRequest) {
 
     // Check if item already in cart
     const existingItem = await cartCollection.findOne({
-      studentId: new ObjectId(user.userId),
-      productId: new ObjectId(productId),
+      student_id: new ObjectId(user.userId),
+      inventory_id: new ObjectId(productId),
     });
 
     if (existingItem) {
@@ -82,13 +82,12 @@ export async function POST(request: NextRequest) {
     } else {
       // Add new item
       const cartItem: CartItem = {
-        studentId: new ObjectId(user.userId),
-        productId: new ObjectId(productId),
-        productName: product.name,
-        productPrice: product.price,
-        productEmoji: product.emoji,
+        student_id: new ObjectId(user.userId),
+        inventory_id: new ObjectId(productId),
+        product_name: product.product_name,
+        product_price: product.price,
+        product_emoji: product.emoji,
         quantity,
-        vendorId: product.vendorId,
         addedAt: new Date(),
       };
 
@@ -108,7 +107,7 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const user = getUserFromRequest(request);
-    if (!user || user.role !== 'student') {
+    if (!user || user.userType !== 'student') {
       return NextResponse.json(
         { success: false, message: 'Unauthorized' },
         { status: 401 }
@@ -118,7 +117,7 @@ export async function DELETE(request: NextRequest) {
     const db = await getDatabase();
     const cartCollection = db.collection<CartItem>('cart');
 
-    await cartCollection.deleteMany({ studentId: new ObjectId(user.userId) });
+    await cartCollection.deleteMany({ student_id: new ObjectId(user.userId) });
 
     return NextResponse.json({ success: true });
   } catch (error) {

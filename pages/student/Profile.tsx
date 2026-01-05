@@ -18,6 +18,7 @@ const Profile = () => {
     email: "",
     phone: "",
     studentId: "",
+    hallName: "",
     deliveryAddress: "",
   });
 
@@ -44,6 +45,7 @@ const Profile = () => {
           email: profileData.email || "",
           phone: profileData.phone || "",
           studentId: profileData.studentId || "",
+          hallName: profileData.hallName || "",
           deliveryAddress: profileData.deliveryAddress || "",
         });
 
@@ -59,6 +61,7 @@ const Profile = () => {
           email: response.user.email || "",
           phone: "",
           studentId: "",
+          hallName: "",
           deliveryAddress: "",
         });
       }
@@ -87,6 +90,7 @@ const Profile = () => {
         displayName: formData.displayName,
         phone: formData.phone,
         studentId: formData.studentId,
+        hallName: formData.hallName,
         deliveryAddress: formData.deliveryAddress,
       });
       setMessage("Profile updated successfully!");
@@ -125,28 +129,17 @@ const Profile = () => {
 
         {/* Setup Prompt for New Users */}
         {showSetupPrompt && (
-          <div style={{
-            padding: "1rem",
-            marginBottom: "1rem",
-            background: "#ff9800",
-            color: "white",
-            borderRadius: "8px",
-            textAlign: "center",
-          }}>
-            ⚠️ Please complete your profile and add a delivery address to start shopping!
+          <div className="profile-setup-prompt">
+            <span className="profile-setup-icon">✦</span>
+            <span className="profile-setup-text">
+              Please complete your profile and add a delivery address to start shopping!
+            </span>
           </div>
         )}
 
         {/* Success/Error Message */}
         {message && (
-          <div style={{
-            padding: "1rem",
-            marginBottom: "1rem",
-            background: message.includes("Error") ? "#f44336" : "#4f46e5",
-            color: "white",
-            borderRadius: "8px",
-            textAlign: "center",
-          }}>
+          <div className="message-notification">
             {message}
           </div>
         )}
@@ -176,6 +169,17 @@ const Profile = () => {
                     value={formData.studentId}
                     onChange={handleChange}
                     required
+                  />
+                </div>
+
+                <div className="profile-form-field">
+                  <label>Hall Name</label>
+                  <input
+                    type="text"
+                    name="hallName"
+                    value={formData.hallName}
+                    onChange={handleChange}
+                    placeholder="e.g., Shahjalal Hall, Amar Ekushey Hall"
                   />
                 </div>
               </div>

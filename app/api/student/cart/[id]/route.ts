@@ -11,7 +11,7 @@ export async function PATCH(
 ) {
   try {
     const user = getUserFromRequest(request);
-    if (!user || user.role !== 'student') {
+    if (!user || user.userType !== 'student') {
       return NextResponse.json(
         { success: false, message: 'Unauthorized' },
         { status: 401 }
@@ -35,12 +35,12 @@ export async function PATCH(
       // Remove item
       await cartCollection.deleteOne({
         _id: new ObjectId(id),
-        studentId: new ObjectId(user.userId),
+        student_id: new ObjectId(user.userId),
       });
     } else {
       // Update quantity
       await cartCollection.updateOne(
-        { _id: new ObjectId(id), studentId: new ObjectId(user.userId) },
+        { _id: new ObjectId(id), student_id: new ObjectId(user.userId) },
         { $set: { quantity } }
       );
     }
@@ -62,7 +62,7 @@ export async function DELETE(
 ) {
   try {
     const user = getUserFromRequest(request);
-    if (!user || user.role !== 'student') {
+    if (!user || user.userType !== 'student') {
       return NextResponse.json(
         { success: false, message: 'Unauthorized' },
         { status: 401 }
@@ -81,7 +81,7 @@ export async function DELETE(
 
     const result = await cartCollection.deleteOne({
       _id: new ObjectId(id),
-      studentId: new ObjectId(user.userId),
+      student_id: new ObjectId(user.userId),
     });
 
     console.log('Delete result:', {

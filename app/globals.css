@@ -29,3 +29,41 @@ body {
     transform: rotate(360deg);
   }
 }
+
+/* Global Message/Notification Styles */
+.message-notification,
+.success-message,
+.error-message {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  border: 2px solid #5a6c7d;
+  border-radius: 0;
+  text-align: center;
+  box-shadow: 3px 3px 0px rgba(90, 108, 125, 0.3);
+  animation: slideDown 0.3s ease;
+}
+
+.message-notification,
+.success-message {
+  background: rgb(111, 164, 175);
+  color: white;
+}
+
+.error-message {
+  background: rgb(217, 125, 85);
+  color: white;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

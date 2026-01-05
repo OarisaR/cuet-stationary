@@ -54,7 +54,6 @@
   text-shadow: 4px 4px 0px rgba(90, 108, 125, 0.5);
   position: relative;
   display: inline-block;
-  background: linear-gradient(180deg, transparent 70%, rgba(217, 125, 85, 0.4) 70%);
   padding: 0 0.5rem;
 }
 

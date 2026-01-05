@@ -54,6 +54,19 @@ const VendorDashboard = () => {
     };
 
     initDashboard();
+
+    // Refresh stats when page becomes visible (e.g., navigating back from other pages)
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        vendorAPI.getStats().then(setStats).catch(console.error);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [router]);
 
   const handleProcessOrder = async (orderId: string) => {
@@ -200,7 +213,7 @@ const VendorDashboard = () => {
                     <span className="vendor-order-id">Order #{order._id!.toString().substring(0, 8)}</span>
                     <span className="vendor-order-customer">Customer: {order.customerName}</span>
                   </div>
-                  <span className="vendor-order-amount">৳{order.totalAmount.toFixed(2)}</span>
+                  <span className="vendor-order-amount">৳{(order.totalAmount || order.total || 0).toFixed(2)}</span>
                   <button
                     className="vendor-order-action-btn"
                     onClick={() => handleProcessOrder(order._id!.toString())}

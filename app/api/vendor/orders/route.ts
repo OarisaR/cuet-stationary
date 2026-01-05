@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserFromRequest } from '@/lib/jwt';
 import { getDatabase } from '@/lib/mongodb';
-import type { Order, Product, InventoryAdjustment, OrderItem, Feedback, Payment } from '@/lib/models';
+import type { Order, Inventory, InventoryAdjustment, OrderItem, Feedback, Payment } from '@/lib/models';
 import { ObjectId } from 'mongodb';
 
-// GET - Get vendor orders with feedback for delivered orders
+// GET - Get all orders (vendor/admin sees all orders)
 export async function GET(request: NextRequest) {
   try {
     const user = getUserFromRequest(request);
-    if (!user || user.role !== 'vendor') {
+    if (!user || user.userType !== 'admin') {
       return NextResponse.json(
         { success: false, message: 'Unauthorized' },
         { status: 401 }
@@ -20,45 +20,64 @@ export async function GET(request: NextRequest) {
 
     const db = await getDatabase();
     const ordersCollection = db.collection<Order>('orders');
+    const orderItemsCollection = db.collection<OrderItem>('order_items');
     const feedbackCollection = db.collection<Feedback>('feedbacks');
     const paymentsCollection = db.collection<Payment>('payments');
+    const inventoryCollection = db.collection<Inventory>('inventory');
 
-    let query: any = { vendorId: new ObjectId(user.userId) };
+    let query: any = {};
     if (status) {
-      query.status = status;
+      query.order_status = status;
     }
 
     const orders = await ordersCollection
       .find(query)
-      .sort({ createdAt: -1 })
+      .sort({ ordered_at: -1 })
       .toArray();
 
-    // Add feedback and payment information
+    // Add items, feedback and payment information
     const ordersWithDetails = await Promise.all(
       orders.map(async (order) => {
+        // Get order items
+        const items = await orderItemsCollection
+          .find({ order_id: order._id })
+          .toArray();
+
+        // Enrich items with product emoji from inventory
+        const enrichedItems = await Promise.all(
+          items.map(async (item) => {
+            const product = await inventoryCollection.findOne({
+              _id: item.inventory_id
+            });
+            return {
+              ...item,
+              product_emoji: product?.emoji || '📦'
+            };
+          })
+        );
+
         // Get payment information
         const payment = await paymentsCollection.findOne({
-          orderId: order._id
+          order_id: order._id
         });
 
-        if (order.status === 'delivered') {
+        if (order.order_status === 'delivered') {
           // Get feedback for all products in this order
           const feedbacks = await feedbackCollection
             .find({
-              orderId: order._id,
-              vendorId: new ObjectId(user.userId)
+              order_id: order._id
             })
             .toArray();
 
-          // Create a map of productId -> feedback
+          // Create a map of inventoryId -> feedback
           const feedbackMap = new Map(
-            feedbacks.map(f => [f.productId.toString(), f])
+            feedbacks.map(f => [f.inventory_id.toString(), f])
           );
 
-          // Add feedback to each item
-          const itemsWithFeedback = order.items.map(item => ({
+          // Add feedback to enriched items
+          const itemsWithFeedback = enrichedItems.map(item => ({
             ...item,
-            feedback: feedbackMap.get(item.productId.toString()) || null
+            feedback: feedbackMap.get(item.inventory_id.toString()) || null
           }));
 
           return {
@@ -69,6 +88,7 @@ export async function GET(request: NextRequest) {
         }
         return {
           ...order,
+          items: enrichedItems,
           payment: payment || null
         };
       })

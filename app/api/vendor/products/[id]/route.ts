@@ -1,17 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserFromRequest } from '@/lib/jwt';
 import { getDatabase } from '@/lib/mongodb';
-import type { Product, InventoryAdjustment } from '@/lib/models';
+import type { Inventory, InventoryAdjustment } from '@/lib/models';
 import { ObjectId } from 'mongodb';
 
 // GET - Get single product
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const user = getUserFromRequest(request);
-    if (!user || user.role !== 'vendor') {
+    if (!user || user.userType !== 'admin') {
       return NextResponse.json(
         { success: false, message: 'Unauthorized' },
         { status: 401 }
@@ -19,11 +20,10 @@ export async function GET(
     }
 
     const db = await getDatabase();
-    const productsCollection = db.collection<Product>('products');
+    const inventoryCollection = db.collection<Inventory>('inventory');
 
-    const product = await productsCollection.findOne({
-      _id: new ObjectId(params.id),
-      vendorId: new ObjectId(user.userId),
+    const product = await inventoryCollection.findOne({
+      _id: new ObjectId(id),
     });
 
     if (!product) {
@@ -46,11 +46,12 @@ export async function GET(
 // PATCH - Update product
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const user = getUserFromRequest(request);
-    if (!user || user.role !== 'vendor') {
+    if (!user || user.userType !== 'admin') {
       return NextResponse.json(
         { success: false, message: 'Unauthorized' },
         { status: 401 }
@@ -58,7 +59,7 @@ export async function PATCH(
     }
 
     const updates = await request.json();
-    const allowedFields = ['name', 'price', 'stock', 'category', 'emoji', 'description'];
+    const allowedFields = ['product_name', 'price', 'stock_quantity', 'category', 'emoji', 'description', 'brand'];
     
     const filteredUpdates = Object.keys(updates)
       .filter(key => allowedFields.includes(key))
@@ -75,12 +76,11 @@ export async function PATCH(
     }
 
     const db = await getDatabase();
-    const productsCollection = db.collection<Product>('products');
+    const inventoryCollection = db.collection<Inventory>('inventory');
 
     // Get current product for inventory tracking
-    const currentProduct = await productsCollection.findOne({
-      _id: new ObjectId(params.id),
-      vendorId: new ObjectId(user.userId),
+    const currentProduct = await inventoryCollection.findOne({
+      _id: new ObjectId(id),
     });
 
     if (!currentProduct) {
@@ -91,23 +91,23 @@ export async function PATCH(
     }
 
     // If stock is being updated, log inventory adjustment
-    if (filteredUpdates.stock !== undefined && filteredUpdates.stock !== currentProduct.stock) {
+    if (filteredUpdates.stock_quantity !== undefined && filteredUpdates.stock_quantity !== currentProduct.stock_quantity) {
       const adjustmentCollection = db.collection<InventoryAdjustment>('inventoryAdjustments');
       const adjustment: InventoryAdjustment = {
-        productId: new ObjectId(params.id),
-        productName: currentProduct.name,
-        vendorId: new ObjectId(user.userId),
-        previousStock: currentProduct.stock,
-        adjustment: filteredUpdates.stock - currentProduct.stock,
-        newStock: filteredUpdates.stock,
+        inventory_id: new ObjectId(id),
+        product_name: currentProduct.product_name,
+        admin_id: new ObjectId(user.userId),
+        previousStock: currentProduct.stock_quantity,
+        adjustment: filteredUpdates.stock_quantity - currentProduct.stock_quantity,
+        newStock: filteredUpdates.stock_quantity,
         reason: 'Manual adjustment',
         createdAt: new Date(),
       };
       await adjustmentCollection.insertOne(adjustment);
     }
 
-    await productsCollection.updateOne(
-      { _id: new ObjectId(params.id), vendorId: new ObjectId(user.userId) },
+    await inventoryCollection.updateOne(
+      { _id: new ObjectId(id) },
       { $set: { ...filteredUpdates, updatedAt: new Date() } }
     );
 
@@ -124,11 +124,12 @@ export async function PATCH(
 // DELETE - Delete product
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const user = getUserFromRequest(request);
-    if (!user || user.role !== 'vendor') {
+    if (!user || user.userType !== 'admin') {
       return NextResponse.json(
         { success: false, message: 'Unauthorized' },
         { status: 401 }
@@ -136,14 +137,22 @@ export async function DELETE(
     }
 
     const db = await getDatabase();
-    const productsCollection = db.collection<Product>('products');
+    const inventoryCollection = db.collection<Inventory>('inventory');
 
-    await productsCollection.deleteOne({
-      _id: new ObjectId(params.id),
-      vendorId: new ObjectId(user.userId),
+    const result = await inventoryCollection.deleteOne({
+      _id: new ObjectId(id),
     });
 
-    return NextResponse.json({ success: true });
+    if (result.deletedCount === 0) {
+      return NextResponse.json(
+        { success: false, message: 'Product not found or already deleted' },
+        { status: 404 }
+      );
+    }
+
+    console.log(`Product ${id} deleted successfully by user ${user.userId}`);
+
+    return NextResponse.json({ success: true, message: 'Product deleted successfully' });
   } catch (error) {
     console.error('Delete product error:', error);
     return NextResponse.json(

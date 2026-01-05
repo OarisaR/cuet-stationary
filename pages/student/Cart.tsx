@@ -129,7 +129,7 @@ const Cart = () => {
     }
   };
 
-  const subtotal = cartItems.reduce((sum, item) => sum + item.productPrice * item.quantity, 0);
+  const subtotal = cartItems.reduce((sum, item) => sum + (item.productPrice || item.product_price || 0) * item.quantity, 0);
   const shipping = cartItems.length > 0 ? 2.0 : 0;
   const total = subtotal + shipping;
 
@@ -155,14 +155,7 @@ const Cart = () => {
         </div>
 
         {message && (
-          <div style={{
-            padding: "1rem",
-            marginBottom: "1rem",
-            background: "#4f46e5",
-            color: "white",
-            borderRadius: "8px",
-            textAlign: "center",
-          }}>
+          <div className="message-notification">
             {message}
           </div>
         )}
@@ -181,11 +174,11 @@ const Cart = () => {
               {/* Cart Items */}
               <div className="cart-items">
                 {cartItems.map(item => (
-                  <div key={item._id?.toString() || item.productId.toString()} className="cart-item">
+                  <div key={item._id?.toString() || (item.productId || item.inventory_id)?.toString()} className="cart-item">
                     <div className="cart-item-image">{item.productEmoji}</div>
                     <div className="cart-item-info">
                       <h3 className="cart-item-name">{item.productName}</h3>
-                      <p className="cart-item-price">৳{item.productPrice.toFixed(2)}</p>
+                      <p className="cart-item-price">৳{(item.productPrice || item.product_price || 0).toFixed(2)}</p>
                     </div>
                     <div className="cart-item-quantity">
                       <button onClick={() => updateQuantity(item._id!.toString(), item.quantity - 1)}>−</button>
@@ -193,7 +186,7 @@ const Cart = () => {
                       <button onClick={() => updateQuantity(item._id!.toString(), item.quantity + 1)}>+</button>
                     </div>
                     <div className="cart-item-total">
-                      ৳{(item.productPrice * item.quantity).toFixed(2)}
+                      ৳{((item.productPrice || item.product_price || 0) * item.quantity).toFixed(2)}
                     </div>
                     <button className="cart-item-remove" onClick={() => removeItem(item._id!.toString())}>
                       ✕

@@ -14,8 +14,6 @@ const Shop = () => {
   const [loading, setLoading] = useState(true);
   const [studentId, setStudentId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
-  const [wishlistProductIds, setWishlistProductIds] = useState<Set<string>>(new Set());
-  const [wishlistItems, setWishlistItems] = useState<any[]>([]);
 
   useEffect(() => {
     const initShop = async () => {
@@ -27,14 +25,8 @@ const Shop = () => {
         }
 
         setStudentId(response.user.id);
-        const [productsData, wishlistData] = await Promise.all([
-          studentAPI.getProducts(),
-          studentAPI.getWishlist()
-        ]);
+        const productsData = await studentAPI.getProducts();
         setProducts(productsData);
-        setWishlistItems(wishlistData);
-        const wishlistIds = new Set<string>(wishlistData.map((item: any) => item.productId.toString()));
-        setWishlistProductIds(wishlistIds);
       } catch (error) {
         console.error("Error loading products:", error);
         setMessage("Error loading products. Please refresh the page.");
@@ -58,45 +50,7 @@ const Shop = () => {
     }
   };
 
-  const handleAddToWishlist = async (product: Product) => {
-    if (!studentId) return;
-    const productId = product._id!.toString();
-    
-    if (wishlistProductIds.has(productId)) {
-      // Item is in wishlist, remove it
-      try {
-        const wishlistItem = wishlistItems.find((item: any) => item.productId.toString() === productId);
-        if (wishlistItem) {
-          await studentAPI.removeFromWishlist(wishlistItem._id.toString());
-          setWishlistProductIds(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(productId);
-            return newSet;
-          });
-          setWishlistItems(prev => prev.filter(item => item.productId.toString() !== productId));
-          setMessage(`${product.name} removed from wishlist!`);
-          setTimeout(() => setMessage(null), 3000);
-        }
-      } catch (error) {
-        console.error("Error removing from wishlist:", error);
-        setMessage("Failed to remove from wishlist. Please try again.");
-      }
-      return;
-    }
-    
-    // Item not in wishlist, add it
-    try {
-      const result = await studentAPI.addToWishlist(productId);
-      setWishlistProductIds(prev => new Set(prev).add(productId));
-      // Add to local wishlist items with the returned item ID
-      setWishlistItems(prev => [...prev, { _id: result.itemId || productId, productId: product._id }]);
-      setMessage(`${product.name} added to wishlist!`);
-      setTimeout(() => setMessage(null), 3000);
-    } catch (error) {
-      console.error("Error adding to wishlist:", error);
-      setMessage("Failed to add to wishlist. Please try again.");
-    }
-  };
+
 
   const filteredProducts = products.filter(p => {
     const matchesCategory = selectedCategory === "all" || p.category.toLowerCase() === selectedCategory.toLowerCase();
@@ -126,14 +80,7 @@ const Shop = () => {
         </div>
 
         {message && (
-          <div style={{
-            padding: "1rem",
-            marginBottom: "1rem",
-            background: "#4f46e5",
-            color: "white",
-            borderRadius: "8px",
-            textAlign: "center",
-          }}>
+          <div className="shop-message">
             {message}
           </div>
         )}
@@ -202,23 +149,20 @@ const Shop = () => {
               <div key={product._id!.toString()} className="shop-product-card">
                 <div className="shop-product-image">{product.emoji}</div>
                 <h3 className="shop-product-name">{product.name}</h3>
-                <p className="shop-product-price">৳{product.price.toFixed(2)}</p>
-                <p className="shop-product-stock">Stock: {product.stock}</p>
-                <div className="shop-product-actions">
-                  <button 
-                    className="shop-add-cart-btn"
-                    onClick={() => handleAddToCart(product)}
-                    disabled={product.stock === 0}
-                  >
-                    Add to Cart
-                  </button>
-                  <button 
-                    className={`shop-wishlist-btn ${wishlistProductIds.has(product._id!.toString()) ? 'active' : ''}`}
-                    onClick={() => handleAddToWishlist(product)}
-                  >
-                    {wishlistProductIds.has(product._id!.toString()) ? '♥' : '♡'}
-                  </button>
+                {product.description && (
+                  <p className="shop-product-description">{product.description}</p>
+                )}
+                <div className="shop-product-details">
+                  <p className="shop-product-price">৳{product.price.toFixed(2)}</p>
+                  <p className="shop-product-stock">Stock: {product.stock}</p>
                 </div>
+                <button 
+                  className="shop-add-cart-btn"
+                  onClick={() => handleAddToCart(product)}
+                  disabled={product.stock === 0}
+                >
+                  {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                </button>
               </div>
             ))
           )}
