@@ -15,12 +15,24 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const { searchParams } = new URL(request.url);
+    const lowStockThreshold = searchParams.get('lowStock');
+
     const db = await getDatabase();
     const inventoryCollection = db.collection<Inventory>('inventory');
 
-    // Get all inventory items (admin/vendor manages all inventory)
+    // Build query based on filters
+    const query: any = {};
+    
+    // If lowStock parameter is provided, filter by low stock
+    if (lowStockThreshold) {
+      const threshold = parseInt(lowStockThreshold);
+      query.stock_quantity = { $lte: threshold };
+    }
+
+    // Get inventory items
     const products = await inventoryCollection
-      .find({})
+      .find(query)
       .sort({ createdAt: -1 })
       .toArray();
 
