@@ -3,12 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "set NODE_OPTIONS=--openssl-legacy-provider && next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "db:test": "tsx scripts/test-connection.ts",
-    "db:create-vendor": "tsx scripts/create-vendor.ts"
+    "db:test": "set NODE_OPTIONS=--openssl-legacy-provider && tsx scripts/test-connection.ts",
+    "db:create-vendor": "set NODE_OPTIONS=--openssl-legacy-provider && tsx scripts/create-vendor.ts"
   },
   "dependencies": {
     "@types/bcryptjs": "^2.4.6",
@@ -16,7 +16,7 @@
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.2.3",
     "jsonwebtoken": "^9.0.3",
-    "mongodb": "^7.0.0",
+    "mongodb": "^6.10.0",
     "next": "16.0.1",
     "react": "19.2.0",
     "react-dom": "19.2.0",

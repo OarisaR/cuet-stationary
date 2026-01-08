@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserFromRequest } from '@/lib/jwt';
 import { getDatabase } from '@/lib/mongodb';
-import type { Order, Inventory, InventoryAdjustment, OrderItem, Feedback, Payment } from '@/lib/models';
+import type { Order, Inventory, OrderItem, Feedback, Payment } from '@/lib/models';
 import { ObjectId } from 'mongodb';
 
 // GET - Get all orders (vendor/admin sees all orders)

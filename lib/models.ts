@@ -56,7 +56,7 @@ export interface Inventory {
   updatedAt: Date;
 }
 
-// Product type alias for frontend compatibility (maps to Inventory)
+// (maps to Inventory)
 export interface Product {
   _id?: ObjectId;
   name: string;

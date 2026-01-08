@@ -18,6 +18,14 @@ const options = {
     strict: true,
     deprecationErrors: true,
   },
+  connectTimeoutMS: 10000, // 10 seconds
+  socketTimeoutMS: 45000, // 45 seconds
+  serverSelectionTimeoutMS: 10000, // 10 seconds
+  retryWrites: true,
+  retryReads: true,
+  tls: true,
+  tlsAllowInvalidCertificates: false,
+  tlsAllowInvalidHostnames: false,
 };
 
 let client: MongoClient;

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserFromRequest } from '@/lib/jwt';
 import { getDatabase } from '@/lib/mongodb';
-import type { Inventory, InventoryAdjustment } from '@/lib/models';
+import type { Inventory } from '@/lib/models';
 import { ObjectId } from 'mongodb';
 
 // GET - Get single product
@@ -88,22 +88,6 @@ export async function PATCH(
         { success: false, message: 'Product not found' },
         { status: 404 }
       );
-    }
-
-    // If stock is being updated, log inventory adjustment
-    if (filteredUpdates.stock_quantity !== undefined && filteredUpdates.stock_quantity !== currentProduct.stock_quantity) {
-      const adjustmentCollection = db.collection<InventoryAdjustment>('inventoryAdjustments');
-      const adjustment: InventoryAdjustment = {
-        inventory_id: new ObjectId(id),
-        product_name: currentProduct.product_name,
-        admin_id: new ObjectId(user.userId),
-        previousStock: currentProduct.stock_quantity,
-        adjustment: filteredUpdates.stock_quantity - currentProduct.stock_quantity,
-        newStock: filteredUpdates.stock_quantity,
-        reason: 'Manual adjustment',
-        createdAt: new Date(),
-      };
-      await adjustmentCollection.insertOne(adjustment);
     }
 
     await inventoryCollection.updateOne(

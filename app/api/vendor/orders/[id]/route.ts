@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserFromRequest } from '@/lib/jwt';
 import { getDatabase } from '@/lib/mongodb';
-import type { Order, Inventory, InventoryAdjustment, Payment } from '@/lib/models';
+import type { Order, Inventory, Payment } from '@/lib/models';
 import { ObjectId } from 'mongodb';
 
 // PATCH - Update order status
@@ -33,7 +33,6 @@ export async function PATCH(
     const orderItemsCollection = db.collection('order_items');
     const paymentsCollection = db.collection<Payment>('payments');
     const inventoryCollection = db.collection<Inventory>('inventory');
-    const adjustmentsCollection = db.collection<InventoryAdjustment>('inventoryAdjustments');
 
     // Get current order (no vendorId filter - admins see all orders)
     const order = await ordersCollection.findOne({
@@ -67,19 +66,6 @@ export async function PATCH(
               $set: { stock_quantity: newStock, updatedAt: new Date() },
             }
           );
-
-          // Log inventory adjustment
-          const adjustment: InventoryAdjustment = {
-            inventory_id: item.inventory_id,
-            product_name: item.product_name,
-            admin_id: new ObjectId(user.userId),
-            previousStock: product.stock_quantity,
-            adjustment: -item.quantity,
-            newStock,
-            reason: `Order #${id.substring(0, 8)} accepted`,
-            createdAt: new Date(),
-          };
-          await adjustmentsCollection.insertOne(adjustment);
         }
       }
     }

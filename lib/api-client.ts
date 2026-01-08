@@ -5,7 +5,7 @@ import type { Product, Inventory } from './models';
 
 const API_BASE_URL = '/api';
 
-// Data transformation helpers
+
 // Backend uses new schema (product_name, stock_quantity, etc.) but frontend still expects old Product interface
 function transformInventoryToProduct(inventory: any): Product {
   return {
@@ -411,10 +411,6 @@ export const vendorAPI = {
   },
 
   // Inventory
-  async getInventoryHistory(limit: number = 50) {
-    return await apiFetch(`/vendor/inventory?limit=${limit}`);
-  },
-
   async updateProductStock(productId: string, adjustment: number, reason?: string) {
     return await apiFetch(`/vendor/inventory/adjust`, {
       method: 'POST',
