@@ -88,7 +88,7 @@ function transformOrder(order: any): any {
     notes: order.notes,
     orderedAt: order.ordered_at,
     deliveredAt: order.delivered_at,
-    createdAt: order.ordered_at, // Alias for compatibility
+    createdAt: order.ordered_at,
     updatedAt: order.updatedAt,
   };
 }
@@ -179,7 +179,7 @@ export const authAPI = {
   async signup(email: string, password: string, displayName?: string) {
     const data = await apiFetch('/auth/signup', {
       method: 'POST',
-      body: JSON.stringify({ email, password, name: displayName }), // Transform displayName -> name
+      body: JSON.stringify({ email, password, name: displayName }),
     });
     if (data.token) {
       setAuthToken(data.token);
