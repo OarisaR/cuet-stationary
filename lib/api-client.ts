@@ -1,5 +1,5 @@
 // API Client for Next.js Backend
-// This replaces the Firebase client-side calls
+
 
 import type { Product, Inventory } from './models';
 
