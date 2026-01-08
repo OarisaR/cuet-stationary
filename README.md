@@ -2,7 +2,7 @@
 
 A full-stack e-commerce platform for university stationary supplies built with Next.js 15, MongoDB, and TypeScript. The application supports two user roles: **Students** (customers) and **Admins** (vendors/sellers who manage the shared inventory).
 
-## 🚀 Tech Stack
+## Tech Stack
 
 - **Frontend**: Next.js 15 (App Router), React 19, TypeScript
 - **Backend**: Next.js API Routes (serverless functions)
@@ -14,31 +14,25 @@ A full-stack e-commerce platform for university stationary supplies built with N
 
 ---
 
-## ✨ Features
+## Features
 
 ### For Students
-- 🔐 **Authentication**: Secure signup/login with JWT
-- 🛍️ **Product Browsing**: Browse products with search and category filters
-- 🛒 **Shopping Cart**: Add/update/remove items from cart
-- 📦 **Order Management**: Place orders and track their status (pending → processing → shipped → delivered)
-- 📍 **Profile Management**: Update delivery address, phone number, student ID, and hall name
-- ⭐ **Feedback System**: Rate and review delivered products
-- 📋 **Order History**: View active and past orders with detailed item information
+- **Authentication**: Secure signup/login with JWT
+- **Product Browsing**: Browse products with search and category filters
+- **Shopping Cart**: Add/update/remove items from cart
+- **Order Management**: Place orders and track their status (pending → processing → shipped → delivered)
+- **Profile Management**: Update delivery address, phone number, student ID, and hall name
+- **Feedback System**: Rate and review delivered products
+- **Order History**: View active and past orders with detailed item information
 
 ### For Admins (Vendors)
-- 🔐 **Authentication**: Secure admin login
-- 📊 **Dashboard**: Real-time statistics (total revenue, orders, pending orders, low stock items)
-- 📦 **Inventory Management**: Add, edit, delete, and restock products
-- 🎯 **Order Processing**: View all orders, update order status, see customer feedback
-- 📈 **Sales Tracking**: Track total sales from completed orders
-- ⚠️ **Low Stock Alerts**: Quick access to products needing restocking
-- 🔄 **Stock Adjustments**: Log all inventory changes with reasons
-
-### Shared Features
-- 🎨 **Vintage Theme**: Consistent vintage stationary aesthetic across all pages
-- 📱 **Responsive Design**: Works seamlessly on desktop and mobile devices
-- 🔔 **Real-time Updates**: Automatic refresh of data when navigating between pages
-- 🚫 **Error Handling**: User-friendly error messages and validation
+- **Authentication**: Secure admin login
+- **Dashboard**: Real-time statistics (total revenue, orders, pending orders, low stock items)
+- **Inventory Management**: Add, edit, delete, and restock products
+- **Order Processing**: View all orders, update order status, see customer feedback
+- **Sales Tracking**: Track total sales from completed orders
+- **Low Stock Alerts**: Quick access to products needing restocking
+- **Stock Adjustments**: Log all inventory changes with reasons
 
 ---
 
@@ -283,35 +277,8 @@ cuet-stationary-app/
 
 ---
 
-## 📁 Project Structure
 
-```
-cuet-stationary-app/
-│
-├── app/                          # Next.js App Router (v13+)
-│   ├── api/                      # API Routes (Backend)
-│   │   ├── auth/                 # Authentication endpoints
-│   │   │   ├── login/           # POST /api/auth/login
-│   │   │   ├── signup/          # POST /api/auth/signup
-│   │   │   └── me/              # GET /api/auth/me
-│   │   ├── student/             # Student API endpoints (10 routes)
-│   │   │   ├── cart/            # Cart operations (GET, POST, PUT, DELETE)
-│   │   │   ├── checkout/        # POST checkout order
-
-5. **Run the development server**
-   ```bash
-   npm run dev
-   ```
-
-6. **Access the application**
-   - Open [http://localhost:3000](http://localhost:3000) in your browser
-   - Landing page with signup/login options
-   - Student portal: `/student/dashboard`
-   - Admin portal: `/vendor/dashboard`
-
----
-
-## 🔑 API Endpoints
+## API Endpoints
 
 ### Authentication
 - `POST /api/auth/signup` - Register new user (student or admin)
