@@ -6,6 +6,7 @@ import type { CartItem } from "@/lib/models";
 import "./Cart.css";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { IoClose } from "react-icons/io5";
+import { generateAIRecommendations } from "@/lib/aiRecommendations";
 
 const Cart = () => {
   const router = useRouter();
@@ -18,6 +19,10 @@ const Cart = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'bkash'>('cash');
   const [transactionId, setTransactionId] = useState('');
+  
+  // AI Recommendations State
+  const [aiRecommendations, setAiRecommendations] = useState<any[]>([]);
+  const [loadingRecommendations, setLoadingRecommendations] = useState(false);
 
   useEffect(() => {
     const initCart = async () => {
@@ -48,6 +53,52 @@ const Cart = () => {
 
     initCart();
   }, [router]);
+
+  // Generate AI recommendations when cart changes
+  useEffect(() => {
+    if (cartItems.length > 0) {
+      fetchAIRecommendations();
+    } else {
+      setAiRecommendations([]);
+    }
+  }, [cartItems]);
+
+  const fetchAIRecommendations = async () => {
+    setLoadingRecommendations(true);
+    try {
+      const lastItem = cartItems[cartItems.length - 1];
+      const recommendations = await generateAIRecommendations(
+        lastItem.productName,
+        "Stationery",
+        lastItem.productPrice || lastItem.product_price || 0,
+        []
+      );
+      
+      setAiRecommendations(recommendations);
+    } catch (error) {
+      console.error("Error fetching recommendations:", error);
+      setAiRecommendations([]);
+    } finally {
+      setLoadingRecommendations(false);
+    }
+  };
+
+  // NEW FUNCTION: Add recommended item to cart
+  const addRecommendationToCart = async (productId: string, productName: string) => {
+    try {
+      await studentAPI.addToCart(productId, 1);
+      setMessage(`✓ ${productName} added to cart!`);
+      
+      // Refresh cart
+      const cart = await studentAPI.getCart();
+      setCartItems(cart || []);
+      
+      setTimeout(() => setMessage(null), 2000);
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      setMessage("Failed to add item. Please try again.");
+    }
+  };
 
   const updateQuantity = async (cartItemId: string, newQuantity: number) => {
     try {
@@ -85,7 +136,6 @@ const Cart = () => {
     if (!studentId || !studentInfo) return;
     
     try {
-      // Check if student has a delivery address
       const profile = await studentAPI.getProfile();
       if (!profile || !profile.deliveryAddress) {
         setMessage("⚠️ Please add a delivery address in your profile before placing an order.");
@@ -95,7 +145,6 @@ const Cart = () => {
         return;
       }
 
-      // Show payment modal
       setShowPaymentModal(true);
     } catch (error) {
       console.error("Error checking profile:", error);
@@ -148,7 +197,6 @@ const Cart = () => {
     <div className="cart-page">
       <div className="cart-container">
         
-        {/* Page Header */}
         <div className="cart-header">
           <h1 className="cart-title">Shopping Cart</h1>
           <p className="cart-subtitle">{cartItems.length} items in your cart</p>
@@ -171,7 +219,6 @@ const Cart = () => {
         ) : (
           <>
             <div className="cart-content">
-              {/* Cart Items */}
               <div className="cart-items">
                 {cartItems.map(item => (
                   <div key={item._id?.toString() || (item.productId || item.inventory_id)?.toString()} className="cart-item">
@@ -195,7 +242,6 @@ const Cart = () => {
                 ))}
               </div>
 
-              {/* Order Summary */}
               <div className="cart-summary">
                 <h2 className="summary-title">Order Summary</h2>
                 
@@ -228,50 +274,98 @@ const Cart = () => {
                   Continue Shopping
                 </button>
               </div>
-
             </div>
 
-            {/* Frequently Bought Together */}
-            <div className="frequently-bought-section">
-              <h2 className="frequently-bought-title">Frequently Bought Together</h2>
-              <div className="frequently-bought-grid">
-                <div className="frequently-bought-card">
-                  <div className="frequently-bought-emoji">✏️</div>
-                  <h3 className="frequently-bought-name">Premium Pen Set</h3>
-                  <p className="frequently-bought-price">৳4.99</p>
-                  <button className="frequently-bought-btn" onClick={() => router.push("/student/shop")}>
-                    Add to Cart
-                  </button>
-                </div>
+            {/* AI-Powered Recommendations - UPDATED SECTION */}
+            {cartItems.length > 0 && (
+              <div className="frequently-bought-section">
+                <h2 className="frequently-bought-title">
+                  🤖 AI Recommendations for You
+                </h2>
+                <p style={{ 
+                  textAlign: 'center', 
+                  color: '#6b7c8f', 
+                  fontSize: '0.9rem', 
+                  marginBottom: '1.5rem',
+                  fontFamily: 'Poppins, sans-serif'
+                }}>
+                  Based on your cart, students also need these items from our inventory
+                </p>
                 
-                <div className="frequently-bought-card">
-                  <div className="frequently-bought-emoji">📓</div>
-                  <h3 className="frequently-bought-name">Spiral Notebook</h3>
-                  <p className="frequently-bought-price">৳3.49</p>
-                  <button className="frequently-bought-btn" onClick={() => router.push("/student/shop")}>
-                    Add to Cart
-                  </button>
-                </div>
-                
-                <div className="frequently-bought-card">
-                  <div className="frequently-bought-emoji">📏</div>
-                  <h3 className="frequently-bought-name">Ruler Set</h3>
-                  <p className="frequently-bought-price">৳2.99</p>
-                  <button className="frequently-bought-btn" onClick={() => router.push("/student/shop")}>
-                    Add to Cart
-                  </button>
-                </div>
-                
-                <div className="frequently-bought-card">
-                  <div className="frequently-bought-emoji">🖍️</div>
-                  <h3 className="frequently-bought-name">Highlighter Pack</h3>
-                  <p className="frequently-bought-price">৳5.49</p>
-                  <button className="frequently-bought-btn" onClick={() => router.push("/student/shop")}>
-                    Add to Cart
-                  </button>
-                </div>
+                {loadingRecommendations ? (
+                  <div style={{ 
+                    textAlign: 'center', 
+                    padding: '2rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '1rem'
+                  }}>
+                    <AiOutlineLoading3Quarters style={{ 
+                      fontSize: '2rem', 
+                      animation: 'spin 1s linear infinite',
+                      color: 'rgb(217, 125, 85)'
+                    }} />
+                    <p style={{ color: '#6b7c8f', margin: 0 }}>
+                      Finding perfect matches from our inventory...
+                    </p>
+                  </div>
+                ) : aiRecommendations.length === 0 ? (
+                  <div style={{ 
+                    textAlign: 'center', 
+                    padding: '2rem',
+                    color: '#6b7c8f'
+                  }}>
+                    <p>No recommendations available at the moment.</p>
+                  </div>
+                ) : (
+                  <div className="frequently-bought-grid">
+                    {aiRecommendations.map((rec) => (
+                      <div key={rec._id} className="frequently-bought-card">
+                        <div className="frequently-bought-emoji">
+                          {rec.emoji}
+                        </div>
+                        <h3 className="frequently-bought-name">{rec.name}</h3>
+                        <p className="frequently-bought-price">৳{rec.price.toFixed(2)}</p>
+                        <p style={{
+                          fontSize: '0.75rem',
+                          color: '#6b7c8f',
+                          margin: '0.5rem 0',
+                          fontStyle: 'italic',
+                          minHeight: '2.5rem',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          textAlign: 'center',
+                          padding: '0 0.5rem'
+                        }}>
+                          {rec.reason}
+                        </p>
+                        <p style={{
+                          fontSize: '0.7rem',
+                          color: rec.stock > 0 ? '#10b981' : '#ef4444',
+                          margin: '0.25rem 0',
+                          fontWeight: '500'
+                        }}>
+                          {rec.stock > 0 ? `In Stock (${rec.stock})` : 'Out of Stock'}
+                        </p>
+                        <button 
+                          className="frequently-bought-btn" 
+                          onClick={() => addRecommendationToCart(rec._id, rec.name)}
+                          disabled={rec.stock === 0}
+                          style={{
+                            opacity: rec.stock === 0 ? 0.5 : 1,
+                            cursor: rec.stock === 0 ? 'not-allowed' : 'pointer'
+                          }}
+                        >
+                          {rec.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-            </div>
+            )}
           </>
         )}
 
