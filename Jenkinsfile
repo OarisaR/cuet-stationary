@@ -1,11 +1,6 @@
 pipeline {
     agent any
     
-    environment {
-        NODE_ENV = 'test'
-        MONGODB_URI = credentials('mongodb-uri')
-        JWT_SECRET = credentials('jwt-secret')
-    }
     
     stages {
         stage('Checkout') {
