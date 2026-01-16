@@ -18,7 +18,7 @@ pipeline {
                 script {
                     echo '📦 Installing dependencies...'
                     bat 'npm install'
-                    bat 'npm list | findstr jest'
+                    
                 }
             }
         }
