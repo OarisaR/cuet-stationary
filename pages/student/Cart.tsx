@@ -67,9 +67,15 @@ const Cart = () => {
     setLoadingRecommendations(true);
     try {
       const lastItem = cartItems[cartItems.length - 1];
+      const lastProductName =
+        lastItem?.productName || lastItem?.product_name || '';
+
+      // If we don’t have a product name, skip recommendations to avoid build-time error
+      if (!lastProductName) return;
       const recommendations = await generateAIRecommendations(
-        lastItem.productName,
+        lastItem.productName || lastItem.product_name || "",
         "Stationery",
+        
         lastItem.productPrice || lastItem.product_price || 0,
         []
       );
@@ -77,6 +83,7 @@ const Cart = () => {
       setAiRecommendations(recommendations);
     } catch (error) {
       console.error("Error fetching recommendations:", error);
+      // Fallback is already handled in generateAIRecommendations
       setAiRecommendations([]);
     } finally {
       setLoadingRecommendations(false);
@@ -280,7 +287,7 @@ const Cart = () => {
             {cartItems.length > 0 && (
               <div className="frequently-bought-section">
                 <h2 className="frequently-bought-title">
-                  🤖 AI Recommendations for You
+                  🤖 Recommendations for You
                 </h2>
                 <p style={{ 
                   textAlign: 'center', 
