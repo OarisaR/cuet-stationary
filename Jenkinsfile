@@ -50,11 +50,16 @@ pipeline {
             }
         }
         
-        stage('Build Application') {
+                stage('Build Application') {
             steps {
                 script {
                     echo '🏗️ Building Next.js app...'
-                    bat 'npm run build'
+                    withCredentials([
+                        string(credentialsId: 'mongodb-uri', variable: 'MONGODB_URI'),
+                        string(credentialsId: 'jwt-secret',  variable: 'JWT_SECRET')
+                    ]) {
+                        bat 'npm run build'
+                    }
                     bat 'dir .next'
                 }
             }
