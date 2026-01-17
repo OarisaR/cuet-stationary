@@ -12,8 +12,6 @@ A full-stack e-commerce platform for university stationary supplies built with N
 - **Type Safety**: Full TypeScript implementation
 - **Icons**: React Icons
 
----
-
 ## Features
 
 ### For Students
@@ -528,7 +526,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 📧 Contact
 
-For questions or support, please contact: [your-email@example.com]
+For questions or support, please contact: dipannitapaulorni@gmail.com and orebayet@gmail.com
 
 ---
 
