@@ -116,6 +116,7 @@ CRITICAL: Use ONLY product numbers (1-${availableProducts.length}) from the list
           "Content-Type": "application/json",
           Authorization: `Bearer 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`,
         },
+        timeout: 10000,
       }
     );
 
@@ -149,7 +150,12 @@ CRITICAL: Use ONLY product numbers (1-${availableProducts.length}) from the list
     return recommendations;
 
   } catch (err) {
-    console.error("AI recommendation failed:", err);
+    // Check if it's a rate limit error
+    if (axios.isAxiosError(err) && err.response?.status === 429) {
+      console.warn("Groq API rate limit reached. Using fallback recommendations.");
+    } else {
+      console.error("AI recommendation failed:", err);
+    }
     
     // FALLBACK: Return smart random products from database (excluding cart items)
     try {
