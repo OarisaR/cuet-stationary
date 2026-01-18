@@ -6,7 +6,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
-                    echo '📥 Pulling latest code...'
+                    echo 'Pulling latest code...'
                     checkout scm
                     sh 'git log -1 --oneline'
                 }
@@ -16,7 +16,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
-                    echo '📦 Installing dependencies...'
+                    echo 'Installing dependencies...'
                     bat 'npm install'
                     
                 }
@@ -26,7 +26,7 @@ pipeline {
         stage('Lint Code') {
             steps {
                 script {
-                    echo '🔍 Linting code...'
+                    echo 'Linting code...'
                     bat 'npm run lint 2>&1 || exit 0'
                 }
             }
@@ -35,7 +35,7 @@ pipeline {
         stage('Run Unit Tests') {
             steps {
                 script {
-                    echo '🧪 Running automated tests...'
+                    echo 'Running automated tests...'
                     bat 'npm test -- --coverage --passWithNoTests'
                 }
             }
@@ -44,16 +44,16 @@ pipeline {
         stage('Test Results') {
             steps {
                 script {
-                    echo '📊 Test execution completed'
+                    echo 'Test execution completed'
                     bat 'dir /s /b *.test.ts'
                 }
             }
         }
         
-                stage('Build Application') {
+            stage('Build Application') {
             steps {
                 script {
-                    echo '🏗️ Building Next.js app...'
+                    echo 'Building Next.js app...'
                     withCredentials([
                         string(credentialsId: 'mongodb-uri', variable: 'MONGODB_URI'),
                         string(credentialsId: 'jwt-secret',  variable: 'JWT_SECRET')
@@ -65,14 +65,6 @@ pipeline {
             }
         }
         
-        stage('Generate Reports') {
-            steps {
-                script {
-                    echo '📈 Generating reports...'
-                    bat 'if exist coverage (echo Coverage report exists) else (echo No coverage data)'
-                }
-            }
-        }
     }
     
     post {

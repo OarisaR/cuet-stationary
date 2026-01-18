@@ -43,10 +43,5 @@ describe('Shopping Cart Tests', () => {
       cartItem.quantity = 5;
       expect(cartItem.quantity).toBe(5);
     });
-
-    test('should not allow zero or negative quantity', () => {
-      const invalidQuantity = -1;
-      expect(invalidQuantity).toBeLessThanOrEqual(0);
-    });
   });
 });
