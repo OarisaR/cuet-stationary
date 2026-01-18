@@ -4,7 +4,7 @@ A full-stack e-commerce platform for university stationary supplies built with N
 
 ## 📊 Project Management
 
-This project is managed using **Jira** with Kanban methodology.
+The project CUET Stationary App is managed using **Jira** with Kanban methodology.
 
 **🔗 Jira Board**: [View our Kanban Board](https://dipannitapaulorni.atlassian.net/jira/software/projects/CCS/boards/1)
 
